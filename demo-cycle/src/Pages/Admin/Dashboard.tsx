@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   User,
   Bike,
   Edit,
   Trash2,
-  Search,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
+  Search, ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 // Interfaces

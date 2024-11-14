@@ -8,8 +8,7 @@ import {
   Presentation,
   ShoppingCart,
   Plus,
-  Minus,
-  Sparkles,
+  Minus
 } from "lucide-react";
 // import { Alert, AlertDescription } from "@/components/ui/alert";
 
