@@ -1,7 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Plus, Minus, Bike, AlertCircle } from "lucide-react";
 import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
-
 const CycleForm: React.FC = () => {
   const VALID_CATEGORIES = ["accessories", "ranger-cycles", "kids-cycles"];
 
@@ -165,6 +164,38 @@ const CycleForm: React.FC = () => {
       // Handle form submission here
     }
   };
+
+  //FIXME
+  // function getGoogleDriveImageUrl(url: any): string {
+  //   // Regular expressions to match different Google Drive URL formats
+  //   const patterns = {
+  //     view: /\/view(?:\?|$)/,
+  //     open: /\/open\?id=([a-zA-Z0-9_-]+)/,
+  //     fileId: /\/d\/([a-zA-Z0-9_-]+)/,
+  //     sharing: /\/file\/d\/([a-zA-Z0-9_-]+)/,
+  //   };
+
+  //   try {
+  //     let fileId = null;
+
+  //     // Extract file ID based on URL pattern
+  //     if (patterns.open.test(url)) {
+  //       fileId = url.match(patterns.open)[1];
+  //     } else if (patterns.fileId.test(url)) {
+  //       fileId = url.match(patterns.fileId)[1];
+  //     } else if (patterns.sharing.test(url)) {
+  //       fileId = url.match(patterns.sharing)[1];
+  //     }
+
+  //     // If file ID is found, construct direct image URL
+  //     if (fileId) {
+  //       return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  //     }
+  //   } catch (error) {
+  //     return "Error processing URL";
+  //   }
+  //   return "";
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center">
