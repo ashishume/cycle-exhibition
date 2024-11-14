@@ -1,15 +1,13 @@
-import React from "react";
-import BikePresentation from "./Pages/Presentation";
-import CycleForm from "./Pages/CycleForm";
-import CustomerForm from "./Pages/CustomerForm";
-import CyclesList from "./Pages/Dashboard";
+import RoutesComponent from "./Routes";
 
 const App = () => {
   return (
     <>
       {/* <CycleForm/> */}
       {/* <CustomerForm /> */}
-      <CyclesList />
+      {/* <CyclesList /> */}
+
+      <RoutesComponent />
       {/* <BikePresentation /> */}
     </>
   );
