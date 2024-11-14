@@ -37,6 +37,7 @@ const CycleForm: React.FC = () => {
       },
     ],
     bundleSize: 1,
+    tyreTypeLabel: "tubeless",
   };
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
@@ -140,6 +141,7 @@ const CycleForm: React.FC = () => {
       category: formData.category,
       variants: formData.variants,
       bundleSize: Number(formData.bundleSize),
+      tyreTypeLabel: formData.tyreTypeLabel,
     };
   };
 
@@ -426,6 +428,35 @@ const CycleForm: React.FC = () => {
               placeholder="Enter product description"
             />
           </div>
+
+          {/* Tyre label */}
+          {/* <div className="space-y-2">
+            <label className="block text-white/90 font-medium">
+              Which tyre label you want to show *
+            </label>
+            <div className="flex gap-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tyre-type"
+                  value={formData.tyreTypeLabel}
+                  onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                  className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
+                />
+                <span className="text-white/90">Tubeless/Tube tyre</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="tyre-type"
+                  value={formData.tyreTypeLabel}
+                  onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                  className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
+                />
+                <span className="text-white/90">Branded/Non-branded tyres</span>
+              </div>
+            </div>
+          </div> */}
 
           {/* Submit Button */}
           <button

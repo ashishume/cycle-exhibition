@@ -9,6 +9,7 @@ export interface IFormData {
     size: 12 | 14 | 16 | 20 | 24 | 26;
   }[];
   bundleSize: number;
+  tyreTypeLabel: "tubeless" | "branded"; //fixme
 }
 
 export interface IFormErrors {
