@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { Bike, Package, DollarSign, Info, X } from "lucide-react";
+import {
+  Bike,
+  Package,
+  DollarSign,
+  Info,
+  X,
+  Presentation,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Sparkles,
+} from "lucide-react";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Interfaces
 interface ICycle {
@@ -10,10 +22,17 @@ interface ICycle {
   subtitle?: string;
   costPerCycle: number;
   bundleSize: number;
+  stock: number;
 }
 
 interface ICycleCardProps {
   cycle: ICycle;
+  onAddToCart: (cycleId: string, quantity: number) => void;
+}
+
+interface ICartItem {
+  cycleId: string;
+  quantity: number;
 }
 
 // Sample data
@@ -21,15 +40,16 @@ const sampleCycles: ICycle[] = [
   {
     id: "1",
     brand: "Mountain Explorer X1",
+    imageLinks: [
+      "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    ],
     description:
       "Premium mountain bike with advanced suspension system and all-terrain capabilities.",
     subtitle: "All-terrain performance",
     costPerCycle: 299.99,
     bundleSize: 5,
-    imageLinks: [
-      "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
+    stock: 20,
   },
   {
     id: "2",
@@ -44,6 +64,7 @@ const sampleCycles: ICycle[] = [
     subtitle: "Urban comfort",
     costPerCycle: 199.99,
     bundleSize: 3,
+    stock: 15,
   },
   {
     id: "3",
@@ -56,17 +77,36 @@ const sampleCycles: ICycle[] = [
     subtitle: "Racing performance",
     costPerCycle: 399.99,
     bundleSize: 4,
+    stock: 10,
   },
 ];
 
-const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
+const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [showPresentation, setShowPresentation] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(cycle.bundleSize);
+  const [showAddedAlert, setShowAddedAlert] = useState(false);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
       prev === cycle.imageLinks.length - 1 ? 0 : prev + 1
     );
+  };
+
+  const handleQuantityChange = (increment: boolean) => {
+    setQuantity((prev) => {
+      const newValue = increment
+        ? prev + cycle.bundleSize
+        : prev - cycle.bundleSize;
+      return Math.max(cycle.bundleSize, Math.min(newValue, cycle.stock));
+    });
+  };
+
+  const handleAddToCart = () => {
+    onAddToCart(cycle.id, quantity);
+    setShowAddedAlert(true);
+    setTimeout(() => setShowAddedAlert(false), 2000);
   };
 
   return (
@@ -105,7 +145,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-white">
               <Package className="w-4 h-4" />
-              <span>Min Bundle: {cycle.bundleSize}</span>
+              <span>Bundle: {cycle.bundleSize}</span>
             </div>
             <div className="flex items-center gap-2 text-white">
               <DollarSign className="w-4 h-4" />
@@ -113,18 +153,73 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
             </div>
           </div>
 
-          {/* Details Button */}
+          {/* Quantity Controls */}
+          <div className="flex items-center justify-between p-2 bg-white/5 rounded-xl">
+            <button
+              onClick={() => handleQuantityChange(false)}
+              disabled={quantity <= cycle.bundleSize}
+              className="p-1 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Minus className="w-4 h-4 text-white" />
+            </button>
+            <span className="text-white font-medium">{quantity} cycles</span>
+            <button
+              onClick={() => handleQuantityChange(true)}
+              disabled={quantity >= cycle.stock}
+              className="p-1 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Plus className="w-4 h-4 text-white" />
+            </button>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setShowDetails(true)}
+              className="py-2 px-4 bg-gradient-to-r from-purple-500/80 to-indigo-500/80
+                       hover:from-purple-500 hover:to-indigo-500
+                       rounded-xl text-white font-medium
+                       transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Info className="w-4 h-4" />
+              Details
+            </button>
+            <button
+              onClick={() => setShowPresentation(true)}
+              className="py-2 px-4 bg-gradient-to-r from-emerald-500/80 to-teal-500/80
+                       hover:from-emerald-500 hover:to-teal-500
+                       rounded-xl text-white font-medium
+                       transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Presentation className="w-4 h-4" />
+              Showcase
+            </button>
+          </div>
+
+          {/* Add to Cart Button */}
           <button
-            onClick={() => setShowDetails(true)}
-            className="w-full py-2 px-4 bg-gradient-to-r from-purple-500/80 to-indigo-500/80
-                     hover:from-purple-500 hover:to-indigo-500
+            onClick={handleAddToCart}
+            className="w-full py-2 px-4 bg-gradient-to-r from-amber-500/80 to-orange-500/80
+                     hover:from-amber-500 hover:to-orange-500
                      rounded-xl text-white font-medium
                      transition-all duration-300 flex items-center justify-center gap-2"
           >
-            <Info className="w-4 h-4" />
-            View Details
+            <ShoppingCart className="w-4 h-4" />
+            Add to Cart • ₹{(quantity * cycle.costPerCycle).toFixed(2)}
           </button>
         </div>
+
+        {/* Added to Cart Alert */}
+        {showAddedAlert && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top duration-300">
+            {/* <Alert className="bg-emerald-500/90 text-white border-none"> */}
+            {/* <Sparkles className="h-4 w-4" /> */}
+            {/* <AlertDescription> */}
+            {/* Added {quantity} cycles to cart! */}
+            {/* </AlertDescription> */}
+            {/* </Alert> */}
+          </div>
+        )}
       </div>
 
       {/* Details Modal */}
@@ -178,22 +273,93 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
           </div>
         </div>
       )}
+
+      {/* Presentation Modal */}
+      {showPresentation && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="w-full h-full p-8 animate-in zoom-in duration-500">
+            <button
+              onClick={() => setShowPresentation(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+
+            <div className="h-full flex flex-col items-center justify-center gap-8">
+              <img
+                src={cycle.imageLinks[currentImageIndex]}
+                alt={cycle.brand}
+                className="max-h-[60vh] object-contain rounded-2xl shadow-2xl"
+              />
+
+              <div className="text-center space-y-4">
+                <h2 className="text-4xl font-bold text-white">{cycle.brand}</h2>
+                {cycle.subtitle && (
+                  <p className="text-xl text-white/70">{cycle.subtitle}</p>
+                )}
+                <div className="flex items-center justify-center gap-6 text-white">
+                  <div className="flex items-center gap-2">
+                    <Package className="w-6 h-6" />
+                    <span className="text-lg">
+                      Bundle of {cycle.bundleSize}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-6 h-6" />
+                    <span className="text-lg">₹{cycle.costPerCycle}/cycle</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const CyclesList: React.FC = () => {
+  const [cartItems, setCartItems] = useState<ICartItem[]>([]);
+
+  const handleAddToCart = (cycleId: string, quantity: number) => {
+    setCartItems((prev) => {
+      const existingItem = prev.find((item) => item.cycleId === cycleId);
+      if (existingItem) {
+        return prev.map((item) =>
+          item.cycleId === cycleId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+      return [...prev, { cycleId, quantity }];
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center gap-3">
-          <Bike className="w-8 h-8 text-white" />
-          <h1 className="text-3xl font-bold text-white">Available Cycles</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Bike className="w-8 h-8 text-white" />
+            <h1 className="text-3xl font-bold text-white">Available Cycles</h1>
+          </div>
+          <div className="relative">
+            <ShoppingCart className="w-6 h-6 text-white" />
+            {cartItems.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-amber-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">
+                {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sampleCycles.map((cycle) => (
-            <CycleCard key={cycle.id} cycle={cycle} />
+            <CycleCard
+              key={cycle.id}
+              cycle={cycle}
+              onAddToCart={handleAddToCart}
+            />
           ))}
         </div>
       </div>
