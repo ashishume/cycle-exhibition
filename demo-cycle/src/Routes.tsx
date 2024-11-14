@@ -7,6 +7,7 @@ import CustomerForm from "./Pages/CustomerForm";
 import CycleForm from "./Pages/CycleForm";
 import BikePresentation from "./Pages/Presentation";
 import CartPage from "./Pages/Cart";
+import AdminPanel from "./Pages/Admin/Dashboard";
 
 // Import your page components
 
@@ -21,6 +22,7 @@ const RoutesComponent: React.FC = () => {
         <Route path="/cycle-form" element={<CycleForm />} />
         <Route path="/presentation" element={<BikePresentation />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/admin/" element={<AdminPanel />} />
 
         {/* Catch-all route for 404 */}
         <Route path="*" element={<div>Page not found</div>} />
