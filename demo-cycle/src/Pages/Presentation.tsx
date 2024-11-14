@@ -7,7 +7,8 @@ import {
   ShoppingCart,
   Plus,
   Minus,
-  Info
+  Info,
+  Package
 } from "lucide-react";
 
 export const BIKE_DATA = [
@@ -15,31 +16,34 @@ export const BIKE_DATA = [
     brand: "Mountain Bikes",
     subtitle: "For Adventure Seekers",
     description: "Rugged and durable bikes perfect for off-road trails and mountain adventures. Features premium suspension and all-terrain tires.",
-    price: 1299.99,
-    variants: [
+    costPerCycle: 1299.99,
+    bundleSize: 5,
+    imageLinks: [
       "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
     ],
-    color: "from-green-600 to-emerald-800",
+    color: "from-purple-600 to-violet-800",
   },
   {
     brand: "Road Bikes",
     subtitle: "Speed Redefined",
     description: "Lightweight and aerodynamic bikes designed for speed and efficiency on paved roads. Perfect for racing and long-distance rides.",
-    price: 1499.99,
-    variants: [
+    costPerCycle: 1499.99,
+    bundleSize: 6,
+    imageLinks: [
       "https://images.pexels.com/photos/1174103/pexels-photo-1174103.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/161172/cycling-bike-trail-sport-161172.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/114675/pexels-photo-114675.jpeg?auto=compress&cs=tinysrgb&w=800",
     ],
-    color: "from-blue-600 to-indigo-800",
+    color: "from-purple-600 to-violet-800",
   },
   {
     brand: "Electric Bikes",
     subtitle: "Future of Mobility",
     description: "Electric-assisted bikes combining convenience with eco-friendly transportation. Features long-lasting battery and smart controls.",
-    price: 2499.99,
-    variants: [
+    costPerCycle: 2499.99,
+    bundleSize: 7,
+    imageLinks: [
       "https://images.pexels.com/photos/369264/pexels-photo-369264.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -67,11 +71,15 @@ const BikePresentation = () => {
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);
   const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const [bundleQuantity, setBundleQuantity] = useState(1);
   const [showDescription, setShowDescription] = useState(false);
   const [cartItems, setCartItems] = useState<any[]>([]);
 
   const currentBike = BIKE_DATA[currentBrandIndex];
+
+  // Calculate total cycles and cost
+  const totalCycles = bundleQuantity * currentBike.bundleSize;
+  const totalCost = bundleQuantity * currentBike.bundleSize * currentBike.costPerCycle;
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
@@ -81,14 +89,14 @@ const BikePresentation = () => {
         case "ArrowRight":
           setIsTransitioning(true);
           setCurrentVariantIndex(
-            (prev) => (prev + 1) % currentBike.variants.length
+            (prev) => (prev + 1) % currentBike.imageLinks.length
           );
           break;
         case "ArrowLeft":
           setIsTransitioning(true);
           setCurrentVariantIndex((prev) =>
             prev === 0
-              ? currentBike.variants.length - 1
+              ? currentBike.imageLinks.length - 1
               : prev - 1
           );
           break;
@@ -111,7 +119,7 @@ const BikePresentation = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentBrandIndex, isTransitioning, currentBike.variants.length]);
+  }, [currentBrandIndex, isTransitioning, currentBike.imageLinks.length]);
 
   const handleTransitionEnd = () => {
     setIsTransitioning(false);
@@ -121,12 +129,14 @@ const BikePresentation = () => {
     const newItem = {
       brand: currentBike.brand,
       variant: currentVariantIndex + 1,
-      quantity,
-      price: currentBike.price,
-      total: currentBike.price * quantity
+      bundleQuantity,
+      totalCycles,
+      costPerCycle: currentBike.costPerCycle,
+      bundleSize: currentBike.bundleSize,
+      total: totalCost
     };
     setCartItems([...cartItems, newItem]);
-    setQuantity(1);
+    setBundleQuantity(1);
   };
 
   return (
@@ -167,24 +177,42 @@ const BikePresentation = () => {
           <h1 className="text-white text-6xl font-bold tracking-tight mb-2">
             {currentBike.brand}
           </h1>
-          <p className="text-white/80 text-xl font-light">
+          <p className="text-white/80 text-xl font-light mb-4">
             {currentBike.subtitle}
           </p>
-          <div className="mt-4 text-white text-2xl font-bold">
-            ${currentBike.price.toFixed(2)}
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-white/80 text-lg">
+              <Package className="inline-block mr-2 mb-1" size={20} />
+              Bundle of {currentBike.bundleSize} cycles
+            </div>
+            <div className="text-white text-2xl font-bold">
+              ${currentBike.costPerCycle.toFixed(2)} per cycle
+            </div>
           </div>
         </div>
 
         {/* Image Container */}
         <div className="relative w-full h-full flex items-center justify-center">
           <img
-            src={currentBike.variants[currentVariantIndex]}
+            src={currentBike.imageLinks[currentVariantIndex]}
             alt={`${currentBike.brand} variant ${currentVariantIndex + 1}`}
             className={`max-w-full max-h-full object-contain transition-all duration-500 ease-out ${
               isTransitioning ? "scale-95 opacity-0" : "scale-100 opacity-100"
             }`}
             onTransitionEnd={handleTransitionEnd}
           />
+        </div>
+
+        {/* Bundle Calculator */}
+        <div className="absolute bottom-48 left-0 right-0 text-center">
+          <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-4">
+            <div className="text-white mb-2">
+              {bundleQuantity} bundles = {totalCycles} cycles
+            </div>
+            <div className="text-white font-bold text-xl">
+              Total: ${totalCost.toFixed(2)}
+            </div>
+          </div>
         </div>
 
         {/* Description Modal */}
@@ -209,7 +237,7 @@ const BikePresentation = () => {
         <div className="absolute bottom-8 left-0 right-0 px-8">
           {/* Progress Indicator */}
           <div className="flex justify-center mb-8">
-            {currentBike.variants.map((_, index) => (
+            {currentBike.imageLinks.map((_, index) => (
               <div
                 key={index}
                 className={`w-16 h-1 mx-1 rounded-full transition-all duration-300 ${
@@ -223,7 +251,7 @@ const BikePresentation = () => {
           <div className="flex flex-wrap justify-center gap-4 text-white/90">
             {/* Navigation Buttons */}
             <GlassButton onClick={() => setCurrentVariantIndex((prev) => 
-              prev === 0 ? currentBike.variants.length - 1 : prev - 1
+              prev === 0 ? currentBike.imageLinks.length - 1 : prev - 1
             )}>
               <ChevronLeft size={24} className="animate-pulse" />
               <span className="text-sm font-medium uppercase tracking-wider">
@@ -232,7 +260,7 @@ const BikePresentation = () => {
             </GlassButton>
             
             <GlassButton onClick={() => setCurrentVariantIndex((prev) => 
-              (prev + 1) % currentBike.variants.length
+              (prev + 1) % currentBike.imageLinks.length
             )}>
               <ChevronRight size={24} className="animate-pulse" />
               <span className="text-sm font-medium uppercase tracking-wider">
@@ -248,18 +276,20 @@ const BikePresentation = () => {
               </span>
             </GlassButton>
 
-            {/* Quantity Controls */}
+            {/* Bundle Quantity Controls */}
             <div className="flex items-center gap-2 px-6 py-3 rounded-xl
                           bg-white/10 backdrop-blur-md border border-white/20">
               <button
-                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                onClick={() => setBundleQuantity(prev => Math.max(1, prev - 1))}
                 className="p-1 hover:bg-white/10 rounded transition-colors"
               >
                 <Minus size={20} />
               </button>
-              <span className="w-12 text-center font-medium">{quantity}</span>
+              <span className="w-12 text-center font-medium">
+                {bundleQuantity} {bundleQuantity === 1 ? 'bundle' : 'bundles'}
+              </span>
               <button
-                onClick={() => setQuantity(prev => prev + 1)}
+                onClick={() => setBundleQuantity(prev => prev + 1)}
                 className="p-1 hover:bg-white/10 rounded transition-colors"
               >
                 <Plus size={20} />
