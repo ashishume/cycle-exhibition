@@ -4,7 +4,7 @@ export interface ICycle {
   imageLinks: string[];
   description?: string;
   subtitle?: string;
-  costPerCycle: number;
+  costPerProduct: number;
   bundleSize: number;
 }
 
@@ -13,21 +13,21 @@ export interface IFormData {
   imageLinks: string[];
   description: string;
   subtitle: string;
-  costPerCycle: string;
+  costPerProduct: string;
   bundleSize: string;
 }
 
 export interface IFormErrors {
   brand?: string;
   imageLinks?: string;
-  costPerCycle?: string;
+  costPerProduct?: string;
   bundleSize?: string;
 }
 
 export interface ITouchedFields {
   brand?: boolean;
   imageLinks?: boolean;
-  costPerCycle?: boolean;
+  costPerProduct?: boolean;
   bundleSize?: boolean;
 }
 

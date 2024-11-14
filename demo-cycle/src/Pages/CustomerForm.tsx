@@ -15,6 +15,7 @@ interface ICustomerFormData {
   bundleSize: number;
   customerImage: string | null;
   leadType: string;
+  description: string;
 }
 
 interface ICustomerFormErrors {
@@ -51,6 +52,7 @@ const CustomerForm = () => {
     bundleSize: 1,
     customerImage: null,
     leadType: "",
+    description: "",
   });
 
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
@@ -150,7 +152,7 @@ const CustomerForm = () => {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -348,6 +350,22 @@ const CustomerForm = () => {
                 {errors.leadType}
               </div>
             )}
+          </div>
+
+          {/* Description Field */}
+          <div className="space-y-2">
+            <label className="block text-white/90 font-medium">
+              Description (Optional)
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange(e)}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
+                       focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                       text-white placeholder-white/50 transition-all duration-300
+                       min-h-[100px] resize-y"
+              placeholder="Enter cycle description"
+            />
           </div>
 
           {/* Estimate Display */}

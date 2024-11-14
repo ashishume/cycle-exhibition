@@ -8,7 +8,7 @@ const CycleForm: React.FC = () => {
     imageLinks: [""],
     description: "",
     subtitle: "",
-    costPerCycle: "",
+    costPerProduct: "",
     bundleSize: "1",
   };
   const [formData, setFormData] = useState<IFormData>(initialFormData);
@@ -36,11 +36,11 @@ const CycleForm: React.FC = () => {
           delete newErrors.imageLinks;
         }
         break;
-      case "costPerCycle":
+      case "costPerProduct":
         if (!value || isNaN(Number(value)) || Number(value) <= 0) {
-          newErrors.costPerCycle = "Please enter a valid cost";
+          newErrors.costPerProduct = "Please enter a valid cost";
         } else {
-          delete newErrors.costPerCycle;
+          delete newErrors.costPerProduct;
         }
         break;
       case "bundleSize":
@@ -110,7 +110,7 @@ const CycleForm: React.FC = () => {
       imageLinks: formData.imageLinks,
       description: formData.description || undefined,
       subtitle: formData.subtitle || undefined,
-      costPerCycle: Number(formData.costPerCycle),
+      costPerProduct: Number(formData.costPerProduct),
       bundleSize: Number(formData.bundleSize),
     };
   };
@@ -120,14 +120,18 @@ const CycleForm: React.FC = () => {
     const touchedAll: ITouchedFields = {
       brand: true,
       imageLinks: true,
-      costPerCycle: true,
+      costPerProduct: true,
       bundleSize: true,
     };
     setTouched(touchedAll);
 
-    const isValid = ["brand", "imageLinks", "costPerCycle", "bundleSize"].every(
-      (field) =>
-        validate(field as keyof IFormData, formData[field as keyof IFormData])
+    const isValid = [
+      "brand",
+      "imageLinks",
+      "costPerProduct",
+      "bundleSize",
+    ].every((field) =>
+      validate(field as keyof IFormData, formData[field as keyof IFormData])
     );
 
     if (isValid) {
@@ -143,7 +147,7 @@ const CycleForm: React.FC = () => {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <Bike className="w-8 h-8 text-white" />
-          <h1 className="text-3xl font-bold text-white">Add New Cycle</h1>
+          <h1 className="text-3xl font-bold text-white">Add New Product</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -165,7 +169,7 @@ const CycleForm: React.FC = () => {
                 }
                 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                 text-white placeholder-white/50 transition-all duration-300`}
-              placeholder="Enter cycle brand name"
+              placeholder="Enter product brand name"
             />
             {touched.brand && errors.brand && (
               <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
@@ -251,16 +255,16 @@ const CycleForm: React.FC = () => {
             {/* Cost Per Cycle Field */}
             <div className="space-y-2">
               <label className="block text-white/90 font-medium">
-                Cost Per Cycle *
+                Cost Per Product *
               </label>
               <input
                 type="number"
-                value={formData.costPerCycle}
-                onChange={(e) => handleInputChange(e, "costPerCycle")}
-                onBlur={() => handleBlur("costPerCycle")}
+                value={formData.costPerProduct}
+                onChange={(e) => handleInputChange(e, "costPerProduct")}
+                onBlur={() => handleBlur("costPerProduct")}
                 className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
                   ${
-                    touched.costPerCycle && errors.costPerCycle
+                    touched.costPerProduct && errors.costPerProduct
                       ? "border-red-400"
                       : "border-white/10"
                   }
@@ -270,10 +274,10 @@ const CycleForm: React.FC = () => {
                 min="0"
                 step="0.01"
               />
-              {touched.costPerCycle && errors.costPerCycle && (
+              {touched.costPerProduct && errors.costPerProduct && (
                 <div className="flex items-center gap-1 text-red-400 text-sm">
                   <AlertCircle className="w-4 h-4" />
-                  {errors.costPerCycle}
+                  {errors.costPerProduct}
                 </div>
               )}
             </div>
@@ -321,7 +325,7 @@ const CycleForm: React.FC = () => {
                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                        text-white placeholder-white/50 transition-all duration-300
                        min-h-[100px] resize-y"
-              placeholder="Enter cycle description"
+              placeholder="Enter product description"
             />
           </div>
 
@@ -333,7 +337,7 @@ const CycleForm: React.FC = () => {
                      rounded-xl text-white font-medium shadow-lg
                      transition-all duration-300 transform hover:scale-[1.02]"
           >
-            Add Cycle
+            Add Product
           </button>
         </form>
       </div>
