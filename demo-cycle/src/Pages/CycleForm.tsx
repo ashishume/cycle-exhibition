@@ -1,19 +1,47 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Plus, Minus, Bike, AlertCircle } from "lucide-react";
-import { IFormData, IFormErrors, ITouchedFields, ICycle } from "../models/Form";
+import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
 
 const CycleForm: React.FC = () => {
+  const VALID_CATEGORIES = ["accessories", "ranger-cycles", "kids-cycles"];
+
   const initialFormData: IFormData = {
     brand: "",
     imageLinks: [""],
     description: "",
     subtitle: "",
-    costPerProduct: "",
-    bundleSize: "1",
+    category: "",
+    variants: [
+      {
+        costPerProduct: 0,
+        size: 12,
+      },
+      {
+        costPerProduct: 0,
+        size: 14,
+      },
+      {
+        costPerProduct: 0,
+        size: 16,
+      },
+      {
+        costPerProduct: 0,
+        size: 20,
+      },
+      {
+        costPerProduct: 0,
+        size: 24,
+      },
+      {
+        costPerProduct: 0,
+        size: 26,
+      },
+    ],
+    bundleSize: 1,
   };
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
-  const [touched, setTouched] = useState<ITouchedFields>({});
+  const [touched, setTouched] = useState<ITouchedFields>({} as any);
 
   const validate = (
     fieldName: keyof IFormData,
@@ -36,11 +64,11 @@ const CycleForm: React.FC = () => {
           delete newErrors.imageLinks;
         }
         break;
-      case "costPerProduct":
-        if (!value || isNaN(Number(value)) || Number(value) <= 0) {
-          newErrors.costPerProduct = "Please enter a valid cost";
+      case "category":
+        if (!(value as string).trim()) {
+          newErrors.category = "Please select a category";
         } else {
-          delete newErrors.costPerProduct;
+          delete newErrors.category;
         }
         break;
       case "bundleSize":
@@ -67,7 +95,7 @@ const CycleForm: React.FC = () => {
   };
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
     field: keyof IFormData
   ): void => {
     const value = e.target.value;
@@ -104,13 +132,14 @@ const CycleForm: React.FC = () => {
     }
   };
 
-  const transformFormData = (): ICycle => {
+  const transformFormData = (): IFormData => {
     return {
       brand: formData.brand,
       imageLinks: formData.imageLinks,
-      description: formData.description || undefined,
-      subtitle: formData.subtitle || undefined,
-      costPerProduct: Number(formData.costPerProduct),
+      description: formData.description || "",
+      subtitle: formData.subtitle || "",
+      category: formData.category,
+      variants: formData.variants,
       bundleSize: Number(formData.bundleSize),
     };
   };
@@ -120,18 +149,14 @@ const CycleForm: React.FC = () => {
     const touchedAll: ITouchedFields = {
       brand: true,
       imageLinks: true,
-      costPerProduct: true,
       bundleSize: true,
+      category: true,
     };
     setTouched(touchedAll);
 
-    const isValid = [
-      "brand",
-      "imageLinks",
-      "costPerProduct",
-      "bundleSize",
-    ].every((field) =>
-      validate(field as keyof IFormData, formData[field as keyof IFormData])
+    const isValid = ["brand", "imageLinks", "bundleSize", "category"].every(
+      (field) =>
+        validate(field as keyof IFormData, formData[field as keyof IFormData])
     );
 
     if (isValid) {
@@ -175,6 +200,42 @@ const CycleForm: React.FC = () => {
               <div className="flex items-center gap-1 text-red-400 text-sm mt-1">
                 <AlertCircle className="w-4 h-4" />
                 {errors.brand}
+              </div>
+            )}
+          </div>
+
+          {/* Category Dropdown */}
+          <div className="space-y-2">
+            <label className="block text-white/90 font-medium">
+              Category *
+            </label>
+            <select
+              value={formData.category}
+              onChange={(e) => handleInputChange(e, "category")}
+              onBlur={() => handleBlur("category")}
+              className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
+                ${
+                  touched.category && errors.category
+                    ? "border-red-400"
+                    : "border-white/10"
+                }
+                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                text-white placeholder-white/50 transition-all duration-300`}
+            >
+              <option value="">Select a category</option>
+              {VALID_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category
+                    .split("-")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")}
+                </option>
+              ))}
+            </select>
+            {touched.category && errors.category && (
+              <div className="flex items-center gap-1 text-red-400 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                {errors.category}
               </div>
             )}
           </div>
@@ -234,53 +295,20 @@ const CycleForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Optional Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Subtitle Field */}
-            <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
-                Subtitle (Optional)
-              </label>
-              <input
-                type="text"
-                value={formData.subtitle}
-                onChange={(e) => handleInputChange(e, "subtitle")}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
+          {/* Subtitle Field */}
+          <div className="space-y-2">
+            <label className="block text-white/90 font-medium">
+              Subtitle (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.subtitle}
+              onChange={(e) => handleInputChange(e, "subtitle")}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
                          focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                          text-white placeholder-white/50 transition-all duration-300"
-                placeholder="Enter subtitle"
-              />
-            </div>
-
-            {/* Cost Per Cycle Field */}
-            <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
-                Cost Per Product *
-              </label>
-              <input
-                type="number"
-                value={formData.costPerProduct}
-                onChange={(e) => handleInputChange(e, "costPerProduct")}
-                onBlur={() => handleBlur("costPerProduct")}
-                className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                  ${
-                    touched.costPerProduct && errors.costPerProduct
-                      ? "border-red-400"
-                      : "border-white/10"
-                  }
-                  focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                  text-white placeholder-white/50 transition-all duration-300`}
-                placeholder="Enter cost per cycle"
-                min="0"
-                step="0.01"
-              />
-              {touched.costPerProduct && errors.costPerProduct && (
-                <div className="flex items-center gap-1 text-red-400 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.costPerProduct}
-                </div>
-              )}
-            </div>
+              placeholder="Enter subtitle"
+            />
           </div>
 
           {/* Bundle Size Field */}
@@ -311,6 +339,45 @@ const CycleForm: React.FC = () => {
                 {errors.bundleSize}
               </div>
             )}
+          </div>
+
+          {/* Price based on size */}
+          <div className="space-y-2">
+            <label className="block text-white/90 font-medium">
+              Price based on size (₹) *
+            </label>
+            {formData.variants.map((size, index) => (
+              <div key={size.size} className="flex items-center gap-3">
+                <span className="text-white/90">{size.size} inch:</span>
+                <input
+                  type="number"
+                  value={size.costPerProduct}
+                  onChange={(e) => {
+                    const newPricingPerSize = [...formData.variants];
+                    newPricingPerSize[index].costPerProduct = parseFloat(
+                      e.target.value
+                    );
+                    setFormData((prev) => ({
+                      ...prev,
+                      variants: newPricingPerSize,
+                    }));
+                  }}
+                  onBlur={() => handleBlur(`variants.${index}.costPerProduct`)}
+                  className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
+                ${
+                  (touched as any)[`variants.${index}.costPerProduct`] &&
+                  (errors as any)[`variants.${index}.costPerProduct`]
+                    ? "border-red-400"
+                    : "border-white/10"
+                }
+                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                text-white placeholder-white/50 transition-all duration-300`}
+                  placeholder={`Enter price for ${size.size}`}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+            ))}
           </div>
 
           {/* Description Field */}
