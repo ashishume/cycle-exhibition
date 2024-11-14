@@ -379,7 +379,7 @@ const BikePresentation = () => {
           <span className="text-sm font-medium uppercase tracking-wider">
             Next Brand
           </span>
-          <ChevronDown size={24} className="rotate-180" />
+          <ChevronDown size={24} className="rotate-360" />
         </GlassButton>
       </div>
 
