@@ -41,7 +41,7 @@ const ProductForm: React.FC<{
       },
     ],
     bundleSize: 1,
-    tyreTypeLabel: "tubeless",
+    tyreTypeLabel: "",
   };
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
@@ -490,33 +490,37 @@ const ProductForm: React.FC<{
             </div>
 
             {/* Tyre label */}
-            {/* <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
-              Which tyre label you want to show *
-            </label>
-            <div className="flex gap-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="tyre-type"
-                  value={formData.tyreTypeLabel}
-                  onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
-                  className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
-                />
-                <span className="text-white/90">Tubeless/Tube tyre</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="tyre-type"
-                  value={formData.tyreTypeLabel}
-                  onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
-                  className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
-                />
-                <span className="text-white/90">Branded/Non-branded tyres</span>
+            <div className="space-y-2">
+              <label className="block text-white/90 font-medium">
+                Which tyre label you want to show *
+              </label>
+              <div className="flex gap-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tyre-type"
+                    checked={formData.tyreTypeLabel === "tubeless"}
+                    value="tubeless"
+                    onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                    className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
+                  />
+                  <span className="text-white/90">Tubeless/Tube tyre</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="tyre-type"
+                    value="branded"
+                    checked={formData.tyreTypeLabel === "branded"}
+                    onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                    className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
+                  />
+                  <span className="text-white/90">
+                    Branded/Non-branded tyres
+                  </span>
+                </div>
               </div>
             </div>
-          </div> */}
 
             {/* Submit Button */}
             <button
