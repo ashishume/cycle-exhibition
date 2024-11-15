@@ -230,7 +230,7 @@ const BikePresentation = () => {
           }`}
         >
           {/* Bundle Calculator */}
-          <div className="text-center py-4">
+          {/* <div className="text-center py-4">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4">
               <div className="text-white text-sm md:text-base mb-1 md:mb-2">
                 {bundleQuantity} bundles = {totalCycles} cycles
@@ -239,7 +239,7 @@ const BikePresentation = () => {
                 Total: ${totalCost.toFixed(2)}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Progress Indicator */}
           <div className="flex justify-center mb-4">

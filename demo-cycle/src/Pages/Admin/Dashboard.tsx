@@ -47,15 +47,6 @@ const AdminPanel = () => {
   >(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await apiClient.get<IProduct[]>("/api/products");
-        setProducts(response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
     switch (activeTab) {
       case TAB_TYPE.PRODUCT: {
         fetchProducts();
@@ -66,6 +57,15 @@ const AdminPanel = () => {
       }
     }
   }, [activeTab]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await apiClient.get<IProduct[]>("/api/products");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   // Filter and pagination logic
   const filterData = (data: any[], term: string) => {
@@ -110,16 +110,10 @@ const AdminPanel = () => {
     }
   };
 
-  const handleSave = (updatedProduct: IProduct) => {
-    setProducts((prev) =>
-      prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
-    );
-    setEditModalProduct(null);
-  };
-
   const handleCloseModal = () => {
     setIsEditModalOpen(false);
     setEditModalProduct(null);
+    fetchProducts();
   };
 
   return (

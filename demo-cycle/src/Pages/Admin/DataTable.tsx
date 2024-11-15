@@ -81,7 +81,7 @@ const DataTable: React.FC<any> = ({
                       <td className="px-6 py-4">{item.selectedProduct}</td>
                       <td className="px-6 py-4">{item.bundleSize}</td>
                       <td className="px-6 py-4">{item.leadType}</td>
-                      <td className="px-6 py-4">${item.totalCost}</td>
+                      <td className="px-6 py-4">₹{item.totalCost}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEdit(item.id)}
@@ -127,7 +127,7 @@ const DataTable: React.FC<any> = ({
                         <div className="max-h-24 overflow-y-auto">
                           {item.variants.map((variant: IVariant) => (
                             <div key={variant._id} className="mb-1">
-                              Size: {variant.size}", Cost: $
+                              Size: {variant.size}", Cost: ₹
                               {variant.costPerProduct}
                             </div>
                           ))}
