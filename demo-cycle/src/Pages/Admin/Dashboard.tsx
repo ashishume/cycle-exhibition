@@ -148,7 +148,7 @@ const AdminPanel = () => {
           expandedImageRow={expandedImageRow}
         />
 
-        {editModalProduct && editModalProduct && (
+        {editModalProduct && (
           <ProductForm
             mode="edit"
             product={editModalProduct as IFormData}

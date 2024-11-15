@@ -6,7 +6,7 @@ import { ICategory } from "../models/Category";
 const ProductForm: React.FC<{
   mode: string;
   product: IFormData | null;
-  onClose?: () => void;
+  onClose: () => void;
 }> = ({ mode = "add", product = null, onClose }) => {
   const initialFormData: IFormData = {
     brand: "",
@@ -43,9 +43,7 @@ const ProductForm: React.FC<{
     bundleSize: 1,
     tyreTypeLabel: "tubeless",
   };
-  const [formData, setFormData] = useState<IFormData>(
-    mode === "edit" && product ? product : initialFormData
-  );
+  const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
   const [categories, setCategories] = useState([] as ICategory[]);
@@ -61,6 +59,27 @@ const ProductForm: React.FC<{
     };
     fetchCategories();
   }, []);
+
+  // Initialize form data with product details when editing
+  useEffect(() => {
+    if (mode == "edit" && product) {
+      console.log(product);
+
+      setFormData({
+        brand: product.brand,
+        imageLinks: product.imageLinks,
+        description: product.description,
+        subtitle: product.subtitle,
+        category:
+          typeof product?.category === "string"
+            ? product.category
+            : product.category?.slug || "",
+        variants: product.variants,
+        bundleSize: product.bundleSize,
+        tyreTypeLabel: product.tyreTypeLabel,
+      });
+    }
+  }, [product]);
 
   const validate = (
     fieldName: keyof IFormData,
@@ -194,7 +213,7 @@ const ProductForm: React.FC<{
             console.log("Product added successfully", response.data);
           }
         } else if (mode === "edit") {
-          const response = await apiClient.put(
+          const response = await apiClient.patch(
             `/api/products/${product?._id}`,
             cycleData
           );
@@ -212,7 +231,7 @@ const ProductForm: React.FC<{
       }
     }
 
-    if (onClose && mode === "edit") {
+    if (mode === "edit") {
       onClose(); // Close modal after successful submission
     }
   };
@@ -278,7 +297,7 @@ const ProductForm: React.FC<{
                 Category *
               </label>
               <select
-                value={formData.category}
+                value={formData["category"].toString()}
                 onChange={(e) => handleInputChange(e, "category")}
                 onBlur={() => handleBlur("category")}
                 className={`w-full px-4 py-3 rounded-xl bg-white/5 border 	
@@ -509,6 +528,16 @@ const ProductForm: React.FC<{
             >
               {mode === "edit" ? "Update Product" : "Add Product"}
             </button>
+            {mode === "edit" ? (
+              <button
+                onClick={onClose}
+                className="w-full py-3 px-4  hover:to-indigo-600 
+              rounded-xl text-white font-medium shadow-lg
+              transition-all duration-300 transform hover:scale-[1.02]"
+              >
+                Cancel
+              </button>
+            ) : null}
           </form>
         </div>
       </div>

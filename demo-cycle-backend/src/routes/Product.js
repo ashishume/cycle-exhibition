@@ -98,10 +98,12 @@ router.patch("/:id", async (req, res) => {
 
     // Validate category ID
     if (category) {
-      const foundCategory = await Category.findById(category);
+      const foundCategory = await Category.findOne({ slug: category });
       if (!foundCategory) {
         return res.status(400).json({ error: "Category not found" });
       }
+
+      req.body.category = foundCategory._id;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -111,7 +113,7 @@ router.patch("/:id", async (req, res) => {
         imageLinks,
         description,
         subtitle,
-        category,
+        category: req.body.category,
         variants,
         bundleSize,
         tyreTypeLabel,
