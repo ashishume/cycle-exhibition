@@ -4,7 +4,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CyclesList from "./Pages/Dashboard";
 import CustomerForm from "./Pages/CustomerForm";
-import CycleForm from "./Pages/CycleForm";
+import ProductForm from "./Pages/CycleForm";
 import BikePresentation from "./Pages/Presentation";
 import CartPage from "./Pages/Cart";
 import AdminPanel from "./Pages/Admin/Dashboard";
@@ -19,7 +19,10 @@ const RoutesComponent: React.FC = () => {
         {/* Define your routes here */}
         <Route path="/" element={<CyclesList />} />
         <Route path="/customer-form" element={<CustomerForm />} />
-        <Route path="/cycle-form" element={<CycleForm />} />
+        <Route
+          path="/cycle-form"
+          element={<ProductForm mode="add" product={null} />}
+        />
         <Route path="/presentation" element={<BikePresentation />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/admin/" element={<AdminPanel />} />

@@ -1,7 +1,7 @@
 // DataTable.tsx
 import React, { Fragment } from "react";
 import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
-import { IProduct, IVariant } from "../../models/Product";
+import { IVariant } from "../../models/Product";
 
 // interface DataTableProps {
 //   data: any[] | IProduct[];

@@ -1,4 +1,4 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Tabs from "./Tabs";
 import SearchBar from "./SearchBar";
@@ -7,6 +7,8 @@ import apiClient from "../../api/axios";
 import { TAB_TYPE } from "../../constants/admin";
 import { IProduct } from "../../models/Product";
 import { ICustomer } from "../../models/Customer";
+import ProductForm from "../CycleForm";
+import { IFormData } from "../../models/Form";
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
@@ -15,6 +17,7 @@ const AdminPanel = () => {
   const [page, setPage] = useState(1);
   const [expandedImageRow, setExpandedImageRow] = useState<string | null>(null);
   const itemsPerPage = 5;
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Sample customer data
   const [customers, setCustomers] = useState<ICustomer[]>([
@@ -39,6 +42,9 @@ const AdminPanel = () => {
   ]);
 
   const [products, setProducts] = useState<IProduct[]>([]);
+  const [editModalProduct, setEditModalProduct] = useState<
+    IProduct | IFormData | null
+  >(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -91,15 +97,29 @@ const AdminPanel = () => {
     }
   };
 
-  // Edit handlers
-  const handleEdit = (id: string) => {
-    setEditingId(id);
-    console.log(`Editing ${id}`);
-  };
-
   // Toggle expanded images row
   const toggleExpandedImages = (id: string) => {
     setExpandedImageRow(expandedImageRow === id ? null : id);
+  };
+
+  const handleEdit = (id: string) => {
+    const productToEdit = products.find((p) => p._id === id);
+    if (productToEdit) {
+      setEditModalProduct(productToEdit);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSave = (updatedProduct: IProduct) => {
+    setProducts((prev) =>
+      prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
+    );
+    setEditModalProduct(null);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+    setEditModalProduct(null);
   };
 
   return (
@@ -127,6 +147,14 @@ const AdminPanel = () => {
           products={products}
           expandedImageRow={expandedImageRow}
         />
+
+        {editModalProduct && editModalProduct && (
+          <ProductForm
+            mode="edit"
+            product={editModalProduct as IFormData}
+            onClose={handleCloseModal}
+          />
+        )}
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
