@@ -2,6 +2,7 @@
 import React, { Fragment } from "react";
 import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
+import { TAB_TYPE } from "../../constants/admin";
 
 // interface DataTableProps {
 //   data: any[] | IProduct[];
@@ -22,13 +23,15 @@ const DataTable: React.FC<any> = ({
   products,
   expandedImageRow,
 }) => {
+  console.log(activeTab);
+
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">
         <table className="w-full">
           <thead className="bg-white/5">
             <tr>
-              {activeTab === "customers" ? (
+              {activeTab === TAB_TYPE.CUSTOMER ? (
                 <>
                   <th className="px-6 py-4 text-left text-white/90">Image</th>
                   <th className="px-6 py-4 text-left text-white/90">Name</th>
@@ -44,7 +47,7 @@ const DataTable: React.FC<any> = ({
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">Actions</th>
                 </>
-              ) : (
+              ) : activeTab === TAB_TYPE.PRODUCT ? (
                 <>
                   <th className="px-6 py-4 text-left text-white/90">Images</th>
                   <th className="px-6 py-4 text-left text-white/90">Brand</th>
@@ -59,16 +62,16 @@ const DataTable: React.FC<any> = ({
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">Actions</th>
                 </>
-              )}
+              ) : null}
             </tr>
           </thead>
           <tbody className="text-white/90">
             {getPaginatedData(
-              activeTab === "customers" ? customers : products
+              activeTab === TAB_TYPE.CUSTOMER ? customers : products
             )?.data?.map((item: any) => (
               <Fragment key={item.id || item._id}>
                 <tr className="border-b border-white/10">
-                  {activeTab === "customers" ? (
+                  {activeTab === TAB_TYPE.CUSTOMER ? (
                     <>
                       <td className="px-6 py-4">
                         <img
@@ -90,7 +93,9 @@ const DataTable: React.FC<any> = ({
                           <Edit className="w-5 h-5" />
                         </button>
                         <button
-                          onClick={() => handleDelete(item.id, "customer")}
+                          onClick={() =>
+                            handleDelete(item.id, TAB_TYPE.CUSTOMER)
+                          }
                           className="ml-2 text-red-400 hover:text-red-600"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -150,24 +155,25 @@ const DataTable: React.FC<any> = ({
                     </>
                   )}
                 </tr>
-                {activeTab === "products" && expandedImageRow === item._id && (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-4 bg-white/5">
-                      <div className="grid grid-cols-4 gap-4">
-                        {item.imageLinks.map(
-                          (imageUrl: string, index: number) => (
-                            <img
-                              key={index}
-                              src={imageUrl}
-                              alt={`${item.brand} - ${index + 1}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          )
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )}
+                {activeTab === TAB_TYPE.PRODUCT &&
+                  expandedImageRow === item._id && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-4 bg-white/5">
+                        <div className="grid grid-cols-4 gap-4">
+                          {item.imageLinks.map(
+                            (imageUrl: string, index: number) => (
+                              <img
+                                key={index}
+                                src={imageUrl}
+                                alt={`${item.brand} - ${index + 1}`}
+                                className="w-full h-48 object-cover rounded-lg"
+                              />
+                            )
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
               </Fragment>
             ))}
           </tbody>

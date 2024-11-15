@@ -8,7 +8,7 @@ export const TAB_TYPE = {
 export const BIKE_DATA = [
   {
     _id: "6736e0b7c0d26faac75e02bd",
-    brand: "BSA cycles",
+    brand: "BSA cycles 1",
     imageLinks: [
       "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -60,7 +60,7 @@ export const BIKE_DATA = [
   },
   {
     _id: "6736e917d2c3bdcb08778291",
-    brand: "BSA cycles",
+    brand: "BSA cycles 2",
     imageLinks: [
       "https://images.pexels.com/photos/1174103/pexels-photo-1174103.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/161172/cycling-bike-trail-sport-161172.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -112,7 +112,7 @@ export const BIKE_DATA = [
   },
   {
     _id: "6737197c3085be7873531dd2",
-    brand: "sadfsdfsdf",
+    brand: "sadfsdfsdf 3",
     imageLinks: [
       "https://images.pexels.com/photos/369264/pexels-photo-369264.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",

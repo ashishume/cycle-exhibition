@@ -114,6 +114,7 @@ const BikePresentation = () => {
 
   const handleAddToCart = () => {
     const newItem = {
+      _id: currentBike._id,
       brand: currentBike.brand,
       variant: currentPriceVariant?.size,
       bundleQuantity,
@@ -125,6 +126,8 @@ const BikePresentation = () => {
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
   };
+
+  console.log(cartItems);
 
   const handleSizeChange = (variant: any) => {
     setCurrentVariant(variant);
@@ -164,30 +167,26 @@ const BikePresentation = () => {
       <div className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8">
         {/* Header */}
         <div className="absolute top-4 md:top-8 left-0 right-0 text-center z-10">
-          <h1 className="text-white text-3xl md:text-6xl font-bold tracking-tight mb-1 md:mb-2">
+          <h1 className="text-white text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
             {currentBike.brand}
           </h1>
-          <p className="text-white/80 text-base md:text-xl font-light mb-2 md:mb-4">
-            {currentBike.subtitle}
-          </p>
           <div className="flex flex-col items-center gap-1 md:gap-2">
-            <div className="text-white/80 text-sm md:text-lg">
+            <div className="text-white shadow-sm text-sm md:text-lg">
               <Package className="inline-block mr-2 mb-1" size={16} />
-              Bundle of {currentBike.bundleSize} cycles
+              Bundle of {currentBike.bundleSize} products ( ₹
+              {currentPriceVariant.costPerProduct.toFixed(2)} per piece)
             </div>
-            <div className="text-white text-lg md:text-2xl font-bold">
-              ${currentPriceVariant.costPerProduct.toFixed(2)} per cycle
-            </div>
+            <div className="text-white text-lg md:text-2xl font-bold"></div>
           </div>
         </div>
 
         {/* Image Container - Updated with fixed dimensions */}
-        <div className="relative w-full flex-1 flex items-center justify-center mt-24 md:mt-32 mb-24 md:mb-32">
-          <div className="relative w-full max-w-3xl h-64 md:h-96">
+        <div className="relative w-full flex-1 flex items-center justify-center">
+          <div className="relative w-full max-w-3xl h-64 md:h-[32rem]">
             <img
               src={currentBike.imageLinks[currentModelIndex]}
               alt={`${currentBike.brand} variant ${currentModelIndex + 1}`}
-              className={`w-full h-full object-contain transition-all duration-500 ease-out
+              className={`w-full h-full object-cover transition-all duration-500 ease-out
                 ${
                   isTransitioning
                     ? "scale-95 opacity-0"
@@ -214,7 +213,7 @@ const BikePresentation = () => {
           }`}
         >
           {/* Bundle Calculator */}
-          <div className="text-center py-4">
+          {/* <div className="text-center py-4">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4">
               <div className="text-white text-sm md:text-base mb-1 md:mb-2">
                 {bundleQuantity} bundles = {totalCycles} cycles
@@ -223,7 +222,7 @@ const BikePresentation = () => {
                 Total: ${totalCost.toFixed(2)}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Progress Indicator */}
           <div className="flex justify-center mb-4">
