@@ -252,7 +252,7 @@ const ProductForm: React.FC<{
         <div
           className={`${
             mode === "edit" ? "h-[90vh] overflow-y-auto" : ""
-          } w-full max-w-2xl bg-black  backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8`}
+          } w-full max-w-2xl bg-[#2d2d2d]  backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8`}
         >
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">

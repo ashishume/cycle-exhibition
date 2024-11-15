@@ -185,7 +185,7 @@ const CustomerForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
+      <div className="w-full max-w-2xl bg-[#2d2d2d] backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <User className="w-8 h-8 text-white" />
