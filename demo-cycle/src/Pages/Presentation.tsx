@@ -25,15 +25,12 @@ const BikePresentation = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [showControls, setShowControls] = useState(true);
   const [products, setProducts] = useState([] as IProduct[]);
-  const [bikeData, setBikeData] = useState<IProduct[]>([]);
-  const currentBike = bikeData[currentBrandIndex];
+  const currentBike = products[currentBrandIndex];
   const [currentPriceVariant, setCurrentVariant] = useState<IVariant | null>(
-    currentBike?.variants?.find((v) => v.costPerProduct !== 0) || null
+    null
   );
 
-  const [isTyreChargeable, setIsTyreChargeable] = useState(
-    currentBike?.tyreTypeLabel !== "tubeless"
-  );
+  const [isTyreChargeable, setIsTyreChargeable] = useState(false);
   const totalCycles = bundleQuantity * (currentBike?.bundleSize || 0);
   const totalCost =
     bundleQuantity *
@@ -41,18 +38,15 @@ const BikePresentation = () => {
     (currentPriceVariant?.costPerProduct || 0);
 
   useEffect(() => {
-    fetchBikeData();
     fetchProducts();
   }, []);
 
-  const fetchBikeData = async () => {
-    try {
-      const response = await apiClient.get("/api/products");
-      setBikeData(response.data);
-    } catch (error) {
-      console.error("Error fetching bike data:", error);
-    }
-  };
+  useEffect(() => {
+    setCurrentVariant(
+      currentBike?.variants?.find((v) => v?.costPerProduct !== 0) || null
+    );
+  }, [currentBike]);
+
   const fetchProducts = async () => {
     try {
       const response = await apiClient.get<IProduct[]>("/api/products");
@@ -61,6 +55,7 @@ const BikePresentation = () => {
       console.error("Error fetching products:", error);
     }
   };
+  console.log(cartItems);
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
