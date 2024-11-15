@@ -10,63 +10,25 @@ import {
   Info,
   Package,
 } from "lucide-react";
-
-export const BIKE_DATA = [
-  {
-    brand: "Mountain Bikes",
-    subtitle: "For Adventure Seekers",
-    description:
-      "Rugged and durable bikes perfect for off-road trails and mountain adventures. Features premium suspension and all-terrain tires.",
-    costPerCycle: 1299.99,
-    bundleSize: 5,
-    imageLinks: [
-      "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-    color: "from-purple-600 to-violet-800",
-  },
-  {
-    brand: "Road Bikes",
-    subtitle: "Speed Redefined",
-    description:
-      "Lightweight and aerodynamic bikes designed for speed and efficiency on paved roads. Perfect for racing and long-distance rides.",
-    costPerCycle: 1499.99,
-    bundleSize: 6,
-    imageLinks: [
-      "https://images.pexels.com/photos/1174103/pexels-photo-1174103.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/161172/cycling-bike-trail-sport-161172.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/114675/pexels-photo-114675.jpeg?auto=compress&cs=tinysrgb&w=800",
-    ],
-    color: "from-purple-600 to-violet-800",
-  },
-  {
-    brand: "Electric Bikes",
-    subtitle: "Future of Mobility",
-    description:
-      "Electric-assisted bikes combining convenience with eco-friendly transportation. Features long-lasting battery and smart controls.",
-    costPerCycle: 2499.99,
-    bundleSize: 7,
-    imageLinks: [
-      "https://images.pexels.com/photos/369264/pexels-photo-369264.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-    color: "from-purple-600 to-violet-800",
-  },
-];
+import { BIKE_DATA } from "../constants/admin";
+import { IProduct, IVariant } from "../models/Product";
+import apiClient from "../api/axios";
 
 const GlassButton = ({
   children,
   onClick,
   disabled = false,
   className = "",
+  isActive = false,
 }: any) => (
   <button
     onClick={onClick}
     disabled={disabled}
     className={`group flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl
-    bg-white/10 backdrop-blur-md border border-white/20
-    ${!disabled && "hover:bg-white/20 hover:border-white/30 hover:scale-105"}
+      ${
+        isActive ? "bg-white/50" : "bg-white/10"
+      } backdrop-blur-md border border-white/20
+    ${!disabled && "hover:bg-white/20 hover:border-white/30"}
     transition-all duration-300 ease-out
     shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]
     ${disabled && "opacity-50 cursor-not-allowed"}
@@ -78,18 +40,37 @@ const GlassButton = ({
 
 const BikePresentation = () => {
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);
-  const [currentVariantIndex, setCurrentVariantIndex] = useState(0);
+  const [currentModelIndex, setCurrentModelIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [bundleQuantity, setBundleQuantity] = useState(1);
   const [showDescription, setShowDescription] = useState(false);
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [showControls, setShowControls] = useState(true);
-
+  const [products, setProducts] = useState([] as IProduct[]);
   const currentBike = BIKE_DATA[currentBrandIndex];
+  // const currentVariant = currentBike.variants[currentModelIndex];
+  const [currentPriceVariant, setCurrentVariant] = useState(
+    currentBike.variants.find((v) => v.costPerProduct !== 0) as IVariant
+  );
 
   const totalCycles = bundleQuantity * currentBike.bundleSize;
   const totalCost =
-    bundleQuantity * currentBike.bundleSize * currentBike.costPerCycle;
+    bundleQuantity *
+    currentBike.bundleSize *
+    currentPriceVariant?.costPerProduct;
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await apiClient.get<IProduct[]>("/api/products");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
@@ -98,13 +79,13 @@ const BikePresentation = () => {
       switch (event.key) {
         case "ArrowRight":
           setIsTransitioning(true);
-          setCurrentVariantIndex(
+          setCurrentModelIndex(
             (prev) => (prev + 1) % currentBike.imageLinks.length
           );
           break;
         case "ArrowLeft":
           setIsTransitioning(true);
-          setCurrentVariantIndex((prev) =>
+          setCurrentModelIndex((prev) =>
             prev === 0 ? currentBike.imageLinks.length - 1 : prev - 1
           );
           break;
@@ -113,12 +94,12 @@ const BikePresentation = () => {
           setCurrentBrandIndex((prev) =>
             prev === 0 ? BIKE_DATA.length - 1 : prev - 1
           );
-          setCurrentVariantIndex(0);
+          setCurrentModelIndex(0);
           break;
         case "ArrowDown":
           setIsTransitioning(true);
           setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
-          setCurrentVariantIndex(0);
+          setCurrentModelIndex(0);
           break;
         default:
           break;
@@ -134,10 +115,10 @@ const BikePresentation = () => {
   const handleAddToCart = () => {
     const newItem = {
       brand: currentBike.brand,
-      variant: currentVariantIndex + 1,
+      variant: currentPriceVariant?.size,
       bundleQuantity,
       totalCycles,
-      costPerCycle: currentBike.costPerCycle,
+      costPerCycle: currentPriceVariant?.costPerProduct,
       bundleSize: currentBike.bundleSize,
       total: totalCost,
     };
@@ -145,9 +126,12 @@ const BikePresentation = () => {
     setBundleQuantity(1);
   };
 
+  const handleSizeChange = (variant: any) => {
+    setCurrentVariant(variant);
+  };
   return (
     <div
-      className={`relative w-screen h-screen overflow-hidden bg-gradient-to-br ${currentBike.color}`}
+      className={`relative w-screen h-screen overflow-hidden bg-gradient-to-br from-purple-600 to-violet-800`}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
@@ -192,7 +176,7 @@ const BikePresentation = () => {
               Bundle of {currentBike.bundleSize} cycles
             </div>
             <div className="text-white text-lg md:text-2xl font-bold">
-              ${currentBike.costPerCycle.toFixed(2)} per cycle
+              ${currentPriceVariant.costPerProduct.toFixed(2)} per cycle
             </div>
           </div>
         </div>
@@ -201,8 +185,8 @@ const BikePresentation = () => {
         <div className="relative w-full flex-1 flex items-center justify-center mt-24 md:mt-32 mb-24 md:mb-32">
           <div className="relative w-full max-w-3xl h-64 md:h-96">
             <img
-              src={currentBike.imageLinks[currentVariantIndex]}
-              alt={`${currentBike.brand} variant ${currentVariantIndex + 1}`}
+              src={currentBike.imageLinks[currentModelIndex]}
+              alt={`${currentBike.brand} variant ${currentModelIndex + 1}`}
               className={`w-full h-full object-contain transition-all duration-500 ease-out
                 ${
                   isTransitioning
@@ -230,7 +214,7 @@ const BikePresentation = () => {
           }`}
         >
           {/* Bundle Calculator */}
-          {/* <div className="text-center py-4">
+          <div className="text-center py-4">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4">
               <div className="text-white text-sm md:text-base mb-1 md:mb-2">
                 {bundleQuantity} bundles = {totalCycles} cycles
@@ -239,7 +223,7 @@ const BikePresentation = () => {
                 Total: ${totalCost.toFixed(2)}
               </div>
             </div>
-          </div> */}
+          </div>
 
           {/* Progress Indicator */}
           <div className="flex justify-center mb-4">
@@ -247,18 +231,39 @@ const BikePresentation = () => {
               <div
                 key={index}
                 className={`w-8 md:w-16 h-1 mx-1 rounded-full transition-all duration-300 
-                  ${
-                    index === currentVariantIndex ? "bg-white" : "bg-white/30"
-                  }`}
+                  ${index === currentModelIndex ? "bg-white" : "bg-white/30"}`}
               />
             ))}
           </div>
 
+          <div className="flex flex-col justify-center items-center gap-1 text-white">
+            <p>Sizes (inches)</p>
+            <div className="flex gap-3 justify-center">
+              {currentBike.variants.map(
+                ({ _id, size, costPerProduct }: IVariant) => {
+                  return Number(costPerProduct) !== 0 ? (
+                    <GlassButton
+                      key={_id}
+                      isActive={currentPriceVariant._id === _id}
+                      className="col-span-2 text-sm md:text-base"
+                      onClick={() =>
+                        handleSizeChange({ _id, size, costPerProduct })
+                      }
+                    >
+                      <span className="text-sm font-medium uppercase tracking-wider">
+                        {size}
+                      </span>
+                    </GlassButton>
+                  ) : null;
+                }
+              )}
+            </div>
+          </div>
           {/* Controls Grid */}
           <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-4 justify-center p-4 text-white/90">
             <GlassButton
               onClick={() =>
-                setCurrentVariantIndex((prev) =>
+                setCurrentModelIndex((prev) =>
                   prev === 0 ? currentBike.imageLinks.length - 1 : prev - 1
                 )
               }
@@ -272,7 +277,7 @@ const BikePresentation = () => {
 
             <GlassButton
               onClick={() =>
-                setCurrentVariantIndex(
+                setCurrentModelIndex(
                   (prev) => (prev + 1) % currentBike.imageLinks.length
                 )
               }
@@ -358,12 +363,12 @@ const BikePresentation = () => {
             setCurrentBrandIndex((prev) =>
               prev === 0 ? BIKE_DATA.length - 1 : prev - 1
             );
-            setCurrentVariantIndex(0);
+            setCurrentModelIndex(0);
           }}
           className="pointer-events-auto"
         >
-          <ChevronUp size={24} className="rotate-360" />
-          <span className="text-sm font-medium uppercase tracking-wider">
+          <ChevronUp size={24} className="rotate-360" color="white" />
+          <span className="text-sm font-medium uppercase tracking-wider text-white">
             Previous Brand
           </span>
         </GlassButton>
@@ -372,14 +377,14 @@ const BikePresentation = () => {
           onClick={() => {
             setIsTransitioning(true);
             setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
-            setCurrentVariantIndex(0);
+            setCurrentModelIndex(0);
           }}
           className="pointer-events-auto"
         >
-          <span className="text-sm font-medium uppercase tracking-wider">
+          <span className="text-sm font-medium uppercase tracking-wider text-white">
             Next Brand
           </span>
-          <ChevronDown size={24} className="rotate-360" />
+          <ChevronDown size={24} className="rotate-360" color="white" />
         </GlassButton>
       </div>
 
@@ -391,7 +396,7 @@ const BikePresentation = () => {
             setCurrentBrandIndex((prev) =>
               prev === 0 ? BIKE_DATA.length - 1 : prev - 1
             );
-            setCurrentVariantIndex(0);
+            setCurrentModelIndex(0);
           }}
           className="!p-2"
         >
@@ -402,7 +407,7 @@ const BikePresentation = () => {
           onClick={() => {
             setIsTransitioning(true);
             setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
-            setCurrentVariantIndex(0);
+            setCurrentModelIndex(0);
           }}
           className="!p-2"
         >
