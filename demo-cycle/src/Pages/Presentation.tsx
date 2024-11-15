@@ -153,11 +153,11 @@ const BikePresentation = () => {
       <div className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8">
         {/* Header */}
         <div className="absolute top-4 md:top-8 left-0 right-0 text-center z-10">
-          <h1 className="text-white text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
+          <h1 className="text-black text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
             {currentBike.brand}
           </h1>
           <div className="flex flex-col items-center gap-1 md:gap-2">
-            <div className="text-white shadow-sm text-sm md:text-lg">
+            <div className="text-white drop-shadow-2xl  bg-black/30 px-2 rounded text-sm md:text-lg">
               <Package className="inline-block mr-2 mb-1" size={16} />
               Bundle of {currentBike.bundleSize} products ( ₹
               {currentPriceVariant.costPerProduct.toFixed(2)} per piece)
@@ -168,7 +168,7 @@ const BikePresentation = () => {
 
         {/* Image Container - Updated with fixed dimensions */}
         <div className="relative w-full flex-1 flex items-center justify-center">
-          <div className="relative w-full max-w-3xl h-64 md:h-[32rem]">
+          <div className="relative w-full max-w-3xl h-64 md:h-[34rem]">
             <img
               src={currentBike.imageLinks[currentModelIndex]}
               alt={`${currentBike.brand} variant ${currentModelIndex + 1}`}
