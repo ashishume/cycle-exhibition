@@ -1,32 +1,47 @@
 import { useState } from "react";
 import {
   User,
-  Bike,
+  Package,
   Edit,
   Trash2,
-  Search, ChevronLeft,
-  ChevronRight
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // Interfaces
 interface ICustomer {
   id: string;
   customerName: string;
-  selectedCycle: string;
+  selectedProduct: string;
   bundleSize: number;
   customerImage: string | null;
   leadType: string;
   totalCost: number;
 }
 
-interface ICycle {
-  id: string;
+interface ICategory {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+interface IVariant {
+  costPerProduct: number;
+  size: number;
+  _id: string;
+}
+
+interface IProduct {
+  _id: string;
   brand: string;
   imageLinks: string[];
-  description?: string;
-  subtitle?: string;
-  costPerCycle: number;
+  description: string;
+  subtitle: string;
+  category: ICategory;
+  variants: IVariant[];
   bundleSize: number;
+  tyreTypeLabel: string;
 }
 
 const AdminPanel = () => {
@@ -36,12 +51,12 @@ const AdminPanel = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Sample data - In real app, this would come from your backend
+  // Sample customer data
   const [customers, setCustomers] = useState<ICustomer[]>([
     {
       id: "1",
       customerName: "John Doe",
-      selectedCycle: "Cycle1",
+      selectedProduct: "Product1",
       bundleSize: 2,
       customerImage: "/api/placeholder/100/100",
       leadType: "Hot Lead",
@@ -50,7 +65,7 @@ const AdminPanel = () => {
     {
       id: "2",
       customerName: "Jane Smith",
-      selectedCycle: "Cycle2",
+      selectedProduct: "Product2",
       bundleSize: 3,
       customerImage: "/api/placeholder/100/100",
       leadType: "Warm Lead",
@@ -58,24 +73,32 @@ const AdminPanel = () => {
     },
   ]);
 
-  const [cycles, setCycles] = useState<ICycle[]>([
+  // Updated product data
+  const [products, setProducts] = useState<IProduct[]>([
     {
-      id: "1",
-      brand: "Cycle1",
-      imageLinks: ["/api/placeholder/100/100"],
-      description: "Premium cycle",
-      subtitle: "Best seller",
-      costPerCycle: 100,
+      _id: "6736e0b7c0d26faac75e02bd",
+      brand: "BSA cycles",
+      imageLinks: [
+        "https://drive.usercontent.google.com/download?id=1u91TWNx3ROh-lfDO11DKOIOSzmWIrJBk&export=view&authuser=0",
+      ],
+      description:
+        "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout...",
+      subtitle: "This is a sample subtitle",
+      category: {
+        _id: "6736e009c0d26faac75e02b8",
+        name: "Ranger Cycles",
+        slug: "ranger-cycles",
+      },
+      variants: [
+        { costPerProduct: 199.96, size: 12, _id: "6736e0b7c0d26faac75e02be" },
+        { costPerProduct: 0, size: 14, _id: "6736e0b7c0d26faac75e02bf" },
+        { costPerProduct: 1999.88, size: 16, _id: "6736e0b7c0d26faac75e02c0" },
+        { costPerProduct: 0, size: 20, _id: "6736e0b7c0d26faac75e02c1" },
+        { costPerProduct: 333, size: 24, _id: "6736e0b7c0d26faac75e02c2" },
+        { costPerProduct: 0, size: 26, _id: "6736e0b7c0d26faac75e02c3" },
+      ],
       bundleSize: 5,
-    },
-    {
-      id: "2",
-      brand: "Cycle2",
-      imageLinks: ["/api/placeholder/100/100"],
-      description: "Economy cycle",
-      subtitle: "Value choice",
-      costPerCycle: 80,
-      bundleSize: 6,
+      tyreTypeLabel: "tubeless",
     },
   ]);
 
@@ -99,12 +122,12 @@ const AdminPanel = () => {
   };
 
   // Delete handlers
-  const handleDelete = (id: string, type: "customer" | "cycle") => {
+  const handleDelete = (id: string, type: "customer" | "product") => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       if (type === "customer") {
         setCustomers((prev) => prev.filter((item) => item.id !== id));
       } else {
-        setCycles((prev) => prev.filter((item) => item.id !== id));
+        setProducts((prev) => prev.filter((item) => item._id !== id));
       }
     }
   };
@@ -112,7 +135,6 @@ const AdminPanel = () => {
   // Edit handlers
   const handleEdit = (id: string) => {
     setEditingId(id);
-    // In a real app, you would navigate to the edit form or open a modal
     console.log(`Editing ${id}`);
   };
 
@@ -137,16 +159,16 @@ const AdminPanel = () => {
             Customers
           </button>
           <button
-            onClick={() => setActiveTab("cycles")}
+            onClick={() => setActiveTab("products")}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300
               ${
-                activeTab === "cycles"
+                activeTab === "products"
                   ? "bg-white/20 text-white"
                   : "bg-white/5 text-white/70 hover:bg-white/10"
               }`}
           >
-            <Bike className="w-5 h-5" />
-            Cycles
+            <Package className="w-5 h-5" />
+            Products
           </button>
         </div>
 
@@ -173,7 +195,9 @@ const AdminPanel = () => {
                   <>
                     <th className="px-6 py-4 text-left text-white/90">Image</th>
                     <th className="px-6 py-4 text-left text-white/90">Name</th>
-                    <th className="px-6 py-4 text-left text-white/90">Cycle</th>
+                    <th className="px-6 py-4 text-left text-white/90">
+                      Product
+                    </th>
                     <th className="px-6 py-4 text-left text-white/90">
                       Bundle Size
                     </th>
@@ -195,10 +219,10 @@ const AdminPanel = () => {
                       Subtitle
                     </th>
                     <th className="px-6 py-4 text-left text-white/90">
-                      Cost/Cycle
+                      Category
                     </th>
                     <th className="px-6 py-4 text-left text-white/90">
-                      Bundle Size
+                      Variants
                     </th>
                     <th className="px-6 py-4 text-left text-white/90">
                       Actions
@@ -207,143 +231,108 @@ const AdminPanel = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
-              {activeTab === "customers"
-                ? getPaginatedData(customers).data.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-white/5">
+            <tbody className="text-white/90">
+              {getPaginatedData(
+                activeTab === "customers" ? customers : products
+              ).data.map((item: any) => (
+                <tr
+                  key={item.id || item._id}
+                  className="border-b border-white/10"
+                >
+                  {activeTab === "customers" ? (
+                    <>
                       <td className="px-6 py-4">
                         <img
-                          src={
-                            customer.customerImage || "/api/placeholder/100/100"
-                          }
-                          alt={customer.customerName}
-                          className="w-10 h-10 rounded-full object-cover"
+                          src={item.customerImage || "/default-avatar.png"}
+                          alt={item.customerName}
+                          className="w-12 h-12 rounded-full"
                         />
                       </td>
-                      <td className="px-6 py-4 text-white">
-                        {customer.customerName}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        {customer.selectedCycle}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        {customer.bundleSize}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        {customer.leadType}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        ₹{customer.totalCost}
-                      </td>
+                      <td className="px-6 py-4">{item.customerName}</td>
+                      <td className="px-6 py-4">{item.selectedProduct}</td>
+                      <td className="px-6 py-4">{item.bundleSize}</td>
+                      <td className="px-6 py-4">{item.leadType}</td>
+                      <td className="px-6 py-4">${item.totalCost}</td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(customer.id)}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                                     text-white transition-all duration-300"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleDelete(customer.id, "customer")
-                            }
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                                     text-red-400 transition-all duration-300"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleEdit(item.id)}
+                          className="text-yellow-400 hover:text-yellow-600"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id, "customer")}
+                          className="ml-2 text-red-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </td>
-                    </tr>
-                  ))
-                : getPaginatedData(cycles).data.map((cycle) => (
-                    <tr key={cycle.id} className="hover:bg-white/5">
+                    </>
+                  ) : (
+                    <>
                       <td className="px-6 py-4">
                         <img
-                          src={
-                            cycle.imageLinks[0] || "/api/placeholder/100/100"
-                          }
-                          alt={cycle.brand}
-                          className="w-10 h-10 rounded-full object-cover"
+                          src={item.imageLinks[0] || "/default-product.png"}
+                          alt={item.brand}
+                          className="w-12 h-12 rounded"
                         />
                       </td>
-                      <td className="px-6 py-4 text-white">{cycle.brand}</td>
-                      <td className="px-6 py-4 text-white">
-                        {cycle.subtitle || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        ₹{cycle.costPerCycle}
-                      </td>
-                      <td className="px-6 py-4 text-white">
-                        {cycle.bundleSize}
-                      </td>
+                      <td className="px-6 py-4">{item.brand}</td>
+                      <td className="px-6 py-4">{item.subtitle}</td>
+                      <td className="px-6 py-4">{item.category.name}</td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEdit(cycle.id)}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                                     text-white transition-all duration-300"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cycle.id, "cycle")}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                                     text-red-400 transition-all duration-300"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div className="max-h-24 overflow-y-auto">
+                          {item.variants.map((variant: IVariant) => (
+                            <div key={variant._id} className="mb-1">
+                              Size: {variant.size}", Cost: $
+                              {variant.costPerProduct}
+                            </div>
+                          ))}
                         </div>
                       </td>
-                    </tr>
-                  ))}
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleEdit(item._id)}
+                          className="text-yellow-400 hover:text-yellow-600"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item._id, "product")}
+                          className="ml-2 text-red-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-6 text-white">
-          <div>
-            Page {page} of{" "}
-            {
-              getPaginatedData(activeTab === "customers" ? customers : cycles)
+        <div className="flex justify-between items-center mt-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="text-white/70 hover:text-white/90 disabled:opacity-50"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span className="text-white">Page {page}</span>
+          <button
+            disabled={
+              page ===
+              getPaginatedData(activeTab === "customers" ? customers : products)
                 .totalPages
             }
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              disabled={page === 1}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-all duration-300"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() =>
-                setPage((prev) =>
-                  Math.min(
-                    getPaginatedData(
-                      activeTab === "customers" ? customers : cycles
-                    ).totalPages,
-                    prev + 1
-                  )
-                )
-              }
-              disabled={
-                page ===
-                getPaginatedData(activeTab === "customers" ? customers : cycles)
-                  .totalPages
-              }
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-all duration-300"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+            onClick={() => setPage(page + 1)}
+            className="text-white/70 hover:text-white/90 disabled:opacity-50"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>
