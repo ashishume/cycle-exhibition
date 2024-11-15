@@ -219,20 +219,22 @@ const ProductForm: React.FC<{
 
   return (
     <div
-      className={
-        mode === "edit"
-          ? "fixed inset-0 flex items-center justify-center  z-50 overflow-y-auto h-[90vh]"
-          : ""
-      }
+      className={`${
+        mode === "edit" ? "fixed inset-0 flex justify-center z-50" : ""
+      }`}
     >
       <div
         className={` ${
           mode === "edit"
-            ? "w-screen min-h-screen p-8 flex items-center justify-center"
+            ? "w-screen min-h-screen p-8 flex justify-center"
             : "min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center"
         }`}
       >
-        <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
+        <div
+          className={`${
+            mode === "edit" ? "h-[90vh] overflow-y-auto" : ""
+          } w-full max-w-2xl bg-black  backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8`}
+        >
           {/* Header */}
           <div className="flex items-center gap-3 mb-8">
             <Bike className="w-8 h-8 text-white" />
@@ -288,7 +290,9 @@ const ProductForm: React.FC<{
                 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                 text-white placeholder-black/50 transition-all duration-300`}
               >
-                <option value="" className="text-black">Select a category</option>
+                <option value="" className="text-black">
+                  Select a category
+                </option>
                 {categories.map(({ _id, name, slug }: ICategory) => (
                   <option key={_id} value={slug} className="text-black">
                     {name
