@@ -12,7 +12,7 @@ const ProductForm: React.FC<{
     brand: "",
     imageLinks: [""],
     description: "",
-    subtitle: "",
+    // subtitle: "",
     category: "",
     variants: [
       {
@@ -69,7 +69,7 @@ const ProductForm: React.FC<{
         brand: product.brand,
         imageLinks: product.imageLinks,
         description: product.description,
-        subtitle: product.subtitle,
+        // subtitle: product.subtitle,
         category:
           typeof product?.category === "string"
             ? product.category
@@ -175,7 +175,7 @@ const ProductForm: React.FC<{
       brand: formData.brand,
       imageLinks: formData.imageLinks,
       description: formData.description || "",
-      subtitle: formData.subtitle || "",
+      // subtitle: formData.subtitle || "",
       category: formData.category,
       variants: formData.variants,
       bundleSize: Number(formData.bundleSize),
@@ -387,7 +387,7 @@ const ProductForm: React.FC<{
             </div>
 
             {/* Subtitle Field */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="block text-white/90 font-medium">
                 Subtitle (Optional)
               </label>
@@ -400,7 +400,7 @@ const ProductForm: React.FC<{
                          text-white placeholder-white/50 transition-all duration-300"
                 placeholder="Enter subtitle"
               />
-            </div>
+            </div> */}
 
             {/* Bundle Size Field */}
             <div className="space-y-2">

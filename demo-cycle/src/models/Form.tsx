@@ -2,7 +2,7 @@ export interface IFormData {
   _id?: string;
   brand: string;
   category: string | { slug: string; name: string };
-  subtitle: string;
+  subtitle?: string;
   description: string;
   imageLinks: string[];
   variants: {

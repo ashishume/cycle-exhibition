@@ -52,7 +52,7 @@ const DataTable: React.FC<any> = ({
                   <th className="px-6 py-4 text-left text-white/90">Images</th>
                   <th className="px-6 py-4 text-left text-white/90">Brand</th>
                   <th className="px-6 py-4 text-left text-white/90">
-                    Subtitle
+                    tubeless/branded
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">
                     Category
@@ -126,7 +126,7 @@ const DataTable: React.FC<any> = ({
                         </div>
                       </td>
                       <td className="px-6 py-4">{item.brand}</td>
-                      <td className="px-6 py-4">{item.subtitle}</td>
+                      <td className="px-6 py-4">{item.tyreTypeLabel}</td>
                       <td className="px-6 py-4">{item.category.name}</td>
                       <td className="px-6 py-4">
                         <div className="max-h-24 overflow-y-auto">

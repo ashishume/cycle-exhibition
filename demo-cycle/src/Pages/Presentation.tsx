@@ -13,30 +13,8 @@ import {
 import { BIKE_DATA } from "../constants/admin";
 import { IProduct, IVariant } from "../models/Product";
 import apiClient from "../api/axios";
-
-const GlassButton = ({
-  children,
-  onClick,
-  disabled = false,
-  className = "",
-  isActive = false,
-}: any) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`group flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl
-      ${
-        isActive ? "bg-white/50" : "bg-white/10"
-      } backdrop-blur-md border border-white/20
-    ${!disabled && "hover:bg-white/20 hover:border-white/30"}
-    transition-all duration-300 ease-out
-    shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]
-    ${disabled && "opacity-50 cursor-not-allowed"}
-    ${className}`}
-  >
-    {children}
-  </button>
-);
+import GlassButton from "./Admin/Components/GlassButton";
+import GlassToggle from "./Admin/Components/GlassToggle";
 
 const BikePresentation = () => {
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);
@@ -53,6 +31,9 @@ const BikePresentation = () => {
     currentBike.variants.find((v) => v.costPerProduct !== 0) as IVariant
   );
 
+  const [isTyreChargeable, setIsTyreChargeable] = useState(
+    currentBike.tyreTypeLabel !== "tubeless"
+  );
   const totalCycles = bundleQuantity * currentBike.bundleSize;
   const totalCost =
     bundleQuantity *
@@ -119,19 +100,24 @@ const BikePresentation = () => {
       variant: currentPriceVariant?.size,
       bundleQuantity,
       totalCycles,
+      isTyreChargeable,
+      tyreTypeLabel: currentBike.tyreTypeLabel,
       costPerCycle: currentPriceVariant?.costPerProduct,
       bundleSize: currentBike.bundleSize,
-      total: totalCost,
+      total: totalCost + (isTyreChargeable === true ? 300 : 0),
     };
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
   };
 
-  console.log(cartItems);
-
   const handleSizeChange = (variant: any) => {
     setCurrentVariant(variant);
   };
+
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsTyreChargeable(e.target.checked);
+  };
+
   return (
     <div
       className={`relative w-screen h-screen overflow-hidden bg-gradient-to-br from-purple-600 to-violet-800`}
@@ -219,7 +205,7 @@ const BikePresentation = () => {
                 {bundleQuantity} bundles = {totalCycles} cycles
               </div>
               <div className="text-white font-bold text-lg md:text-xl">
-                Total: ${totalCost.toFixed(2)}
+                Total: ₹{totalCost.toFixed(2)}
               </div>
             </div>
           </div> */}
@@ -330,6 +316,20 @@ const BikePresentation = () => {
                 Add to Cart
               </span>
             </GlassButton>
+            <GlassToggle
+              label1={
+                currentBike.tyreTypeLabel === "tubeless"
+                  ? "Tubeless"
+                  : "Non-branded"
+              }
+              label2={
+                currentBike.tyreTypeLabel === "tubeless"
+                  ? "Tyre tube"
+                  : "Branded"
+              }
+              checked={isTyreChargeable}
+              onChange={onChangeHandler}
+            />
           </div>
         </div>
       </div>
