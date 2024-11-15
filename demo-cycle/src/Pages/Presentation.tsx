@@ -25,25 +25,34 @@ const BikePresentation = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [showControls, setShowControls] = useState(true);
   const [products, setProducts] = useState([] as IProduct[]);
-  const currentBike = BIKE_DATA[currentBrandIndex];
-  // const currentVariant = currentBike.variants[currentModelIndex];
-  const [currentPriceVariant, setCurrentVariant] = useState(
-    currentBike.variants.find((v) => v.costPerProduct !== 0) as IVariant
+  const [bikeData, setBikeData] = useState<IProduct[]>([]);
+  const currentBike = bikeData[currentBrandIndex];
+  const [currentPriceVariant, setCurrentVariant] = useState<IVariant | null>(
+    currentBike?.variants?.find((v) => v.costPerProduct !== 0) || null
   );
 
   const [isTyreChargeable, setIsTyreChargeable] = useState(
-    currentBike.tyreTypeLabel !== "tubeless"
+    currentBike?.tyreTypeLabel !== "tubeless"
   );
-  const totalCycles = bundleQuantity * currentBike.bundleSize;
+  const totalCycles = bundleQuantity * (currentBike?.bundleSize || 0);
   const totalCost =
     bundleQuantity *
-    currentBike.bundleSize *
-    currentPriceVariant?.costPerProduct;
+    (currentBike?.bundleSize || 0) *
+    (currentPriceVariant?.costPerProduct || 0);
 
   useEffect(() => {
+    fetchBikeData();
     fetchProducts();
   }, []);
 
+  const fetchBikeData = async () => {
+    try {
+      const response = await apiClient.get("/api/products");
+      setBikeData(response.data);
+    } catch (error) {
+      console.error("Error fetching bike data:", error);
+    }
+  };
   const fetchProducts = async () => {
     try {
       const response = await apiClient.get<IProduct[]>("/api/products");
@@ -61,13 +70,13 @@ const BikePresentation = () => {
         case "ArrowRight":
           setIsTransitioning(true);
           setCurrentModelIndex(
-            (prev) => (prev + 1) % currentBike.imageLinks.length
+            (prev) => (prev + 1) % currentBike?.imageLinks?.length
           );
           break;
         case "ArrowLeft":
           setIsTransitioning(true);
           setCurrentModelIndex((prev) =>
-            prev === 0 ? currentBike.imageLinks.length - 1 : prev - 1
+            prev === 0 ? currentBike?.imageLinks?.length - 1 : prev - 1
           );
           break;
         case "ArrowUp":
@@ -89,21 +98,21 @@ const BikePresentation = () => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentBrandIndex, isTransitioning, currentBike.imageLinks.length]);
+  }, [currentBrandIndex, isTransitioning, currentBike?.imageLinks?.length]);
 
   const handleTransitionEnd = () => setIsTransitioning(false);
 
   const handleAddToCart = () => {
     const newItem = {
-      _id: currentBike._id,
-      brand: currentBike.brand,
+      _id: currentBike?._id,
+      brand: currentBike?.brand,
       variant: currentPriceVariant?.size,
       bundleQuantity,
       totalCycles,
       isTyreChargeable,
-      tyreTypeLabel: currentBike.tyreTypeLabel,
+      tyreTypeLabel: currentBike?.tyreTypeLabel,
       costPerCycle: currentPriceVariant?.costPerProduct,
-      bundleSize: currentBike.bundleSize,
+      bundleSize: currentBike?.bundleSize,
       total: totalCost + (isTyreChargeable === true ? 300 : 0),
     };
     setCartItems([...cartItems, newItem]);
@@ -154,13 +163,13 @@ const BikePresentation = () => {
         {/* Header */}
         <div className="absolute top-4 md:top-8 left-0 right-0 text-center z-10">
           <h1 className="text-black text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
-            {currentBike.brand}
+            {currentBike?.brand}
           </h1>
           <div className="flex flex-col items-center gap-1 md:gap-2">
             <div className="text-white drop-shadow-2xl  bg-black/30 px-2 rounded text-sm md:text-lg">
               <Package className="inline-block mr-2 mb-1" size={16} />
-              Bundle of {currentBike.bundleSize} products ( ₹
-              {currentPriceVariant.costPerProduct.toFixed(2)} per piece)
+              Bundle of {currentBike?.bundleSize} products ( ₹
+              {currentPriceVariant?.costPerProduct.toFixed(2)} per piece)
             </div>
             <div className="text-white text-lg md:text-2xl font-bold"></div>
           </div>
@@ -170,8 +179,8 @@ const BikePresentation = () => {
         <div className="relative w-full flex-1 flex items-center justify-center">
           <div className="relative w-full max-w-3xl h-64 md:h-[34rem]">
             <img
-              src={currentBike.imageLinks[currentModelIndex]}
-              alt={`${currentBike.brand} variant ${currentModelIndex + 1}`}
+              src={currentBike?.imageLinks[currentModelIndex]}
+              alt={`${currentBike?.brand} variant ${currentModelIndex + 1}`}
               className={`w-full h-full object-cover transition-all duration-500 ease-out
                 ${
                   isTransitioning
@@ -212,7 +221,7 @@ const BikePresentation = () => {
 
           {/* Progress Indicator */}
           <div className="flex justify-center mb-4">
-            {currentBike.imageLinks.map((_, index) => (
+            {currentBike?.imageLinks.map((_, index) => (
               <div
                 key={index}
                 className={`w-8 md:w-16 h-1 mx-1 rounded-full transition-all duration-300 
@@ -224,12 +233,12 @@ const BikePresentation = () => {
           <div className="flex flex-col justify-center items-center gap-1 text-white">
             <p>Sizes (inches)</p>
             <div className="flex gap-3 justify-center">
-              {currentBike.variants.map(
+              {currentBike?.variants.map(
                 ({ _id, size, costPerProduct }: IVariant) => {
                   return Number(costPerProduct) !== 0 ? (
                     <GlassButton
                       key={_id}
-                      isActive={currentPriceVariant._id === _id}
+                      isActive={currentPriceVariant?._id === _id}
                       className="col-span-2 text-sm md:text-base"
                       onClick={() =>
                         handleSizeChange({ _id, size, costPerProduct })
@@ -249,7 +258,7 @@ const BikePresentation = () => {
             <GlassButton
               onClick={() =>
                 setCurrentModelIndex((prev) =>
-                  prev === 0 ? currentBike.imageLinks.length - 1 : prev - 1
+                  prev === 0 ? currentBike?.imageLinks?.length - 1 : prev - 1
                 )
               }
               className="text-sm md:text-base"
@@ -263,7 +272,7 @@ const BikePresentation = () => {
             <GlassButton
               onClick={() =>
                 setCurrentModelIndex(
-                  (prev) => (prev + 1) % currentBike.imageLinks.length
+                  (prev) => (prev + 1) % currentBike?.imageLinks?.length
                 )
               }
               className="text-sm md:text-base"
@@ -318,12 +327,12 @@ const BikePresentation = () => {
             </GlassButton>
             <GlassToggle
               label1={
-                currentBike.tyreTypeLabel === "tubeless"
+                currentBike?.tyreTypeLabel === "tubeless"
                   ? "Tubeless"
                   : "Non-branded"
               }
               label2={
-                currentBike.tyreTypeLabel === "tubeless"
+                currentBike?.tyreTypeLabel === "tubeless"
                   ? "Tyre tube"
                   : "Branded"
               }
@@ -339,10 +348,10 @@ const BikePresentation = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-30 p-4">
           <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-2xl max-w-2xl mx-4">
             <h3 className="text-white text-xl md:text-2xl font-bold mb-3 md:mb-4">
-              {currentBike.brand}
+              {currentBike?.brand}
             </h3>
             <p className="text-white/90 text-base md:text-lg leading-relaxed mb-4 md:mb-6">
-              {currentBike.description}
+              {currentBike?.description}
             </p>
             <button
               onClick={() => setShowDescription(false)}
