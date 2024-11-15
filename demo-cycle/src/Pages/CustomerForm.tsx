@@ -223,7 +223,7 @@ const CustomerForm = () => {
           </div>
 
           {/* Cycle Selection */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="block text-white/90 font-medium">
               Select Cycle *
             </label>
@@ -256,10 +256,10 @@ const CustomerForm = () => {
                 {errors.selectedCycle}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Bundle Size */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="block text-white/90 font-medium">
               Bundle Size
             </label>
@@ -273,7 +273,7 @@ const CustomerForm = () => {
                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                        text-white placeholder-white/50 transition-all duration-300"
             />
-          </div>
+          </div> */}
 
           {/* Customer Image */}
           <div className="space-y-2">
@@ -369,7 +369,7 @@ const CustomerForm = () => {
           </div>
 
           {/* Estimate Display */}
-          {formData.selectedCycle && (
+          {/* {formData.selectedCycle && (
             <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
               <div className="flex items-center gap-2 text-white/90 font-medium">
                 <Calculator className="w-5 h-5" />
@@ -383,7 +383,7 @@ const CustomerForm = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Submit Button */}
           <button
