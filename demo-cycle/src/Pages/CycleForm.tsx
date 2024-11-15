@@ -1,9 +1,9 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { Plus, Minus, Bike, AlertCircle } from "lucide-react";
 import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
+import apiClient from "../api/axios";
+import { ICategory } from "../models/Category";
 const CycleForm: React.FC = () => {
-  const VALID_CATEGORIES = ["accessories", "ranger-cycles", "kids-cycles"];
-
   const initialFormData: IFormData = {
     brand: "",
     imageLinks: [""],
@@ -42,6 +42,19 @@ const CycleForm: React.FC = () => {
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
+  const [categories, setCategories] = useState([] as ICategory[]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiClient.get<ICategory[]>("/api/categories");
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const validate = (
     fieldName: keyof IFormData,
@@ -91,7 +104,7 @@ const CycleForm: React.FC = () => {
 
   const handleBlur = (field: keyof ITouchedFields): void => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    validate(field, formData[field]);
+    validate(field, (formData as any)[field]);
   };
 
   const handleInputChange = (
@@ -145,7 +158,7 @@ const CycleForm: React.FC = () => {
     };
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const touchedAll: ITouchedFields = {
       brand: true,
@@ -157,13 +170,29 @@ const CycleForm: React.FC = () => {
 
     const isValid = ["brand", "imageLinks", "bundleSize", "category"].every(
       (field) =>
-        validate(field as keyof IFormData, formData[field as keyof IFormData])
+        validate(
+          field as keyof IFormData,
+          (formData as any)[field as keyof IFormData]
+        )
     );
 
     if (isValid) {
       const cycleData = transformFormData();
-      console.log("Form submitted:", cycleData);
-      // Handle form submission here
+      try {
+        const response = await apiClient.post<ICategory[]>(
+          "/api/products",
+          cycleData
+        );
+        if (response.status === 201) {
+          console.log(response);
+          // Reset the form state on successful submit
+          setFormData(initialFormData); // Reset form fields
+          setErrors({}); // Clear errors
+          setTouched({} as ITouchedFields); // Clear touched fields
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
     }
   };
 
@@ -256,9 +285,9 @@ const CycleForm: React.FC = () => {
                 text-white placeholder-white/50 transition-all duration-300`}
             >
               <option value="">Select a category</option>
-              {VALID_CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category
+              {categories.map(({ _id, name, slug }: ICategory) => (
+                <option key={_id} value={slug}>
+                  {name
                     .split("-")
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(" ")}
@@ -395,7 +424,9 @@ const CycleForm: React.FC = () => {
                       variants: newPricingPerSize,
                     }));
                   }}
-                  onBlur={() => handleBlur(`variants.${index}.costPerProduct`)}
+                  onBlur={() =>
+                    handleBlur(`variants.${index}.costPerProduct` as any)
+                  }
                   className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
                 ${
                   (touched as any)[`variants.${index}.costPerProduct`] &&
