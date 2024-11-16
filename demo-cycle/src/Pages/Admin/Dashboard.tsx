@@ -81,7 +81,7 @@ const AdminPanel = () => {
   const handleDelete = (id: string, type: "customer" | "product") => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       if (type === "customer") {
-        setCustomers((prev) => prev.filter((item) => item.id !== id));
+        setCustomers((prev) => prev.filter((item) => item._id !== id));
       } else {
         setProducts((prev) => prev.filter((item) => item._id !== id));
       }
