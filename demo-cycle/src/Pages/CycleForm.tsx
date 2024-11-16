@@ -50,6 +50,20 @@ const ProductForm: React.FC<{
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
   const [categories, setCategories] = useState([] as ICategory[]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (product) {
+      document.body.style.overflow = "hidden"; // Disable body scrolling when modal is open
+    } else {
+      document.body.style.overflow = "auto"; // Enable scrolling when modal is closed
+    }
+
+    // Cleanup to reset the scroll style when modal is closed
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [product]);
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -241,7 +255,9 @@ const ProductForm: React.FC<{
   return (
     <div
       className={`${
-        mode === "edit" ? "fixed inset-0 flex justify-center z-50" : ""
+        mode === "edit"
+          ? "fixed top-[-3rem] left-0 right-0 bottom-0 flex justify-center z-50"
+          : ""
       }`}
     >
       <div
@@ -492,7 +508,7 @@ const ProductForm: React.FC<{
             </div>
 
             {/* Tyre label */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="block text-white/90 font-medium">
                 Which tyre label you want to show *
               </label>
@@ -522,7 +538,7 @@ const ProductForm: React.FC<{
                   </span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <button
