@@ -1,19 +1,9 @@
-// DataTable.tsx
 import React, { Fragment } from "react";
 import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
 
-// interface DataTableProps {
-//   data: any[] | IProduct[];
-//   activeTab: string;
-//   handleDelete: (id: string, type: "customer" | "product" | "order") => void;
-//   handleEdit: (id: string) => void;
-//   toggleExpandedImages: (id: string) => void;
-// }
-
 const DataTable: React.FC<any> = ({
-  data,
   activeTab,
   handleDelete,
   handleEdit,
@@ -22,6 +12,7 @@ const DataTable: React.FC<any> = ({
   customers,
   products,
   expandedImageRow,
+  orders,
 }) => {
   return (
     <>
@@ -62,7 +53,11 @@ const DataTable: React.FC<any> = ({
           </thead>
           <tbody className="text-white/90">
             {getPaginatedData(
-              activeTab === TAB_TYPE.CUSTOMER ? customers : products
+              activeTab === TAB_TYPE.CUSTOMER
+                ? customers
+                : activeTab === TAB_TYPE.PRODUCT
+                ? products
+                : orders
             )?.data?.map((item: any) => (
               <Fragment key={item.id || item._id}>
                 <tr className="border-b border-white/10">
@@ -96,7 +91,7 @@ const DataTable: React.FC<any> = ({
                         </button>
                       </td>
                     </>
-                  ) : (
+                  ) : activeTab === TAB_TYPE.PRODUCT ? (
                     <>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -147,7 +142,71 @@ const DataTable: React.FC<any> = ({
                         </button>
                       </td>
                     </>
-                  )}
+                  ) : activeTab === TAB_TYPE.ORDER ? (
+                    <>
+                      <td className="px-6 py-4">
+                        {item._id.slice(-6).toUpperCase()}
+                      </td>
+                      <td className="px-6 py-4">
+                        {item.customer.customerName}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="max-h-24 overflow-y-auto">
+                          {item.products.map((product: any, index: number) => (
+                            <div key={index} className="mb-1 text-sm">
+                              <div>{product.brand}</div>
+                              <div className="text-white/70">
+                                Qty: {product.bundleQuantity} x Size:{" "}
+                                {product.variant}"
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => toggleExpandedImages(item._id)}
+                          className="text-white/70 hover:text-white mt-1"
+                        >
+                          {expandedImageRow === item._id ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">{item.pricing.total}</td>
+                      <td className="px-6 py-4">
+                        {item.pricing.discountApplied ? (
+                          <div>
+                            <div className="text-green-400">
+                              {item.pricing.discountPercentage}% OFF
+                            </div>
+                            <div className="text-sm text-white/70">
+                              Code: {item.pricing.discountCode}
+                            </div>
+                            <div className="text-sm text-white/70">
+                              -{item.pricing.discount}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-white/50">No discount</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleEdit(item._id)}
+                          className="text-yellow-400 hover:text-yellow-600"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item._id, "order")}
+                          className="ml-2 text-red-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </>
+                  ) : null}
                 </tr>
                 {activeTab === TAB_TYPE.PRODUCT &&
                   expandedImageRow === item._id && (
@@ -164,6 +223,78 @@ const DataTable: React.FC<any> = ({
                               />
                             )
                           )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+
+                {activeTab === TAB_TYPE.ORDER &&
+                  expandedImageRow === item._id && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-4 bg-white/5">
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <h4 className="font-medium mb-2">
+                                Order Details
+                              </h4>
+                              <div className="space-y-1 text-sm">
+                                <div className="flex justify-between">
+                                  <span>Subtotal:</span>
+                                  <span>{item.pricing.subtotal}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>GST:</span>
+                                  <span>{item.pricing.gst}</span>
+                                </div>
+                                {item.pricing.tyreCharge > 0 && (
+                                  <div className="flex justify-between">
+                                    <span>Tyre Charge:</span>
+                                    <span>{item.pricing.tyreCharge}</span>
+                                  </div>
+                                )}
+                                {item.pricing.discountApplied && (
+                                  <div className="flex justify-between text-green-400">
+                                    <span>Discount:</span>
+                                    <span>-{item.pricing.discount}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between font-medium pt-2 border-t border-white/10">
+                                  <span>Total:</span>
+                                  <span>{item.pricing.total}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="font-medium mb-2">Products</h4>
+                              <div className="space-y-2">
+                                {item.products.map(
+                                  (product: any, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="text-sm bg-white/5 p-2 rounded"
+                                    >
+                                      <div className="font-medium">
+                                        {product.brand}
+                                      </div>
+                                      <div className="text-white/70">
+                                        <div>Size: {product.variant}"</div>
+                                        <div>
+                                          Bundle Quantity:{" "}
+                                          {product.bundleQuantity}
+                                        </div>
+                                        <div>
+                                          Bundle Size: {product.bundleSize}
+                                        </div>
+                                        <div>Type: {product.tyreLabel}</div>
+                                        <div>Total: {product.total}</div>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>

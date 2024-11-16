@@ -10,6 +10,37 @@ import { ICustomer } from "../../models/Customer";
 import ProductForm from "../CycleForm";
 import { IFormData } from "../../models/Form";
 
+interface IOrder {
+  _id: string;
+  customer: {
+    _id: string;
+    customerName: string;
+  };
+  products: Array<{
+    _id: {
+      _id: string;
+    };
+    brand: string;
+    variant: number;
+    bundleQuantity: number;
+    tyreLabel: string;
+    isTyreChargeable: boolean;
+    bundleSize: number;
+    total: number;
+  }>;
+  pricing: {
+    subtotal: number;
+    tyreCharge: number;
+    discount: number;
+    gst: number;
+    total: number;
+    discountApplied: boolean;
+    discountCode: string;
+    discountPercentage: number;
+    _id: string;
+  };
+}
+
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,11 +49,9 @@ const AdminPanel = () => {
   const [expandedImageRow, setExpandedImageRow] = useState<string | null>(null);
   const itemsPerPage = 5;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Sample customer data
   const [customers, setCustomers] = useState<ICustomer[]>([]);
-
   const [products, setProducts] = useState<IProduct[]>([]);
+  const [orders, setOrders] = useState<IOrder[]>([]);
   const [editModalProduct, setEditModalProduct] = useState<
     IProduct | IFormData | null
   >(null);
@@ -37,8 +66,21 @@ const AdminPanel = () => {
         fetchCustomers();
         break;
       }
+      case TAB_TYPE.ORDER: {
+        fetchOrders();
+        break;
+      }
     }
   }, [activeTab]);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await apiClient.get<IOrder[]>("/api/orders");
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -48,7 +90,7 @@ const AdminPanel = () => {
       console.error("Error fetching products:", error);
     }
   };
-  
+
   const fetchCustomers = async () => {
     try {
       const response = await apiClient.get<ICustomer[]>("/api/customers");
@@ -77,18 +119,26 @@ const AdminPanel = () => {
     };
   };
 
-  // Delete handlers
-  const handleDelete = (id: string, type: "customer" | "product") => {
+  const handleDelete = async (
+    id: string,
+    type: "customer" | "product" | "order"
+  ) => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
-      if (type === "customer") {
-        setCustomers((prev) => prev.filter((item) => item._id !== id));
-      } else {
-        setProducts((prev) => prev.filter((item) => item._id !== id));
+      try {
+        await apiClient.delete(`/api/${type}s/${id}`);
+        if (type === "customer") {
+          setCustomers((prev) => prev.filter((item) => item._id !== id));
+        } else if (type === "product") {
+          setProducts((prev) => prev.filter((item) => item._id !== id));
+        } else {
+          setOrders((prev) => prev.filter((item) => item._id !== id));
+        }
+      } catch (error) {
+        console.error(`Error deleting ${type}:`, error);
       }
     }
   };
 
-  // Toggle expanded images row
   const toggleExpandedImages = (id: string) => {
     setExpandedImageRow(expandedImageRow === id ? null : id);
   };
@@ -107,22 +157,31 @@ const AdminPanel = () => {
     fetchProducts();
   };
 
+  const getDataForCurrentTab = () => {
+    switch (activeTab) {
+      case TAB_TYPE.CUSTOMER:
+        return customers;
+      case TAB_TYPE.PRODUCT:
+        return products;
+      case TAB_TYPE.ORDER:
+        return orders;
+      default:
+        return [];
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
-        {/* tabs  */}
         <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
 
-        {/* Search Bar */}
         <SearchBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           activeTab={activeTab}
         />
 
-        {/* Data Table */}
         <DataTable
-          data={[]}
           activeTab={activeTab}
           handleDelete={handleDelete}
           handleEdit={handleEdit}
@@ -130,6 +189,7 @@ const AdminPanel = () => {
           getPaginatedData={getPaginatedData}
           customers={customers}
           products={products}
+          orders={orders}
           expandedImageRow={expandedImageRow}
         />
 
@@ -141,7 +201,6 @@ const AdminPanel = () => {
           />
         )}
 
-        {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
           <button
             disabled={page === 1}
@@ -153,10 +212,7 @@ const AdminPanel = () => {
           <span className="text-white">Page {page}</span>
           <button
             disabled={
-              page ===
-              getPaginatedData(
-                activeTab === TAB_TYPE.CUSTOMER ? customers : products
-              ).totalPages
+              page === getPaginatedData(getDataForCurrentTab()).totalPages
             }
             onClick={() => setPage(page + 1)}
             className="text-white/70 hover:text-white/90 disabled:opacity-50"

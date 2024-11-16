@@ -40,6 +40,18 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
           <User className="w-5 h-5" />
           Customers
         </button>
+        <button
+          onClick={() => setActiveTab(TAB_TYPE.ORDER)}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300
+      ${
+        activeTab === TAB_TYPE.ORDER
+          ? "bg-white/20 text-white"
+          : "bg-white/5 text-white/70 hover:bg-white/10"
+      }`}
+        >
+          <User className="w-5 h-5" />
+          Orders
+        </button>
       </div>
     </>
   );
