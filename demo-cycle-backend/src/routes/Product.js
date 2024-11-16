@@ -1,7 +1,7 @@
 // routes/productRoutes.js
 import express from "express";
-import { Category } from "../ models/Category.js";
-import { Product } from "../ models/Product.js";
+import { Category } from "../models/Category.js";
+import { Product } from "../models/Product.js";
 
 const router = express.Router();
 

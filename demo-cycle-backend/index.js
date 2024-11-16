@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import productRoutes from "./src/routes/Product.js";
 import categoryRoutes from "./src/routes/Category.js";
+import customerRoutes from "./src/routes/Customer.js";
+import orderRoutes from "./src/routes/Orders.js";
 import cors from "cors";
 
 // Load environment variables
@@ -36,6 +38,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Start server
 app.listen(port, () => {
