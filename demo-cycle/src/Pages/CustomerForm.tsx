@@ -1,67 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Camera, User, Calculator, AlertCircle } from "lucide-react";
+import { ICustomer, ICustomerFormErrors } from "../models/Customer";
+import InputField from "./Components/InputField";
 
-// Interfaces
-interface ICycle {
-  id: number;
-  brand: string;
-  bundleSize: number;
-  costPerCycle: number;
+interface CustomerFormProps {
+  onFormDataChange: (data: ICustomer) => void;
+  onValidationChange: (isValid: boolean) => void;
 }
-
-interface ICustomerFormData {
-  customerName: string;
-  selectedCycle: string;
-  bundleSize: number;
-  customerImage: string | null;
-  leadType: string;
-  description: string;
-}
-
-interface ICustomerFormErrors {
-  customerName?: string;
-  selectedCycle?: string;
-  leadType?: string;
-}
-
-interface ITouchedFields {
-  customerName?: boolean;
-  selectedCycle?: boolean;
-  leadType?: boolean;
-}
-
-interface IEstimate {
-  cyclesInBundle: number;
-  costPerCycle: number;
-  totalCost: number;
-}
-
-const CustomerForm = () => {
-  // Sample cycles data - in real app, this would come from your backend
-  const cycles: ICycle[] = [
-    { id: 1, brand: "Cycle1", bundleSize: 5, costPerCycle: 100 },
-    { id: 2, brand: "Cycle2", bundleSize: 6, costPerCycle: 150 },
-    { id: 3, brand: "Cycle3", bundleSize: 7, costPerCycle: 200 },
-  ];
-
+const CustomerForm: React.FC<CustomerFormProps> = ({
+  onFormDataChange,
+  onValidationChange,
+}) => {
   const leadTypes: string[] = ["Hot Lead", "Warm Lead", "Cold Lead"];
 
-  const [formData, setFormData] = useState<ICustomerFormData>({
+  const [formData, setFormData] = useState<ICustomer>({
     customerName: "",
-    selectedCycle: "",
-    bundleSize: 1,
     customerImage: null,
     leadType: "",
     description: "",
+    address: "",
+    transport: "",
   });
 
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
-  const [touched, setTouched] = useState<ITouchedFields>({});
-  const [estimate, setEstimate] = useState<IEstimate>({
-    cyclesInBundle: 0,
-    costPerCycle: 0,
-    totalCost: 0,
-  });
+  const [touched, setTouched] = useState<ICustomer>({} as any);
 
   // Handle image capture
   const handleImageCapture = async (): Promise<void> => {
@@ -89,28 +51,8 @@ const CustomerForm = () => {
     }
   };
 
-  // Calculate estimate when cycle or bundle size changes
-  useEffect(() => {
-    if (formData.selectedCycle) {
-      const selectedCycleData = cycles.find(
-        (c) => c.id === parseInt(formData.selectedCycle)
-      );
-      if (selectedCycleData) {
-        const cyclesInBundle =
-          selectedCycleData.bundleSize * formData.bundleSize;
-        const totalCost = cyclesInBundle * selectedCycleData.costPerCycle;
-        setEstimate({
-          cyclesInBundle,
-          costPerCycle: selectedCycleData.costPerCycle,
-          totalCost,
-        });
-      }
-    }
-  }, [formData.selectedCycle, formData.bundleSize]);
-
-  // Validation
   const validate = (
-    fieldName: keyof ICustomerFormData,
+    fieldName: keyof ICustomer,
     value: string | number
   ): boolean => {
     const newErrors = { ...errors };
@@ -123,13 +65,6 @@ const CustomerForm = () => {
           delete newErrors.customerName;
         }
         break;
-      case "selectedCycle":
-        if (!value) {
-          newErrors.selectedCycle = "Please select a cycle";
-        } else {
-          delete newErrors.selectedCycle;
-        }
-        break;
       case "leadType":
         if (!value) {
           newErrors.leadType = "Please select lead type";
@@ -140,48 +75,54 @@ const CustomerForm = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    onValidationChange(isValid);
+    return isValid;
   };
 
-  const handleBlur = (field: keyof ITouchedFields): void => {
+  const handleBlur = (field: keyof ICustomer): void => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     validate(
-      field as keyof ICustomerFormData,
-      (formData as any)[field as keyof ICustomerFormData]
+      field as keyof ICustomer,
+      (formData as any)[field as keyof ICustomer]
     );
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ): void => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (touched[name as keyof ITouchedFields]) {
-      validate(name as keyof ICustomerFormData, value);
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
+    onFormDataChange(newFormData);
+
+    if (touched[name as keyof ICustomer]) {
+      validate(name as keyof ICustomer, value);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    const touchedAll: ITouchedFields = {
-      customerName: true,
-      selectedCycle: true,
-      leadType: true,
-    };
-    setTouched(touchedAll);
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  //   e.preventDefault();
+  //   const touchedAll: ITouchedFields = {
+  //     customerName: true,
+  //     leadType: true,
+  //   };
+  //   setTouched(touchedAll);
 
-    const isValid = Object.keys(touchedAll).every((field) =>
-      validate(
-        field as keyof ICustomerFormData,
-        (formData as any)[field as keyof ICustomerFormData]
-      )
-    );
+  //   const isValid = Object.keys(touchedAll).every((field) =>
+  //     validate(
+  //       field as keyof ICustomer,
+  //       (formData as any)[field as keyof ICustomer]
+  //     )
+  //   );
 
-    if (isValid) {
-      console.log("Form submitted:", { ...formData, estimate });
-      // Handle form submission here
-    }
-  };
+  //   if (isValid) {
+  //     console.log("Form submitted:", { ...formData });
+  //     // Handle form submission here
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center">
@@ -192,88 +133,40 @@ const CustomerForm = () => {
           <h1 className="text-3xl font-bold text-white">Add New Customer</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* <form onSubmit={handleSubmit} className="space-y-6"> */}
+        <div className="space-y-6">
           {/* Customer Name */}
-          <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
-              Customer Name *
-            </label>
-            <input
-              type="text"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleInputChange}
-              onBlur={() => handleBlur("customerName")}
-              className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                ${
-                  touched.customerName && errors.customerName
-                    ? "border-red-400"
-                    : "border-white/10"
-                }
-                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white placeholder-white/50 transition-all duration-300`}
-              placeholder="Enter customer name"
-            />
-            {touched.customerName && errors.customerName && (
-              <div className="flex items-center gap-1 text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {errors.customerName}
-              </div>
-            )}
-          </div>
+          <InputField
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleBlur={handleBlur}
+            touched={touched}
+            errors={errors}
+            label={"Customer Name*"}
+            fieldKey={"customerName"}
+          />
 
-          {/* Cycle Selection */}
-          {/* <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
-              Select Cycle *
-            </label>
-            <select
-              name="selectedCycle"
-              value={formData.selectedCycle}
-              onChange={handleInputChange}
-              onBlur={() => handleBlur("selectedCycle")}
-              className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                ${
-                  touched.selectedCycle && errors.selectedCycle
-                    ? "border-red-400"
-                    : "border-white/10"
-                }
-                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white transition-all duration-300`}
-            >
-              <option value="" className="bg-gray-800">
-                Select a cycle
-              </option>
-              {cycles.map((cycle) => (
-                <option key={cycle.id} value={cycle.id} className="bg-gray-800">
-                  {cycle.brand} ({cycle.bundleSize} cycles/bundle)
-                </option>
-              ))}
-            </select>
-            {touched.selectedCycle && errors.selectedCycle && (
-              <div className="flex items-center gap-1 text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {errors.selectedCycle}
-              </div>
-            )}
-          </div> */}
+          {/* Address */}
+          <InputField
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleBlur={handleBlur}
+            touched={touched}
+            errors={errors}
+            label={"Address"}
+            fieldKey={"address"}
+          />
 
-          {/* Bundle Size */}
-          {/* <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
-              Bundle Size
-            </label>
-            <input
-              type="number"
-              name="bundleSize"
-              value={formData.bundleSize}
-              onChange={handleInputChange}
-              min="1"
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-                       focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                       text-white placeholder-white/50 transition-all duration-300"
-            />
-          </div> */}
+          {/* Transport */}
+          <InputField
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleBlur={handleBlur}
+            touched={touched}
+            errors={errors}
+            label={"Transport"}
+            fieldKey={"transport"}
+          />
 
           {/* Customer Image */}
           <div className="space-y-2">
@@ -358,8 +251,9 @@ const CustomerForm = () => {
               Description (Optional)
             </label>
             <textarea
+              name="description"
               value={formData.description}
-              onChange={(e) => handleInputChange(e)}
+              onChange={handleInputChange}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                        text-white placeholder-white/50 transition-all duration-300
@@ -368,25 +262,8 @@ const CustomerForm = () => {
             />
           </div>
 
-          {/* Estimate Display */}
-          {/* {formData.selectedCycle && (
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2 text-white/90 font-medium">
-                <Calculator className="w-5 h-5" />
-                Estimate
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-white">
-                <div>Cycles in Bundle: {estimate.cyclesInBundle}</div>
-                <div>Cost per Cycle: ₹{estimate.costPerCycle}</div>
-                <div className="col-span-2 text-lg font-bold">
-                  Total Cost: ₹{estimate.totalCost}
-                </div>
-              </div>
-            </div>
-          )} */}
-
           {/* Submit Button */}
-          <button
+          {/* <button
             type="submit"
             className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
                      hover:from-purple-600 hover:to-indigo-600 
@@ -394,8 +271,9 @@ const CustomerForm = () => {
                      transition-all duration-300 transform hover:scale-[1.02]"
           >
             Add Customer
-          </button>
-        </form>
+          </button> */}
+          {/* </form> */}
+        </div>
       </div>
     </div>
   );

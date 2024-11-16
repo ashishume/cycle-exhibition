@@ -12,6 +12,7 @@ const ProductForm: React.FC<{
     brand: "",
     imageLinks: [""],
     description: "",
+    // remarks: "", //TODO: add this
     // subtitle: "",
     category: "",
     variants: [

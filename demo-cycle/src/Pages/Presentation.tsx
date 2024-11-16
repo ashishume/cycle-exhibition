@@ -13,8 +13,8 @@ import {
 import { BIKE_DATA } from "../constants/admin";
 import { IProduct, IVariant } from "../models/Product";
 import apiClient from "../api/axios";
-import GlassButton from "./Admin/Components/GlassButton";
-import GlassToggle from "./Admin/Components/GlassToggle";
+import GlassButton from "./Components/GlassButton";
+import GlassToggle from "./Components/GlassToggle";
 
 const BikePresentation = () => {
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);

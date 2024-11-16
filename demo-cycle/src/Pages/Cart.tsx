@@ -9,6 +9,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import CustomerForm from "./CustomerForm";
+import { ICustomer } from "../models/Customer";
 
 const existingCustomers = [
   { id: 1, name: "John Doe", leadType: "Hot Lead", image: null },
@@ -17,7 +18,7 @@ const existingCustomers = [
 
 const cartItems = [
   {
-    _id: "6736e0b7c0d26faac75e02bd",
+    _id: "6736e0b7c0d26faac75e02bddd",
     brand: "BSA cycles",
     variant: 12,
     bundleQuantity: 1,
@@ -41,7 +42,7 @@ const cartItems = [
     total: 800,
   },
   {
-    _id: "6736e0b7c0d26faac75e02bd",
+    _id: "6736e0b7c0d26faac75e0ff2bd",
     brand: "BSA cycles",
     variant: 16,
     bundleQuantity: 1,
@@ -57,14 +58,21 @@ const cartItems = [
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
+  // const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [newCustomerData, setNewCustomerData] = useState<ICustomer | null>(
+    null
+  );
+  const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
   const [customerFormData, setCustomerFormData] = useState({
     customerName: "",
-    leadType: "",
     customerImage: null,
-  });
+    leadType: "",
+    description: "",
+    address: "",
+    transport: "",
+  } as ICustomer);
   const [errors, setErrors] = useState<any>({});
 
   const calculateTotals = () => {
@@ -94,11 +102,64 @@ const CartPage = () => {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCustomerFormDataChange = (data: ICustomer) => {
+    setNewCustomerData(data);
+  };
+
+  const handleCustomerFormValidationChange = (isValid: boolean) => {
+    setIsCustomerFormValid(isValid);
+  };
+
+  // const handleCheckout = () => {
+  //   const { subtotal, tyreCharge, discountAmount, gst, total } =
+  //     calculateTotals();
+  //   const checkoutData = {
+  //     customer: isNewCustomer ? customerFormData : { id: selectedCustomerId },
+  //     cycles: cartItems,
+  //     pricing: {
+  //       subtotal,
+  //       tyreCharge,
+  //       discount: discountAmount,
+  //       gst,
+  //       total,
+  //     },
+  //   };
+  //   console.log("Proceeding to checkout:", checkoutData);
+  // };
+
+  const handleCheckout = async () => {
     const { subtotal, tyreCharge, discountAmount, gst, total } =
       calculateTotals();
+
+    let customerDetails;
+
+    if (isNewCustomer) {
+      if (!isCustomerFormValid) {
+        // Show error message
+        console.log("customer form error");
+
+        return;
+      }
+      // Add new customer and get their ID
+      try {
+        // In real app, this would be an API call
+        // const newCustomerResponse = await addNewCustomer(newCustomerData);
+        customerDetails = {
+          id: 1,
+          name: "John Doe",
+          leadType: "Hot Lead",
+          image: null,
+        };
+      } catch (error) {
+        console.error("Error adding new customer:", error);
+        return;
+      }
+    } else {
+      customerDetails = { id: selectedCustomerId };
+    }
+
     const checkoutData = {
-      customer: isNewCustomer ? customerFormData : { id: selectedCustomerId },
+      customer: customerDetails,
       cycles: cartItems,
       pricing: {
         subtotal,
@@ -108,6 +169,8 @@ const CartPage = () => {
         total,
       },
     };
+
+    // Process checkout
     console.log("Proceeding to checkout:", checkoutData);
   };
 
@@ -171,7 +234,12 @@ const CartPage = () => {
                 </select>
               )}
 
-              {isNewCustomer && <CustomerForm />}
+              {isNewCustomer && (
+                <CustomerForm
+                  onFormDataChange={handleCustomerFormDataChange}
+                  onValidationChange={handleCustomerFormValidationChange}
+                />
+              )}
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-6">
@@ -265,7 +333,16 @@ const CartPage = () => {
 
               <button
                 onClick={handleCheckout}
-                className="w-full mt-6 py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-xl text-white font-medium shadow-lg transition-all duration-300 transform hover:scale-[1.02]"
+                disabled={
+                  isNewCustomer ? !isCustomerFormValid : !selectedCustomerId
+                }
+                className={`w-full mt-6 py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 
+        ${
+          (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"
+        }
+        rounded-xl text-white font-medium shadow-lg transition-all duration-300`}
               >
                 Proceed to Checkout
               </button>

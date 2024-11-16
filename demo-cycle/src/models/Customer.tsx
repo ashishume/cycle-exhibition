@@ -1,9 +1,17 @@
 export interface ICustomer {
-  id: string;
+  _id?: string;
   customerName: string;
-  selectedProduct: string;
-  bundleSize: number;
   customerImage: string | null;
   leadType: string;
-  totalCost: number;
+  description: string;
+  address: string;
+  transport: string;
+}
+
+
+export interface ICustomerFormErrors {
+  customerName?: string;
+  leadType?: string;
+  transport?: string;
+  address?: string;
 }

@@ -18,10 +18,18 @@ const RoutesComponent: React.FC = () => {
       <Routes>
         {/* Define your routes here */}
         <Route path="/" element={<CyclesList />} />
-        <Route path="/customer-form" element={<CustomerForm />} />
+        <Route
+          path="/customer-form"
+          element={
+            <CustomerForm
+              onFormDataChange={() => {}}
+              onValidationChange={() => {}}
+            />
+          }
+        />
         <Route
           path="/cycle-form"
-          element={<ProductForm mode="add" product={null} />}
+          element={<ProductForm mode="add" product={null} onClose={() => {}} />}
         />
         <Route path="/presentation" element={<BikePresentation />} />
         <Route path="/cart" element={<CartPage />} />
