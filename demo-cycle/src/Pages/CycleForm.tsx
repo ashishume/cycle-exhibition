@@ -65,8 +65,6 @@ const ProductForm: React.FC<{
   // Initialize form data with product details when editing
   useEffect(() => {
     if (mode == "edit" && product) {
-      console.log(product);
-
       setFormData({
         brand: product.brand,
         imageLinks: product.imageLinks,

@@ -92,11 +92,14 @@ const CartPage = () => {
           "/api/customers",
           newCustomerData
         );
+        const { customerName, customerImage, leadType, _id } =
+          customerResponse?.data;
+
         customerDetails = {
-          id: customerResponse.data.id,
-          name: customerResponse.data.customerName,
-          leadType: customerResponse.data.leadType,
-          image: customerResponse.data.customerImage,
+          id: _id,
+          name: customerName,
+          leadType: leadType,
+          image: customerImage,
         };
       } else {
         if (!selectedCustomerId) {
@@ -144,7 +147,6 @@ const CartPage = () => {
       setDiscount(0);
       setSelectedCustomerId("");
       setNewCustomerData(null);
-      console.log(orderResponse);
 
       // You might want to redirect to an order confirmation page
       // navigate(`/order-confirmation/${orderResponse.data.orderId}`);
@@ -221,6 +223,7 @@ const CartPage = () => {
 
               {isNewCustomer && (
                 <CustomerForm
+                  isCheckoutPage={true}
                   onFormDataChange={handleCustomerFormDataChange}
                   onValidationChange={handleCustomerFormValidationChange}
                 />
@@ -233,9 +236,9 @@ const CartPage = () => {
               </h2>
               <div className="space-y-4">
                 {cartItems?.length ? (
-                  cartItems.map((item) => (
+                  cartItems.map((item, index: number) => (
                     <div
-                      key={item._id}
+                      key={index}
                       className="flex items-center gap-4 p-4 bg-white/5 rounded-xl"
                     >
                       <div className="flex-1">

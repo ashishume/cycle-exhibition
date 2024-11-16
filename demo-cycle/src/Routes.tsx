@@ -22,6 +22,7 @@ const RoutesComponent: React.FC = () => {
           path="/customer-form"
           element={
             <CustomerForm
+              isCheckoutPage={false}
               onFormDataChange={() => {}}
               onValidationChange={() => {}}
             />

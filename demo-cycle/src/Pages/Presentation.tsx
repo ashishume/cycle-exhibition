@@ -142,8 +142,6 @@ const BikePresentation = () => {
     setTyreStatus("");
   };
 
-  console.log(cartItems);
-
   const handleSizeChange = (variant: any) => {
     setCurrentVariant(variant);
   };

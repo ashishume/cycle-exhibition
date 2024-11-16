@@ -2,29 +2,33 @@ import React, { useState, useEffect } from "react";
 import { Camera, User, Calculator, AlertCircle } from "lucide-react";
 import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
+import apiClient from "../api/axios";
 
 interface CustomerFormProps {
   onFormDataChange: (data: ICustomer) => void;
   onValidationChange: (isValid: boolean) => void;
+  isCheckoutPage: boolean;
 }
 const CustomerForm: React.FC<CustomerFormProps> = ({
   onFormDataChange,
   onValidationChange,
+  isCheckoutPage = false,
 }) => {
-  const leadTypes: string[] = ["Hot Lead", "Warm Lead", "Cold Lead"];
-
-  const [formData, setFormData] = useState<ICustomer>({
+  const initialState = {
     customerName: "",
     customerImage: null,
     leadType: "",
     description: "",
     address: "",
     transport: "",
-  });
+  };
+  const leadTypes: string[] = ["Hot Lead", "Warm Lead", "Cold Lead"];
+
+  const [formData, setFormData] = useState<ICustomer>(initialState);
 
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
   const [touched, setTouched] = useState<ICustomer>({} as any);
-
+  const [customerAdditionError, setCustomerAdditionError] = useState(null);
   // Handle image capture
   const handleImageCapture = async (): Promise<void> => {
     try {
@@ -103,26 +107,44 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     }
   };
 
-  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-  //   e.preventDefault();
-  //   const touchedAll: ITouchedFields = {
-  //     customerName: true,
-  //     leadType: true,
-  //   };
-  //   setTouched(touchedAll);
+  /**
+   * submit only when page is opened individually
+   * @param e
+   */
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const touchedAll: any = {
+      customerName: true,
+      leadType: true,
+    };
+    setTouched(touchedAll);
 
-  //   const isValid = Object.keys(touchedAll).every((field) =>
-  //     validate(
-  //       field as keyof ICustomer,
-  //       (formData as any)[field as keyof ICustomer]
-  //     )
-  //   );
+    const isValid = Object.keys(touchedAll).every((field) =>
+      validate(
+        field as keyof ICustomer,
+        (formData as any)[field as keyof ICustomer]
+      )
+    );
 
-  //   if (isValid) {
-  //     console.log("Form submitted:", { ...formData });
-  //     // Handle form submission here
-  //   }
-  // };
+    if (isValid) {
+      try {
+        // Handle form submission here
+        const customerResponse = await apiClient.post(
+          "/api/customers",
+          formData
+        );
+
+        if (customerResponse.status === 201) {
+          setFormData(initialState);
+        }
+      } catch (error: any) {
+        setCustomerAdditionError(
+          error.response?.data?.message ||
+            "Something went wrong with customer addition"
+        );
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center">
@@ -263,15 +285,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           </div>
 
           {/* Submit Button */}
-          {/* <button
-            type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+          {!isCheckoutPage ? (
+            <button
+              onClick={(e) => handleSubmit(e)}
+              className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
                      hover:from-purple-600 hover:to-indigo-600 
                      rounded-xl text-white font-medium shadow-lg
                      transition-all duration-300 transform hover:scale-[1.02]"
-          >
-            Add Customer
-          </button> */}
+            >
+              Add Customer
+            </button>
+          ) : null}
           {/* </form> */}
         </div>
       </div>

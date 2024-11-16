@@ -23,8 +23,6 @@ const DataTable: React.FC<any> = ({
   products,
   expandedImageRow,
 }) => {
-  console.log(activeTab);
-
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">
