@@ -1,44 +1,39 @@
-import React, { useState } from "react";
-import {
-  User,
-  Bike,
-  Tag,
-  ShoppingCart,
-  Plus,
-  X,
-  AlertCircle,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Tag, ShoppingCart, AlertCircle } from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
 import { loadCartFromStorage } from "../utils/Localstorage";
 import { ICart } from "../models/Cart";
-
-const existingCustomers = [
-  { id: 1, name: "John Doe", leadType: "Hot Lead", image: null },
-  { id: 2, name: "Jane Smith", leadType: "Warm Lead", image: null },
-];
+import apiClient from "../api/axios";
+import { CART_STORAGE_KEY } from "../constants/Cart";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
-  // const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
   const [newCustomerData, setNewCustomerData] = useState<ICustomer | null>(
     null
   );
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
-  const [customerFormData, setCustomerFormData] = useState({
-    customerName: "",
-    customerImage: null,
-    leadType: "",
-    description: "",
-    address: "",
-    transport: "",
-  } as ICustomer);
-
   const [cartItems, setCartItems] = useState<ICart[]>(loadCartFromStorage());
   const [errors, setErrors] = useState<any>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await apiClient.get<ICustomer[]>("/api/customers");
+      setCustomers(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   const calculateTotals = () => {
     const subtotal = cartItems.reduce((total, item) => total + item.total, 0);
@@ -76,50 +71,92 @@ const CartPage = () => {
   };
 
   const handleCheckout = async () => {
+    setIsLoading(true);
+    setCheckoutError("");
+
     const { subtotal, tyreCharge, discountAmount, gst, total } =
       calculateTotals();
-
     let customerDetails;
 
-    if (isNewCustomer) {
-      if (!isCustomerFormValid) {
-        // Show error message
-        console.log("customer form error");
+    try {
+      // Handle customer creation/selection
+      if (isNewCustomer) {
+        if (!isCustomerFormValid || !newCustomerData) {
+          setCheckoutError("Please fill in all required customer information");
+          setIsLoading(false);
+          return;
+        }
 
-        return;
-      }
-      // Add new customer and get their ID
-      try {
-        // In real app, this would be an API call
-        // const newCustomerResponse = await addNewCustomer(newCustomerData);
+        // Create new customer
+        const customerResponse = await apiClient.post(
+          "/api/customers",
+          newCustomerData
+        );
         customerDetails = {
-          id: 1,
-          name: "John Doe",
-          leadType: "Hot Lead",
-          image: null,
+          id: customerResponse.data.id,
+          name: customerResponse.data.customerName,
+          leadType: customerResponse.data.leadType,
+          image: customerResponse.data.customerImage,
         };
-      } catch (error) {
-        console.error("Error adding new customer:", error);
-        return;
+      } else {
+        if (!selectedCustomerId) {
+          setCheckoutError("Please select a customer");
+          setIsLoading(false);
+          return;
+        }
+        customerDetails = { id: selectedCustomerId };
       }
-    } else {
-      customerDetails = { id: selectedCustomerId };
+
+      // Prepare order data
+      const orderData = {
+        customer: customerDetails.id,
+        products: cartItems.map((item) => ({
+          _id: item._id,
+          brand: item.brand,
+          variant: item.variant,
+          bundleQuantity: item.bundleQuantity,
+          totalCycles: item.totalCycles,
+          isTyreChargeable: item.isTyreChargeable,
+          tyreLabel: item.tyreLabel,
+          costPerCycle: item.costPerCycle,
+          bundleSize: item.bundleSize,
+          total: item.total,
+        })),
+        pricing: {
+          subtotal,
+          tyreCharge,
+          discount: discountAmount,
+          gst,
+          total,
+          discountApplied: discount > 0,
+          discountCode: discount > 0 ? couponCode : null,
+          discountPercentage: discount,
+        },
+      };
+
+      // Create order
+      const orderResponse = await apiClient.post("/api/orders", orderData);
+
+      // Clear cart and reset state after successful order
+      localStorage.removeItem(CART_STORAGE_KEY);
+      setCartItems([]);
+      setCouponCode("");
+      setDiscount(0);
+      setSelectedCustomerId("");
+      setNewCustomerData(null);
+      console.log(orderResponse);
+
+      // You might want to redirect to an order confirmation page
+      // navigate(`/order-confirmation/${orderResponse.data.orderId}`);
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      setCheckoutError(
+        error.response?.data?.message ||
+          "An error occurred during checkout. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    const checkoutData = {
-      customer: customerDetails,
-      cycles: cartItems,
-      pricing: {
-        subtotal,
-        tyreCharge,
-        discount: discountAmount,
-        gst,
-        total,
-      },
-    };
-
-    // Process checkout
-    console.log("Proceeding to checkout:", checkoutData);
   };
 
   const { subtotal, tyreCharge, discountAmount, gst, total } =
@@ -170,13 +207,13 @@ const CartPage = () => {
                   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
                 >
                   <option value="">Select a customer</option>
-                  {existingCustomers.map((customer) => (
+                  {customers.map((customer: ICustomer) => (
                     <option
-                      key={customer.id}
-                      value={customer.id}
+                      key={customer._id}
+                      value={customer._id}
                       className="bg-gray-800"
                     >
-                      {customer.name} ({customer.leadType})
+                      {customer.customerName} ({customer.leadType})
                     </option>
                   ))}
                 </select>
