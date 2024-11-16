@@ -2,6 +2,11 @@ import React, { Fragment } from "react";
 import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
+import {
+  CustomerHeaders,
+  OrdersHeaders,
+  ProductHeaders,
+} from "./DataTableComponents/Headers";
 
 const DataTable: React.FC<any> = ({
   activeTab,
@@ -30,50 +35,11 @@ const DataTable: React.FC<any> = ({
           <thead className="bg-white/5">
             <tr>
               {activeTab === TAB_TYPE.CUSTOMER ? (
-                <>
-                  <th className="px-6 py-4 text-left text-white/90">Image</th>
-                  <th className="px-6 py-4 text-left text-white/90">Name</th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Lead Type
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Description
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">Address</th>
-                  <th className="px-6 py-4 text-left text-white/90">Actions</th>
-                </>
+                <CustomerHeaders />
               ) : activeTab === TAB_TYPE.PRODUCT ? (
-                <>
-                  <th className="px-6 py-4 text-left text-white/90">Images</th>
-                  <th className="px-6 py-4 text-left text-white/90">Brand</th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    tubeless/branded
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Category
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Variants
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">Actions</th>
-                </>
+                <ProductHeaders />
               ) : activeTab === TAB_TYPE.ORDER ? (
-                <>
-                  {/* <th className="px-6 py-4 text-left text-white/90">
-                    Order ID
-                  </th> */}
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Customer
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Products
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">Total</th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Discount
-                  </th>
-                  <th className="px-6 py-4 text-left text-white/90">Actions</th>
-                </>
+                <OrdersHeaders />
               ) : null}
             </tr>
           </thead>
@@ -102,7 +68,7 @@ const DataTable: React.FC<any> = ({
                       <td className="px-6 py-4">₹{item.address}</td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleEdit(item.id)}
+                          onClick={() => handleEdit(item.id, TAB_TYPE.CUSTOMER)}
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
@@ -155,7 +121,7 @@ const DataTable: React.FC<any> = ({
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleEdit(item._id)}
+                          onClick={() => handleEdit(item._id, TAB_TYPE.PRODUCT)}
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
@@ -221,7 +187,7 @@ const DataTable: React.FC<any> = ({
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleEdit(item._id)}
+                          onClick={() => handleEdit(item._id, TAB_TYPE.ORDER)}
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
@@ -236,6 +202,8 @@ const DataTable: React.FC<any> = ({
                     </>
                   ) : null}
                 </tr>
+
+                {/* expanded content for products */}
                 {activeTab === TAB_TYPE.PRODUCT &&
                   expandedImageRow === item._id && (
                     <tr>
@@ -256,6 +224,7 @@ const DataTable: React.FC<any> = ({
                     </tr>
                   )}
 
+                {/* expanded content for orders */}
                 {activeTab === TAB_TYPE.ORDER &&
                   expandedImageRow === item._id && (
                     <tr>

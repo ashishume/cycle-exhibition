@@ -143,11 +143,22 @@ const AdminPanel = () => {
     setExpandedImageRow(expandedImageRow === id ? null : id);
   };
 
-  const handleEdit = (id: string) => {
-    const productToEdit = products.find((p) => p._id === id);
-    if (productToEdit) {
-      setEditModalProduct(productToEdit);
-      setIsEditModalOpen(true);
+  const handleEdit = (id: string, editTab: string) => {
+    switch (editTab) {
+      case TAB_TYPE.PRODUCT: {
+        const productToEdit = products.find((p) => p._id === id);
+        if (productToEdit) {
+          setEditModalProduct(productToEdit);
+          setIsEditModalOpen(true);
+        }
+        break;
+      }
+      case TAB_TYPE.ORDER: {
+        break;
+      }
+      case TAB_TYPE.CUSTOMER: {
+        break;
+      }
     }
   };
 

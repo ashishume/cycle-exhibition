@@ -51,18 +51,18 @@ const ProductForm: React.FC<{
   const [categories, setCategories] = useState([] as ICategory[]);
 
   // Lock body scroll when modal is open
-  useEffect(() => {
-    if (product) {
-      document.body.style.overflow = "hidden"; // Disable body scrolling when modal is open
-    } else {
-      document.body.style.overflow = "auto"; // Enable scrolling when modal is closed
-    }
+  // useEffect(() => {
+  //   if (product) {
+  //     document.body.style.overflow = "hidden"; // Disable body scrolling when modal is open
+  //   } else {
+  //     document.body.style.overflow = "auto"; // Enable scrolling when modal is closed
+  //   }
 
-    // Cleanup to reset the scroll style when modal is closed
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [product]);
+  //   // Cleanup to reset the scroll style when modal is closed
+  //   return () => {
+  //     document.body.style.overflow = "auto";
+  //   };
+  // }, [product]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -256,7 +256,7 @@ const ProductForm: React.FC<{
     <div
       className={`${
         mode === "edit"
-          ? "fixed top-[-3rem] left-0 right-0 bottom-0 flex justify-center z-50"
+          ? "fixed inset-0 flex justify-center z-50"
           : ""
       }`}
     >
@@ -269,7 +269,7 @@ const ProductForm: React.FC<{
       >
         <div
           className={`${
-            mode === "edit" ? "h-[90vh] overflow-y-auto" : ""
+            mode === "edit" ? "h-[100vh] overflow-y-auto" : ""
           } w-full max-w-2xl bg-[#2d2d2d]  backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8`}
         >
           {/* Header */}
