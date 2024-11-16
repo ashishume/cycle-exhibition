@@ -15,6 +15,7 @@ export interface IProduct {
   category: ICategory;
   variants: IVariant[];
   bundleSize: number;
-  tyreTypeLabel: string;
+  tyreLabel: string;
+  isTyreChargeable: boolean;
   __v: number;
 }

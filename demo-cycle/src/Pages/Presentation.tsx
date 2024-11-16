@@ -10,32 +10,43 @@ import {
   Info,
   Package,
 } from "lucide-react";
-import { BIKE_DATA } from "../constants/admin";
 import { IProduct, IVariant } from "../models/Product";
 import apiClient from "../api/axios";
 import GlassButton from "./Components/GlassButton";
-import GlassToggle from "./Components/GlassToggle";
+import GlassDropdown from "./Components/GlassDropdown";
+import { useNavigate } from "react-router-dom";
+import { loadCartFromStorage } from "../utils/Localstorage";
+import { CART_STORAGE_KEY } from "../constants/Cart";
 
 const BikePresentation = () => {
+  const navigate = useNavigate();
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);
   const [currentModelIndex, setCurrentModelIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [bundleQuantity, setBundleQuantity] = useState(1);
   const [showDescription, setShowDescription] = useState(false);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+
   const [showControls, setShowControls] = useState(true);
   const [products, setProducts] = useState([] as IProduct[]);
   const currentBike = products[currentBrandIndex];
   const [currentPriceVariant, setCurrentVariant] = useState<IVariant | null>(
     null
   );
-
-  const [isTyreChargeable, setIsTyreChargeable] = useState(false);
+  const [tyreStatus, setTyreStatus] = useState("");
   const totalCycles = bundleQuantity * (currentBike?.bundleSize || 0);
   const totalCost =
     bundleQuantity *
     (currentBike?.bundleSize || 0) *
     (currentPriceVariant?.costPerProduct || 0);
+
+  const [cartItems, setCartItems] = useState<any[]>(loadCartFromStorage());
+
+  const tyreOptions = [
+    { label: "Branded", value: "branded" },
+    { label: "Non branded", value: "non-branded" },
+    { label: "Tubeless", value: "tubeless" },
+    { label: "Tube tyre", value: "tube-tyre" },
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -47,6 +58,11 @@ const BikePresentation = () => {
     );
   }, [currentBike]);
 
+  //add items to cart into localstorage
+  useEffect(() => {
+    saveCartToStorage(cartItems);
+  }, [cartItems]);
+
   const fetchProducts = async () => {
     try {
       const response = await apiClient.get<IProduct[]>("/api/products");
@@ -55,7 +71,14 @@ const BikePresentation = () => {
       console.error("Error fetching products:", error);
     }
   };
-  console.log(cartItems);
+
+  const saveCartToStorage = (cart: any[]) => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch (error) {
+      console.error("Error saving cart to storage:", error);
+    }
+  };
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
@@ -77,13 +100,13 @@ const BikePresentation = () => {
         case "ArrowUp":
           setIsTransitioning(true);
           setCurrentBrandIndex((prev) =>
-            prev === 0 ? BIKE_DATA.length - 1 : prev - 1
+            prev === 0 ? products?.length - 1 : prev - 1
           );
           setCurrentModelIndex(0);
           break;
         case "ArrowDown":
           setIsTransitioning(true);
-          setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
+          setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
           setCurrentModelIndex(0);
           break;
         default:
@@ -104,22 +127,29 @@ const BikePresentation = () => {
       variant: currentPriceVariant?.size,
       bundleQuantity,
       totalCycles,
-      isTyreChargeable,
-      tyreTypeLabel: currentBike?.tyreTypeLabel,
+      isTyreChargeable: tyreStatus === "branded" || tyreStatus === "tube-tyre",
+      tyreLabel: tyreStatus,
       costPerCycle: currentPriceVariant?.costPerProduct,
       bundleSize: currentBike?.bundleSize,
-      total: totalCost + (isTyreChargeable === true ? 300 : 0),
+      total:
+        totalCost +
+        ((tyreStatus === "branded" || tyreStatus === "tube-tyre") === true
+          ? 300
+          : 0),
     };
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
+    setTyreStatus("");
   };
+
+  console.log(cartItems);
 
   const handleSizeChange = (variant: any) => {
     setCurrentVariant(variant);
   };
 
-  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsTyreChargeable(e.target.checked);
+  const handleDropdownChange = (value: any) => {
+    setTyreStatus(value);
   };
 
   return (
@@ -137,11 +167,15 @@ const BikePresentation = () => {
           <div className="text-white text-right">
             <div className="text-xs md:text-sm opacity-80">Cart Total</div>
             <div className="text-sm md:text-base font-bold">
-              ${cartItems.reduce((sum, item) => sum + item.total, 0).toFixed(2)}
+              ₹{" "}
+              {cartItems.reduce((sum, item) => sum + item.total, 0).toFixed(2)}
             </div>
           </div>
           <div className="relative">
-            <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <ShoppingCart
+              className="w-5 h-5 md:w-6 md:h-6 text-white"
+              onClick={() => navigate("/cart")}
+            />
             {cartItems.length > 0 && (
               <div className="absolute -top-2 -right-2 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full flex items-center justify-center">
                 <span className="text-xs font-bold text-indigo-600">
@@ -259,9 +293,6 @@ const BikePresentation = () => {
               className="text-sm md:text-base"
             >
               <ChevronLeft size={20} className="animate-pulse" />
-              <span className="hidden md:inline text-sm font-medium uppercase tracking-wider">
-                Previous
-              </span>
             </GlassButton>
 
             <GlassButton
@@ -273,9 +304,6 @@ const BikePresentation = () => {
               className="text-sm md:text-base"
             >
               <ChevronRight size={20} className="animate-pulse" />
-              <span className="hidden md:inline text-sm font-medium uppercase tracking-wider">
-                Next
-              </span>
             </GlassButton>
 
             <GlassButton
@@ -310,6 +338,12 @@ const BikePresentation = () => {
                 <Plus size={18} />
               </button>
             </div>
+            <GlassDropdown
+              options={tyreOptions}
+              placeholder="Select tyre type"
+              value={tyreStatus}
+              onChange={(value) => handleDropdownChange(value)}
+            />
 
             <GlassButton
               onClick={handleAddToCart}
@@ -320,20 +354,6 @@ const BikePresentation = () => {
                 Add to Cart
               </span>
             </GlassButton>
-            <GlassToggle
-              label1={
-                currentBike?.tyreTypeLabel === "tubeless"
-                  ? "Tubeless"
-                  : "Non-branded"
-              }
-              label2={
-                currentBike?.tyreTypeLabel === "tubeless"
-                  ? "Tyre tube"
-                  : "Branded"
-              }
-              checked={isTyreChargeable}
-              onChange={onChangeHandler}
-            />
           </div>
         </div>
       </div>
@@ -364,7 +384,7 @@ const BikePresentation = () => {
           onClick={() => {
             setIsTransitioning(true);
             setCurrentBrandIndex((prev) =>
-              prev === 0 ? BIKE_DATA.length - 1 : prev - 1
+              prev === 0 ? products?.length - 1 : prev - 1
             );
             setCurrentModelIndex(0);
           }}
@@ -379,7 +399,7 @@ const BikePresentation = () => {
         <GlassButton
           onClick={() => {
             setIsTransitioning(true);
-            setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
+            setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
             setCurrentModelIndex(0);
           }}
           className="pointer-events-auto"
@@ -397,7 +417,7 @@ const BikePresentation = () => {
           onClick={() => {
             setIsTransitioning(true);
             setCurrentBrandIndex((prev) =>
-              prev === 0 ? BIKE_DATA.length - 1 : prev - 1
+              prev === 0 ? products?.length - 1 : prev - 1
             );
             setCurrentModelIndex(0);
           }}
@@ -409,7 +429,7 @@ const BikePresentation = () => {
         <GlassButton
           onClick={() => {
             setIsTransitioning(true);
-            setCurrentBrandIndex((prev) => (prev + 1) % BIKE_DATA.length);
+            setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
             setCurrentModelIndex(0);
           }}
           className="!p-2"

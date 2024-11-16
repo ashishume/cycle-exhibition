@@ -66,7 +66,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         }
         break;
       case "leadType":
-        if (!value) {
+        if (!String(value).trim()) {
           newErrors.leadType = "Please select lead type";
         } else {
           delete newErrors.leadType;

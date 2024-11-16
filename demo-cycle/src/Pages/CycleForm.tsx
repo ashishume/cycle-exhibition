@@ -42,7 +42,8 @@ const ProductForm: React.FC<{
       },
     ],
     bundleSize: 1,
-    tyreTypeLabel: "",
+    tyreLabel: "",
+    isTyreChargeable: false,
   };
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
@@ -77,7 +78,8 @@ const ProductForm: React.FC<{
             : product.category?.slug || "",
         variants: product.variants,
         bundleSize: product.bundleSize,
-        tyreTypeLabel: product.tyreTypeLabel,
+        tyreLabel: product.tyreLabel,
+        isTyreChargeable: product.isTyreChargeable,
       });
     }
   }, [product]);
@@ -180,7 +182,8 @@ const ProductForm: React.FC<{
       category: formData.category,
       variants: formData.variants,
       bundleSize: Number(formData.bundleSize),
-      tyreTypeLabel: formData.tyreTypeLabel,
+      tyreLabel: formData.tyreLabel,
+      isTyreChargeable: formData.isTyreChargeable,
     };
   };
 
@@ -500,9 +503,9 @@ const ProductForm: React.FC<{
                   <input
                     type="radio"
                     name="tyre-type"
-                    checked={formData.tyreTypeLabel === "tubeless"}
+                    checked={formData.tyreLabel === "tubeless"}
                     value="tubeless"
-                    onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                    onChange={(e) => handleInputChange(e, "tyreLabel")}
                     className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
                   />
                   <span className="text-white/90">Tubeless/Tube tyre</span>
@@ -512,8 +515,8 @@ const ProductForm: React.FC<{
                     type="radio"
                     name="tyre-type"
                     value="branded"
-                    checked={formData.tyreTypeLabel === "branded"}
-                    onChange={(e) => handleInputChange(e, "tyreTypeLabel")}
+                    checked={formData.tyreLabel === "branded"}
+                    onChange={(e) => handleInputChange(e, "tyreLabel")}
                     className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
                   />
                   <span className="text-white/90">

@@ -10,49 +10,12 @@ import {
 } from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
+import { loadCartFromStorage } from "../utils/Localstorage";
+import { ICart } from "../models/Cart";
 
 const existingCustomers = [
   { id: 1, name: "John Doe", leadType: "Hot Lead", image: null },
   { id: 2, name: "Jane Smith", leadType: "Warm Lead", image: null },
-];
-
-const cartItems = [
-  {
-    _id: "6736e0b7c0d26faac75e02bddd",
-    brand: "BSA cycles",
-    variant: 12,
-    bundleQuantity: 1,
-    totalCycles: 10,
-    isTyreChargeable: true,
-    tyreTypeLabel: "branded",
-    costPerCycle: 2000,
-    bundleSize: 5,
-    total: 20300,
-  },
-  {
-    _id: "6736e0b7c0d26faac75e02bd",
-    brand: "BSA cycles",
-    variant: 16,
-    bundleQuantity: 1,
-    totalCycles: 5,
-    isTyreChargeable: true,
-    tyreTypeLabel: "branded",
-    costPerCycle: 100,
-    bundleSize: 5,
-    total: 800,
-  },
-  {
-    _id: "6736e0b7c0d26faac75e0ff2bd",
-    brand: "BSA cycles",
-    variant: 16,
-    bundleQuantity: 1,
-    totalCycles: 5,
-    isTyreChargeable: true,
-    tyreTypeLabel: "branded",
-    costPerCycle: 100,
-    bundleSize: 5,
-    total: 800,
-  },
 ];
 
 const CartPage = () => {
@@ -73,6 +36,8 @@ const CartPage = () => {
     address: "",
     transport: "",
   } as ICustomer);
+
+  const [cartItems, setCartItems] = useState<ICart[]>(loadCartFromStorage());
   const [errors, setErrors] = useState<any>({});
 
   const calculateTotals = () => {
@@ -109,23 +74,6 @@ const CartPage = () => {
   const handleCustomerFormValidationChange = (isValid: boolean) => {
     setIsCustomerFormValid(isValid);
   };
-
-  // const handleCheckout = () => {
-  //   const { subtotal, tyreCharge, discountAmount, gst, total } =
-  //     calculateTotals();
-  //   const checkoutData = {
-  //     customer: isNewCustomer ? customerFormData : { id: selectedCustomerId },
-  //     cycles: cartItems,
-  //     pricing: {
-  //       subtotal,
-  //       tyreCharge,
-  //       discount: discountAmount,
-  //       gst,
-  //       total,
-  //     },
-  //   };
-  //   console.log("Proceeding to checkout:", checkoutData);
-  // };
 
   const handleCheckout = async () => {
     const { subtotal, tyreCharge, discountAmount, gst, total } =
@@ -244,28 +192,34 @@ const CartPage = () => {
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-6">
               <h2 className="text-xl font-semibold text-white mb-4">
-                Selected Cycles
+                Selected Products
               </h2>
               <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div
-                    key={item._id}
-                    className="flex items-center gap-4 p-4 bg-white/5 rounded-xl"
-                  >
-                    <div className="flex-1">
+                {cartItems?.length ? (
+                  cartItems.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center gap-4 p-4 bg-white/5 rounded-xl"
+                    >
+                      <div className="flex-1">
+                        <div className="text-white font-medium">
+                          {item.brand} ({item.variant} inch)
+                        </div>
+                        <div className="text-white/70 text-sm">
+                          ₹{item.costPerCycle}/cycle, {item.totalCycles} cycles
+                        </div>
+                      </div>
+                      <div className="text-white/90">
+                        Quantity: {item.bundleSize}
+                      </div>
                       <div className="text-white font-medium">
-                        {item.brand} ({item.variant} inch)
-                      </div>
-                      <div className="text-white/70 text-sm">
-                        ₹{item.costPerCycle}/cycle, {item.totalCycles} cycles
+                        ₹{item.total}
                       </div>
                     </div>
-                    <div className="text-white/90">
-                      Quantity: {item.bundleSize}
-                    </div>
-                    <div className="text-white font-medium">₹{item.total}</div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-white">No products added</div>
+                )}
               </div>
             </div>
           </div>

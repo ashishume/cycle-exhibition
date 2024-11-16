@@ -16,7 +16,8 @@ router.post("/", async (req, res) => {
       category,
       variants,
       bundleSize,
-      tyreTypeLabel,
+      tyreLabel,
+      isTyreChargeable,
     } = req.body;
 
     // Check if category exists in Category collection
@@ -34,7 +35,8 @@ router.post("/", async (req, res) => {
       category: foundCategory._id, // Reference the ObjectId of the Category
       variants,
       bundleSize,
-      tyreTypeLabel,
+      tyreLabel,
+      isTyreChargeable,
     });
 
     await newProduct.save();
@@ -93,7 +95,8 @@ router.patch("/:id", async (req, res) => {
       category,
       variants,
       bundleSize,
-      tyreTypeLabel,
+      tyreLabel,
+      isTyreChargeable,
     } = req.body;
 
     // Validate category ID
@@ -116,7 +119,8 @@ router.patch("/:id", async (req, res) => {
         category: req.body.category,
         variants,
         bundleSize,
-        tyreTypeLabel,
+        tyreLabel,
+        isTyreChargeable,
       },
       { new: true, runValidators: true }
     );
