@@ -16,7 +16,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const cartItems = loadCartFromStorage();
-
+  // If we're on the presentation page, don't render anything
+  if (location.pathname === "/presentation") {
+    return null;
+  }
   const navigation = [
     { name: "Home", href: "/", icon: Home },
     { name: "Customers", href: "/customer-form", icon: Users },
@@ -144,4 +147,19 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+// Create a wrapper component that handles the conditional rendering
+const NavbarWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const location = useLocation();
+  const showNavbar = location.pathname !== "/presentation";
+
+  return (
+    <>
+      {showNavbar && <Navbar />}
+      <div className={showNavbar ? "pt-16" : ""}>{children}</div>
+    </>
+  );
+};
+
+export default NavbarWrapper;

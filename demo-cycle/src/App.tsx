@@ -2,14 +2,9 @@ import RoutesComponent from "./Routes";
 
 const App = () => {
   return (
-    <>
-      {/* <ProductForm/> */}
-      {/* <CustomerForm /> */}
-      {/* <CyclesList /> */}
-
+    <div className="bg-gradient-to-br from-indigo-600 to-purple-700">
       <RoutesComponent />
-      {/* <BikePresentation /> */}
-    </>
+    </div>
   );
 };
 

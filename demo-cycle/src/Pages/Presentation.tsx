@@ -152,7 +152,7 @@ const BikePresentation = () => {
 
   return (
     <div
-      className={`relative w-screen h-screen overflow-hidden bg-gradient-to-br from-purple-600 to-violet-800`}
+      className={`relative w-screen h-screen overflow-hidden`}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">

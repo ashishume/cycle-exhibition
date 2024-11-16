@@ -8,13 +8,12 @@ import ProductForm from "./Pages/CycleForm";
 import BikePresentation from "./Pages/Presentation";
 import CartPage from "./Pages/Cart";
 import AdminPanel from "./Pages/Admin/Dashboard";
-import Navbar from "./Pages/Components/Navbar";
+import NavbarWrapper from "./Pages/Components/Navbar";
 
 const RoutesComponent: React.FC = () => {
   return (
     <Router>
-      <Navbar />
-      <div className="pt-16">
+      <NavbarWrapper>
         <Routes>
           {/* Define your routes here */}
           <Route path="/" element={<CyclesList />} />
@@ -41,7 +40,7 @@ const RoutesComponent: React.FC = () => {
           {/* Catch-all route for 404 */}
           <Route path="*" element={<div>Page not found</div>} />
         </Routes>
-      </div>
+      </NavbarWrapper>
     </Router>
   );
 };
