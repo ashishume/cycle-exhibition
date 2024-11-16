@@ -5,6 +5,8 @@ import productRoutes from "./src/routes/Product.js";
 import categoryRoutes from "./src/routes/Category.js";
 import customerRoutes from "./src/routes/Customer.js";
 import orderRoutes from "./src/routes/Orders.js";
+import couponRoutes from "./src/routes/Coupon.js";
+
 import cors from "cors";
 
 // Load environment variables
@@ -40,6 +42,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/coupons", couponRoutes);
+
 
 // Start server
 app.listen(port, () => {
