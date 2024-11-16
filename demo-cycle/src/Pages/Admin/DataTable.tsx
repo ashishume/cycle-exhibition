@@ -14,6 +14,15 @@ const DataTable: React.FC<any> = ({
   expandedImageRow,
   orders,
 }) => {
+  function formatToIndianCurrency(amount: number) {
+    let amountStr = amount.toString();
+    let [integer, decimal] = amountStr.split(".");
+    let formattedInteger = integer.replace(
+      /\B(?=(\d{3})+(?!\d))/g, // Regular expression for Indian numbering system
+      ","
+    );
+    return decimal ? `${formattedInteger}.${decimal}` : formattedInteger;
+  }
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">
@@ -45,6 +54,23 @@ const DataTable: React.FC<any> = ({
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">
                     Variants
+                  </th>
+                  <th className="px-6 py-4 text-left text-white/90">Actions</th>
+                </>
+              ) : activeTab === TAB_TYPE.ORDER ? (
+                <>
+                  {/* <th className="px-6 py-4 text-left text-white/90">
+                    Order ID
+                  </th> */}
+                  <th className="px-6 py-4 text-left text-white/90">
+                    Customer
+                  </th>
+                  <th className="px-6 py-4 text-left text-white/90">
+                    Products
+                  </th>
+                  <th className="px-6 py-4 text-left text-white/90">Total</th>
+                  <th className="px-6 py-4 text-left text-white/90">
+                    Discount
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">Actions</th>
                 </>
@@ -144,9 +170,9 @@ const DataTable: React.FC<any> = ({
                     </>
                   ) : activeTab === TAB_TYPE.ORDER ? (
                     <>
-                      <td className="px-6 py-4">
+                      {/* <td className="px-6 py-4">
                         {item._id.slice(-6).toUpperCase()}
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4">
                         {item.customer.customerName}
                       </td>
@@ -173,7 +199,9 @@ const DataTable: React.FC<any> = ({
                           )}
                         </button>
                       </td>
-                      <td className="px-6 py-4">{item.pricing.total}</td>
+                      <td className="px-6 py-4">
+                        ₹{formatToIndianCurrency(item.pricing.total)}
+                      </td>
                       <td className="px-6 py-4">
                         {item.pricing.discountApplied ? (
                           <div>
@@ -181,10 +209,10 @@ const DataTable: React.FC<any> = ({
                               {item.pricing.discountPercentage}% OFF
                             </div>
                             <div className="text-sm text-white/70">
-                              Code: {item.pricing.discountCode}
+                              Code: {item.pricing.discountCode.toUpperCase()}
                             </div>
                             <div className="text-sm text-white/70">
-                              -{item.pricing.discount}
+                              - ₹{formatToIndianCurrency(item.pricing.discount)}
                             </div>
                           </div>
                         ) : (
@@ -241,27 +269,47 @@ const DataTable: React.FC<any> = ({
                               <div className="space-y-1 text-sm">
                                 <div className="flex justify-between">
                                   <span>Subtotal:</span>
-                                  <span>{item.pricing.subtotal}</span>
+                                  <span>
+                                    ₹
+                                    {formatToIndianCurrency(
+                                      item.pricing.subtotal
+                                    )}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>GST:</span>
-                                  <span>{item.pricing.gst}</span>
+                                  <span>
+                                    ₹{formatToIndianCurrency(item.pricing.gst)}
+                                  </span>
                                 </div>
                                 {item.pricing.tyreCharge > 0 && (
                                   <div className="flex justify-between">
                                     <span>Tyre Charge:</span>
-                                    <span>{item.pricing.tyreCharge}</span>
+                                    <span>
+                                      ₹
+                                      {formatToIndianCurrency(
+                                        item.pricing.tyreCharge
+                                      )}
+                                    </span>
                                   </div>
                                 )}
                                 {item.pricing.discountApplied && (
                                   <div className="flex justify-between text-green-400">
                                     <span>Discount:</span>
-                                    <span>-{item.pricing.discount}</span>
+                                    <span>
+                                      -
+                                      {formatToIndianCurrency(
+                                        item.pricing.discount
+                                      )}
+                                    </span>
                                   </div>
                                 )}
                                 <div className="flex justify-between font-medium pt-2 border-t border-white/10">
                                   <span>Total:</span>
-                                  <span>{item.pricing.total}</span>
+                                  <span>
+                                    ₹
+                                    {formatToIndianCurrency(item.pricing.total)}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -287,7 +335,12 @@ const DataTable: React.FC<any> = ({
                                           Bundle Size: {product.bundleSize}
                                         </div>
                                         <div>Type: {product.tyreLabel}</div>
-                                        <div>Total: {product.total}</div>
+                                        <div>
+                                          Total: ₹
+                                          {formatToIndianCurrency(
+                                            product.total
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   )
