@@ -20,26 +20,7 @@ const AdminPanel = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Sample customer data
-  const [customers, setCustomers] = useState<ICustomer[]>([
-    {
-      id: "1",
-      customerName: "John Doe",
-      selectedProduct: "Product1",
-      bundleSize: 2,
-      customerImage: "/api/placeholder/100/100",
-      leadType: "Hot Lead",
-      totalCost: 1000,
-    },
-    {
-      id: "2",
-      customerName: "Jane Smith",
-      selectedProduct: "Product2",
-      bundleSize: 3,
-      customerImage: "/api/placeholder/100/100",
-      leadType: "Warm Lead",
-      totalCost: 1500,
-    },
-  ]);
+  const [customers, setCustomers] = useState<ICustomer[]>([]);
 
   const [products, setProducts] = useState<IProduct[]>([]);
   const [editModalProduct, setEditModalProduct] = useState<
@@ -53,7 +34,8 @@ const AdminPanel = () => {
         break;
       }
       case TAB_TYPE.CUSTOMER: {
-        break; //TODO:
+        fetchCustomers();
+        break;
       }
     }
   }, [activeTab]);
@@ -64,6 +46,15 @@ const AdminPanel = () => {
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
+    }
+  };
+  
+  const fetchCustomers = async () => {
+    try {
+      const response = await apiClient.get<ICustomer[]>("/api/customers");
+      setCustomers(response.data);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
     }
   };
 

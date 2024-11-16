@@ -33,16 +33,13 @@ const DataTable: React.FC<any> = ({
                 <>
                   <th className="px-6 py-4 text-left text-white/90">Image</th>
                   <th className="px-6 py-4 text-left text-white/90">Name</th>
-                  <th className="px-6 py-4 text-left text-white/90">Product</th>
-                  <th className="px-6 py-4 text-left text-white/90">
-                    Bundle Size
-                  </th>
                   <th className="px-6 py-4 text-left text-white/90">
                     Lead Type
                   </th>
                   <th className="px-6 py-4 text-left text-white/90">
-                    Total Cost
+                    Description
                   </th>
+                  <th className="px-6 py-4 text-left text-white/90">Address</th>
                   <th className="px-6 py-4 text-left text-white/90">Actions</th>
                 </>
               ) : activeTab === TAB_TYPE.PRODUCT ? (
@@ -79,10 +76,9 @@ const DataTable: React.FC<any> = ({
                         />
                       </td>
                       <td className="px-6 py-4">{item.customerName}</td>
-                      <td className="px-6 py-4">{item.selectedProduct}</td>
-                      <td className="px-6 py-4">{item.bundleSize}</td>
                       <td className="px-6 py-4">{item.leadType}</td>
-                      <td className="px-6 py-4">₹{item.totalCost}</td>
+                      <td className="px-6 py-4">₹{item.description}</td>
+                      <td className="px-6 py-4">₹{item.address}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEdit(item.id)}
