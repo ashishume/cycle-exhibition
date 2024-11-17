@@ -50,20 +50,6 @@ const ProductForm: React.FC<{
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
   const [categories, setCategories] = useState([] as ICategory[]);
 
-  // Lock body scroll when modal is open
-  // useEffect(() => {
-  //   if (product) {
-  //     document.body.style.overflow = "hidden"; // Disable body scrolling when modal is open
-  //   } else {
-  //     document.body.style.overflow = "auto"; // Enable scrolling when modal is closed
-  //   }
-
-  //   // Cleanup to reset the scroll style when modal is closed
-  //   return () => {
-  //     document.body.style.overflow = "auto";
-  //   };
-  // }, [product]);
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -263,7 +249,7 @@ const ProductForm: React.FC<{
       <div
         className={` ${
           mode === "edit"
-            ? "w-screen min-h-screen p-8 flex justify-center"
+            ? "w-screen flex justify-center"
             : "min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center"
         }`}
       >

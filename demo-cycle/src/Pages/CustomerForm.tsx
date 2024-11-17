@@ -8,11 +8,17 @@ interface CustomerFormProps {
   onFormDataChange: (data: ICustomer) => void;
   onValidationChange: (isValid: boolean) => void;
   isCheckoutPage: boolean;
+  customerData: ICustomer | null;
+  isEdit: boolean;
+  onClose: any;
 }
 const CustomerForm: React.FC<CustomerFormProps> = ({
   onFormDataChange,
   onValidationChange,
   isCheckoutPage = false,
+  customerData = null,
+  isEdit = false,
+  onClose,
 }) => {
   const initialState = {
     customerName: "",
@@ -29,6 +35,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
   const [touched, setTouched] = useState<ICustomer>({} as any);
   const [customerAdditionError, setCustomerAdditionError] = useState(null);
+
+  useEffect(() => {
+    if (isEdit && customerData) {
+      setFormData(customerData); // Pre-fill form data in edit mode
+    }
+  }, [isEdit, customerData]);
+
   // Handle image capture
   const handleImageCapture = async (): Promise<void> => {
     try {
@@ -128,14 +141,19 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
     if (isValid) {
       try {
-        // Handle form submission here
-        const customerResponse = await apiClient.post(
-          "/api/customers",
-          formData
-        );
+        if (isEdit) {
+          // TODO: make edit api call
+          // await apiClient.put(`/api/customers/${customerData?._id}`, formData); // Edit API call
+        } else {
+          // Handle form submission here
+          const customerResponse = await apiClient.post(
+            "/api/customers",
+            formData
+          );
 
-        if (customerResponse.status === 201) {
-          setFormData(initialState);
+          if (customerResponse.status === 201) {
+            setFormData(initialState);
+          }
         }
       } catch (error: any) {
         setCustomerAdditionError(
@@ -147,8 +165,18 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center">
-      <div className="w-full max-w-2xl bg-[#2d2d2d] backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
+    <div
+      className={
+        isEdit
+          ? `fixed inset-0 z-50 bg-black/50 flex items-center justify-center overflow-y-auto`
+          : `min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center`
+      }
+    >
+      <div
+        className={`w-full overflow-y-auto max-w-2xl bg-[#2d2d2d] backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 ${
+          isEdit ? "h-[95vh]" : null
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <User className="w-8 h-8 text-white" />
@@ -293,7 +321,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                      rounded-xl text-white font-medium shadow-lg
                      transition-all duration-300 transform hover:scale-[1.02]"
             >
-              Add Customer
+              {!isEdit ? "Add Customer" : "Update Customer"}
+            </button>
+          ) : null}
+          {isEdit ? (
+            <button
+              onClick={onClose}
+              className="w-full py-3 px-4  hover:to-indigo-600 
+              rounded-xl text-white font-medium shadow-lg
+              transition-all duration-300 transform hover:scale-[1.02]"
+            >
+              Cancel
             </button>
           ) : null}
           {/* </form> */}

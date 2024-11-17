@@ -53,7 +53,7 @@ const DataTable: React.FC<any> = ({
                 ? orders
                 : null
             )?.data?.map((item: any) => (
-              <Fragment key={item.id || item._id}>
+              <Fragment key={item._id}>
                 <tr className="border-b border-white/10">
                   {activeTab === TAB_TYPE.CUSTOMER ? (
                     <>
@@ -70,14 +70,14 @@ const DataTable: React.FC<any> = ({
                       <td className="px-6 py-4">₹{item.address}</td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleEdit(item.id, TAB_TYPE.CUSTOMER)}
+                          onClick={() => handleEdit(item._id, TAB_TYPE.CUSTOMER)}
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() =>
-                            handleDelete(item.id, TAB_TYPE.CUSTOMER)
+                            handleDelete(item._id, TAB_TYPE.CUSTOMER)
                           }
                           className="ml-2 text-red-400 hover:text-red-600"
                         >

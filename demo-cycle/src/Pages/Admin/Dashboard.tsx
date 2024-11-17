@@ -9,6 +9,8 @@ import { IProduct } from "../../models/Product";
 import { ICustomer } from "../../models/Customer";
 import ProductForm from "../CycleForm";
 import { IFormData } from "../../models/Form";
+import ModalWrapper from "./DataTableComponents/ProductFormModal";
+import CustomerForm from "../CustomerForm";
 
 interface IOrder {
   _id: string;
@@ -53,7 +55,7 @@ const AdminPanel = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [editModalProduct, setEditModalProduct] = useState<
-    IProduct | IFormData | null
+    IProduct | IFormData | ICustomer | null
   >(null);
 
   useEffect(() => {
@@ -157,6 +159,13 @@ const AdminPanel = () => {
         break;
       }
       case TAB_TYPE.CUSTOMER: {
+        console.log(id, editTab);
+
+        const customerToEdit = customers.find((p) => p._id === id);
+        if (customerToEdit) {
+          setEditModalProduct(customerToEdit);
+          setIsEditModalOpen(true);
+        }
         break;
       }
     }
@@ -165,7 +174,16 @@ const AdminPanel = () => {
   const handleCloseModal = () => {
     setIsEditModalOpen(false);
     setEditModalProduct(null);
-    fetchProducts();
+    switch (activeTab) {
+      case TAB_TYPE.PRODUCT: {
+        fetchProducts();
+        break;
+      }
+      case TAB_TYPE.CUSTOMER: {
+        fetchCustomers();
+        break;
+      }
+    }
   };
 
   const getDataForCurrentTab = () => {
@@ -204,12 +222,27 @@ const AdminPanel = () => {
           expandedImageRow={expandedImageRow}
         />
 
-        {editModalProduct && (
-          <ProductForm
-            mode="edit"
-            product={editModalProduct as IFormData}
-            onClose={handleCloseModal}
-          />
+        {editModalProduct && activeTab === TAB_TYPE.PRODUCT && (
+          <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
+            <ProductForm
+              mode="edit"
+              product={editModalProduct as IFormData}
+              onClose={handleCloseModal}
+            />
+          </ModalWrapper>
+        )}
+
+        {editModalProduct && activeTab === TAB_TYPE.CUSTOMER && (
+          <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
+            <CustomerForm
+              isEdit={true}
+              customerData={editModalProduct as any}
+              onClose={handleCloseModal}
+              onFormDataChange={() => {}}
+              onValidationChange={() => {}}
+              isCheckoutPage={false}
+            />
+          </ModalWrapper>
         )}
 
         <div className="flex justify-between items-center mt-4">
