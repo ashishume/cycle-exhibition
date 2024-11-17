@@ -18,9 +18,9 @@ const port = process.env.PORT || 5000;
 // Enable CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Adjust the frontend URL as needed
-    methods: ["GET", "POST", "PATCH", "DELETE"], // Specify allowed HTTP methods
-    credentials: true, // Allow credentials if necessary (e.g., for cookies)
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+    credentials: true,
   })
 );
 // MongoDB connection
@@ -43,7 +43,6 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/coupons", couponRoutes);
-
 
 // Start server
 app.listen(port, () => {
