@@ -397,7 +397,7 @@ const BikePresentation = () => {
       {/* Description Modal */}
       {showDescription && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-30 p-4">
-          <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-2xl max-w-2xl mx-4">
+          <div className="bg-black p-6 md:p-8 rounded-2xl max-w-2xl mx-4">
             <h3 className="text-white text-xl md:text-2xl font-bold mb-3 md:mb-4">
               {currentBike?.brand}
             </h3>

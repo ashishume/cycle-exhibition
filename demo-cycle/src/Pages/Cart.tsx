@@ -7,6 +7,7 @@ import { ICart } from "../models/Cart";
 import apiClient from "../api/axios";
 import { CART_STORAGE_KEY } from "../constants/Cart";
 import { useNavigate } from "react-router-dom";
+import { ICouponResponse } from "../models/Coupon";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -50,12 +51,18 @@ const CartPage = () => {
     return { subtotal, tyreCharge, discountAmount, gst, total };
   };
 
-  const handleCouponApply = () => {
-    if (couponCode.toUpperCase() === "SAVE20") {
-      setDiscount(20);
-    } else if (couponCode.toUpperCase() === "SAVE10") {
-      setDiscount(10);
-    } else {
+  const handleCouponApply = async () => {
+    try {
+      const response = await apiClient.post<ICouponResponse>(
+        "/api/coupons/validate",
+        {
+          code: couponCode.toUpperCase(),
+        }
+      );
+      if (response.status === 200) {
+        setDiscount(response.data.discount);
+      }
+    } catch (e: any) {
       setErrors((prev: any) => ({ ...prev, coupon: "Invalid coupon code" }));
       setDiscount(0);
       setTimeout(() => {
@@ -253,6 +260,9 @@ const CartPage = () => {
                   isCheckoutPage={true}
                   onFormDataChange={handleCustomerFormDataChange}
                   onValidationChange={handleCustomerFormValidationChange}
+                  customerData={null}
+                  isEdit={false}
+                  onClose={null}
                 />
               )}
             </div>

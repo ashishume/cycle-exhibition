@@ -3,18 +3,57 @@ import { Coupon } from "../models/Coupon.js";
 
 const router = express.Router();
 
+// POST: Validate coupon
+router.post("/validate", async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    // Check if the coupon exists
+    const coupon = await Coupon.findOne({ code });
+    if (!coupon) {
+      return res.status(404).json({ error: "Coupon not found" });
+    }
+
+    // Check if the coupon is active
+    if (!coupon.isActive) {
+      return res.status(400).json({ error: "Coupon is not active" });
+    }
+
+    // Check if the coupon is expired
+    if (coupon.expirationDate && new Date() > coupon.expirationDate) {
+      return res.status(400).json({ error: "Coupon has expired" });
+    }
+
+    // If all checks pass, return the coupon details
+    res.status(200).json({
+      message: "Coupon is valid",
+      discount: coupon.discount,
+      details: coupon, // Optional: Send full coupon details
+    });
+  } catch (error) {
+    console.error("Error validating coupon:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while validating the coupon" });
+  }
+});
+
 // POST: Create a new coupon
 router.post("/", async (req, res) => {
   try {
     const { code, discount, expirationDate } = req.body;
 
     // Check if coupon code already exists
-    const existingCoupon = await Coupon.findOne({ code });
+    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
     if (existingCoupon) {
       return res.status(400).json({ error: "Coupon code already exists" });
     }
 
-    const newCoupon = new Coupon({ code, discount, expirationDate });
+    const newCoupon = new Coupon({
+      code: code.toUpperCase(),
+      discount,
+      expirationDate,
+    });
     await newCoupon.save();
     res.status(201).json({
       message: "Coupon created successfully",
