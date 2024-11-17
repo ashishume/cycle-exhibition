@@ -11,9 +11,6 @@ interface TabsProps {
 const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
   return (
     <>
-      {/* Header */}
-      <h1 className="text-3xl font-bold text-white mb-8">Admin Panel</h1>
-
       {/* Tabs */}
       <div className="flex gap-4 mb-6">
         <button

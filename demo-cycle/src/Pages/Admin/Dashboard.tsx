@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import Tabs from "./Tabs";
 import SearchBar from "./SearchBar";
 import DataTable from "./DataTable";
@@ -11,6 +11,7 @@ import ProductForm from "../CycleForm";
 import { IFormData } from "../../models/Form";
 import ModalWrapper from "./DataTableComponents/ProductFormModal";
 import CustomerForm from "../CustomerForm";
+import { useAuth } from "./AdminAuthContext";
 
 interface IOrder {
   _id: string;
@@ -57,6 +58,8 @@ const AdminPanel = () => {
   const [editModalProduct, setEditModalProduct] = useState<
     IProduct | IFormData | ICustomer | null
   >(null);
+
+  const { logout } = useAuth();
 
   useEffect(() => {
     switch (activeTab) {
@@ -202,6 +205,16 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-200"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
         <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
 
         <SearchBar
