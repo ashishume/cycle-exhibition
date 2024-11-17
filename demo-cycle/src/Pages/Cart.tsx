@@ -6,6 +6,7 @@ import { loadCartFromStorage } from "../utils/Localstorage";
 import { ICart } from "../models/Cart";
 import apiClient from "../api/axios";
 import { CART_STORAGE_KEY } from "../constants/Cart";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -22,6 +23,7 @@ const CartPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
+  const navigate = useNavigate();
   useEffect(() => {
     fetchCustomers();
   }, []);
@@ -148,8 +150,33 @@ const CartPage = () => {
       setSelectedCustomerId("");
       setNewCustomerData(null);
 
-      // You might want to redirect to an order confirmation page
-      // navigate(`/order-confirmation/${orderResponse.data.orderId}`);
+      // Redirect to success page with order details
+      navigate("/order-success", {
+        state: {
+          orderDetails: {
+            orderId: orderResponse.data._id,
+            customer: {
+              name: isNewCustomer
+                ? customerDetails?.name
+                : customers.find((c) => c._id === selectedCustomerId)
+                    ?.customerName,
+              leadType: isNewCustomer
+                ? customerDetails?.leadType
+                : customers.find((c) => c._id === selectedCustomerId)?.leadType,
+            },
+            products: cartItems,
+            pricing: {
+              subtotal,
+              tyreCharge,
+              discount: discountAmount,
+              gst,
+              total,
+              discountApplied: discount > 0,
+              discountPercentage: discount,
+            },
+          },
+        },
+      });
     } catch (error: any) {
       console.error("Checkout error:", error);
       setCheckoutError(

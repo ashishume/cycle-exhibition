@@ -151,9 +151,7 @@ const BikePresentation = () => {
   };
 
   return (
-    <div
-      className={`relative w-screen h-screen overflow-hidden`}
-    >
+    <div className={`relative w-screen h-screen overflow-hidden`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent" />
@@ -344,6 +342,7 @@ const BikePresentation = () => {
             />
 
             <GlassButton
+              disabled={!tyreStatus?.length}
               onClick={handleAddToCart}
               className="col-span-2 text-sm md:text-base"
             >

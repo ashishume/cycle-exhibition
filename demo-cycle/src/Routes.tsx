@@ -10,6 +10,7 @@ import CartPage from "./Pages/Cart";
 import AdminPanel from "./Pages/Admin/Dashboard";
 import NavbarWrapper from "./Pages/Components/Navbar";
 import ErrorBoundary from "./Pages/Components/ErrorBoundary";
+import OrderSuccessPage from "./Pages/Order-Success";
 
 const RoutesComponent: React.FC = () => {
   return (
@@ -69,6 +70,14 @@ const RoutesComponent: React.FC = () => {
             }
           />
 
+          <Route
+            path="/order-success"
+            element={
+              <ErrorBoundary>
+                <OrderSuccessPage />
+              </ErrorBoundary>
+            }
+          />
           {/* Catch-all route for 404 */}
           <Route path="*" element={<div>Page not found</div>} />
         </Routes>
