@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bike,
   Package,
@@ -8,24 +8,13 @@ import {
   Presentation,
   ShoppingCart,
   Plus,
-  Minus
+  Minus,
 } from "lucide-react";
-// import { Alert, AlertDescription } from "@/components/ui/alert";
-
-// Interfaces
-interface ICycle {
-  id: string;
-  brand: string;
-  imageLinks: string[];
-  description?: string;
-  subtitle?: string;
-  costPerCycle: number;
-  bundleSize: number;
-  stock: number;
-}
-
+import { useNavigate } from "react-router-dom";
+import apiClient from "../api/axios";
+import { IProduct } from "../models/Product";
 interface ICycleCardProps {
-  cycle: ICycle;
+  cycle: IProduct;
   onAddToCart: (cycleId: string, quantity: number) => void;
 }
 
@@ -34,79 +23,34 @@ interface ICartItem {
   quantity: number;
 }
 
-// Sample data
-const sampleCycles: ICycle[] = [
-  {
-    id: "1",
-    brand: "Mountain Explorer X1",
-    imageLinks: [
-      "https://images.pexels.com/photos/276517/pexels-photo-276517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/1208777/pexels-photo-1208777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-    description:
-      "Premium mountain bike with advanced suspension system and all-terrain capabilities.",
-    subtitle: "All-terrain performance",
-    costPerCycle: 299.99,
-    bundleSize: 5,
-    stock: 20,
-  },
-  {
-    id: "2",
-    brand: "City Cruiser Pro",
-    imageLinks: [
-      "https://images.pexels.com/photos/1174103/pexels-photo-1174103.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/161172/cycling-bike-trail-sport-161172.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/114675/pexels-photo-114675.jpeg?auto=compress&cs=tinysrgb&w=800",
-    ],
-    description:
-      "Comfortable city bike perfect for daily commutes and leisure rides.",
-    subtitle: "Urban comfort",
-    costPerCycle: 199.99,
-    bundleSize: 3,
-    stock: 15,
-  },
-  {
-    id: "3",
-    brand: "Speed Racer Elite",
-    imageLinks: [
-      "https://images.pexels.com/photos/369264/pexels-photo-369264.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-      "https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-    ],
-    subtitle: "Racing performance",
-    costPerCycle: 399.99,
-    bundleSize: 4,
-    stock: 10,
-  },
-];
-
 const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const [showPresentation, setShowPresentation] = useState(false);
+  // const [showPresentation, setShowPresentation] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(cycle.bundleSize);
   const [showAddedAlert, setShowAddedAlert] = useState(false);
 
+  const navigate = useNavigate();
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
       prev === cycle.imageLinks.length - 1 ? 0 : prev + 1
     );
   };
 
-  const handleQuantityChange = (increment: boolean) => {
-    setQuantity((prev) => {
-      const newValue = increment
-        ? prev + cycle.bundleSize
-        : prev - cycle.bundleSize;
-      return Math.max(cycle.bundleSize, Math.min(newValue, cycle.stock));
-    });
-  };
+  // const handleQuantityChange = (increment: boolean) => {
+  //   setQuantity((prev) => {
+  //     const newValue = increment
+  //       ? prev + cycle.bundleSize
+  //       : prev - cycle.bundleSize;
+  //     return Math.max(cycle.bundleSize, Math.min(newValue, cycle.stock));
+  //   });
+  // };
 
-  const handleAddToCart = () => {
-    onAddToCart(cycle.id, quantity);
-    setShowAddedAlert(true);
-    setTimeout(() => setShowAddedAlert(false), 2000);
-  };
+  // const handleAddToCart = () => {
+  //   onAddToCart(cycle._id, quantity);
+  //   setShowAddedAlert(true);
+  //   setTimeout(() => setShowAddedAlert(false), 2000);
+  // };
 
   return (
     <div className="relative group">
@@ -146,14 +90,14 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
               <Package className="w-4 h-4" />
               <span>Bundle: {cycle.bundleSize}</span>
             </div>
-            <div className="flex items-center gap-2 text-white">
+            {/* <div className="flex items-center gap-2 text-white">
               <DollarSign className="w-4 h-4" />
               <span>₹{cycle.costPerCycle}/cycle</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Quantity Controls */}
-          <div className="flex items-center justify-between p-2 bg-white/5 rounded-xl">
+          {/* <div className="flex items-center justify-between p-2 bg-white/5 rounded-xl">
             <button
               onClick={() => handleQuantityChange(false)}
               disabled={quantity <= cycle.bundleSize}
@@ -169,7 +113,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
             >
               <Plus className="w-4 h-4 text-white" />
             </button>
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
@@ -184,19 +128,18 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
               Details
             </button>
             <button
-              onClick={() => setShowPresentation(true)}
+              onClick={() => navigate(`/presentation/${cycle._id}`)}
               className="py-2 px-4 bg-gradient-to-r from-emerald-500/80 to-teal-500/80
                        hover:from-emerald-500 hover:to-teal-500
                        rounded-xl text-white font-medium
                        transition-all duration-300 flex items-center justify-center gap-2"
             >
-              <Presentation className="w-4 h-4" />
               Showcase
             </button>
           </div>
 
           {/* Add to Cart Button */}
-          <button
+          {/* <button
             onClick={handleAddToCart}
             className="w-full py-2 px-4 bg-gradient-to-r from-amber-500/80 to-orange-500/80
                      hover:from-amber-500 hover:to-orange-500
@@ -205,7 +148,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
           >
             <ShoppingCart className="w-4 h-4" />
             Add to Cart • ₹{(quantity * cycle.costPerCycle).toFixed(2)}
-          </button>
+          </button> */}
         </div>
 
         {/* Added to Cart Alert */}
@@ -252,10 +195,10 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
                     <Package className="w-5 h-5" />
                     <span>Minimum Bundle Size: {cycle.bundleSize}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-white">
+                  {/* <div className="flex items-center gap-2 text-white">
                     <DollarSign className="w-5 h-5" />
                     <span>Cost per Cycle: ₹{cycle.costPerCycle}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -274,7 +217,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
       )}
 
       {/* Presentation Modal */}
-      {showPresentation && (
+      {/* {showPresentation && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50">
           <div className="w-full h-full p-8 animate-in zoom-in duration-500">
             <button
@@ -312,13 +255,27 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle, onAddToCart }) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
 
 const CyclesList: React.FC = () => {
   const [cartItems, setCartItems] = useState<ICartItem[]>([]);
+  const [products, setProducts] = useState<IProduct[]>([]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await apiClient.get<IProduct[]>("/api/products");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   const handleAddToCart = (cycleId: string, quantity: number) => {
     setCartItems((prev) => {
@@ -353,9 +310,9 @@ const CyclesList: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sampleCycles.map((cycle) => (
+          {products.map((cycle) => (
             <CycleCard
-              key={cycle.id}
+              key={cycle._id}
               cycle={cycle}
               onAddToCart={handleAddToCart}
             />
