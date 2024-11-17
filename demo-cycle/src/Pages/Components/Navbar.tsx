@@ -24,7 +24,6 @@ const Navbar = () => {
     { name: "Home", href: "/", icon: Home },
     { name: "Customers", href: "/customer-form", icon: Users },
     { name: "Add Product", href: "/cycle-form", icon: Package },
-    { name: "Presentation", href: "/presentation", icon: Presentation },
     { name: "Admin", href: "/admin", icon: Settings },
   ];
 
@@ -152,13 +151,18 @@ const NavbarWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const location = useLocation();
-  const showNavbar = location.pathname !== "/presentation";
+  const showNavbar = !location.pathname.includes("/presentation");
+  const isPresentationPage = location.pathname.includes("/presentation");
 
   return (
-    <>
+    <div className={isPresentationPage ? "h-screen overflow-hidden" : ""}>
       {showNavbar && <Navbar />}
-      <div className={showNavbar ? "pt-16" : ""}>{children}</div>
-    </>
+      <div
+        className={`${showNavbar ? "pt-16" : ""} ${isPresentationPage ? "h-full" : ""}`}
+      >
+        {children}
+      </div>
+    </div>
   );
 };
 

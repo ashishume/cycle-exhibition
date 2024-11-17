@@ -46,7 +46,7 @@ const RoutesComponent: React.FC = () => {
             }
           />
           <Route
-            path="/presentation"
+            path="/presentation/:id"
             element={
               <ErrorBoundary>
                 <BikePresentation />

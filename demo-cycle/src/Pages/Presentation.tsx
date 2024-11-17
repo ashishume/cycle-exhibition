@@ -14,12 +14,14 @@ import { IProduct, IVariant } from "../models/Product";
 import apiClient from "../api/axios";
 import GlassButton from "./Components/GlassButton";
 import GlassDropdown from "./Components/GlassDropdown";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { loadCartFromStorage } from "../utils/Localstorage";
 import { CART_STORAGE_KEY } from "../constants/Cart";
 
 const BikePresentation = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); // Get the ID from URL
+
   const [currentBrandIndex, setCurrentBrandIndex] = useState(0);
   const [currentModelIndex, setCurrentModelIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -57,6 +59,23 @@ const BikePresentation = () => {
       currentBike?.variants?.find((v) => v?.costPerProduct !== 0) || null
     );
   }, [currentBike]);
+
+  // New effect to set initial brand index based on ID
+  useEffect(() => {
+    if (products.length > 0 && id) {
+      const productIndex = products.findIndex((product) => product._id === id);
+      if (productIndex !== -1) {
+        setCurrentBrandIndex(productIndex);
+        setCurrentModelIndex(0);
+      } else {
+        // If ID is invalid, redirect to the first product
+        const firstProductId = products[0]?._id;
+        if (firstProductId) {
+          navigate(`/presentation/${firstProductId}`, { replace: true });
+        }
+      }
+    }
+  }, [products, id, navigate]);
 
   //add items to cart into localstorage
   useEffect(() => {
@@ -117,6 +136,26 @@ const BikePresentation = () => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentBrandIndex, isTransitioning, currentBike?.imageLinks?.length]);
+
+  // Modified navigation functions to update URL
+  const navigateToPreviousBrand = () => {
+    setIsTransitioning(true);
+    const newIndex =
+      currentBrandIndex === 0 ? products.length - 1 : currentBrandIndex - 1;
+    const newProductId = products[newIndex]._id;
+    navigate(`/presentation/${newProductId}`);
+    setCurrentBrandIndex(newIndex);
+    setCurrentModelIndex(0);
+  };
+
+  const navigateToNextBrand = () => {
+    setIsTransitioning(true);
+    const newIndex = (currentBrandIndex + 1) % products.length;
+    const newProductId = products[newIndex]._id;
+    navigate(`/presentation/${newProductId}`);
+    setCurrentBrandIndex(newIndex);
+    setCurrentModelIndex(0);
+  };
 
   const handleTransitionEnd = () => setIsTransitioning(false);
 
@@ -378,13 +417,7 @@ const BikePresentation = () => {
       {/* Brand Navigation */}
       <div className="hidden md:flex fixed left-4 right-4 top-1/2 -translate-y-1/2 justify-between pointer-events-none">
         <GlassButton
-          onClick={() => {
-            setIsTransitioning(true);
-            setCurrentBrandIndex((prev) =>
-              prev === 0 ? products?.length - 1 : prev - 1
-            );
-            setCurrentModelIndex(0);
-          }}
+          onClick={navigateToPreviousBrand}
           className="pointer-events-auto"
         >
           <ChevronUp size={24} className="rotate-360" color="white" />
@@ -394,11 +427,7 @@ const BikePresentation = () => {
         </GlassButton>
 
         <GlassButton
-          onClick={() => {
-            setIsTransitioning(true);
-            setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
-            setCurrentModelIndex(0);
-          }}
+          onClick={navigateToNextBrand}
           className="pointer-events-auto"
         >
           <span className="text-sm font-medium uppercase tracking-wider text-white">
@@ -410,27 +439,11 @@ const BikePresentation = () => {
 
       {/* Mobile Brand Navigation */}
       <div className="fixed md:hidden left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-        <GlassButton
-          onClick={() => {
-            setIsTransitioning(true);
-            setCurrentBrandIndex((prev) =>
-              prev === 0 ? products?.length - 1 : prev - 1
-            );
-            setCurrentModelIndex(0);
-          }}
-          className="!p-2"
-        >
+        <GlassButton onClick={navigateToPreviousBrand} className="!p-2">
           <ChevronUp size={20} />
         </GlassButton>
 
-        <GlassButton
-          onClick={() => {
-            setIsTransitioning(true);
-            setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
-            setCurrentModelIndex(0);
-          }}
-          className="!p-2"
-        >
+        <GlassButton onClick={navigateToNextBrand} className="!p-2">
           <ChevronDown size={20} />
         </GlassButton>
       </div>
