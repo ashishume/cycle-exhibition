@@ -142,8 +142,16 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     if (isValid) {
       try {
         if (isEdit) {
-          // TODO: make edit api call
-          // await apiClient.put(`/api/customers/${customerData?._id}`, formData); // Edit API call
+          const response = await apiClient.patch(
+            `/api/customers/${customerData?._id}`,
+            formData
+          );
+
+          onClose();
+
+          if (response.status === 200) {
+            console.log("customer updated", response.data);
+          }
         } else {
           // Handle form submission here
           const customerResponse = await apiClient.post(

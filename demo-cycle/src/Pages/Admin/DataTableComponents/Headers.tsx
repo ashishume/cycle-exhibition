@@ -6,6 +6,7 @@ export const CustomerHeaders = () => {
       <th className="px-6 py-4 text-left text-white/90">Lead Type</th>
       <th className="px-6 py-4 text-left text-white/90">Description</th>
       <th className="px-6 py-4 text-left text-white/90">Address</th>
+      <th className="px-6 py-4 text-left text-white/90">Transport</th>
       <th className="px-6 py-4 text-left text-white/90">Actions</th>
     </>
   );

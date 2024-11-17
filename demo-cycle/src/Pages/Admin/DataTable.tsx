@@ -66,8 +66,9 @@ const DataTable: React.FC<any> = ({
                       </td>
                       <td className="px-6 py-4">{item.customerName}</td>
                       <td className="px-6 py-4">{item.leadType}</td>
-                      <td className="px-6 py-4">₹{item.description}</td>
-                      <td className="px-6 py-4">₹{item.address}</td>
+                      <td className="px-6 py-4">{item.description}</td>
+                      <td className="px-6 py-4">{item.address}</td>
+                      <td className="px-6 py-4">{item.transport}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEdit(item._id, TAB_TYPE.CUSTOMER)}

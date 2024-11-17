@@ -5,6 +5,7 @@ const customerSchema = new mongoose.Schema({
   customerImage: { type: String, default: null },
   leadType: { type: String, required: true },
   description: { type: String, default: "" },
+  transport: { type: String, default: "" },
   address: { type: String, default: "" },
 });
 
