@@ -49,7 +49,9 @@ const DataTable: React.FC<any> = ({
                 ? customers
                 : activeTab === TAB_TYPE.PRODUCT
                 ? products
-                : orders
+                : activeTab === TAB_TYPE.ORDER
+                ? orders
+                : null
             )?.data?.map((item: any) => (
               <Fragment key={item.id || item._id}>
                 <tr className="border-b border-white/10">
