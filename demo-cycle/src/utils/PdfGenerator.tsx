@@ -48,24 +48,24 @@ export const generateOrderPDF = async (orderDetails: any) => {
     // Add order information
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("Order Details", 20, 50);
+    doc.text("Order Details", 10, 50);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(
       [`Order ID: ${orderId}`, `Date: ${orderDate}`, `Status: Confirmed`],
-      20,
+      10,
       60
     );
 
     // Add customer information
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("Customer Information", 20, 85);
+    doc.text("Customer Information", 10, 85);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text([`Name: ${customer.name}`, ``], 20, 95);
+    doc.text([`Name: ${customer.name}`, ``], 10, 95);
 
     // Products table header
     let startY = 110;
@@ -78,8 +78,8 @@ export const generateOrderPDF = async (orderDetails: any) => {
       "Cost/Product",
       "Total",
     ];
-    const columnWidths = [40, 25, 25, 30, 30, 30, 30];
-    let startX = 20;
+    const columnWidths = [40, 25, 25, 25, 25, 25, 25];
+    let startX = 10;
 
     // Draw table header
     doc.setFillColor(88, 80, 236);
