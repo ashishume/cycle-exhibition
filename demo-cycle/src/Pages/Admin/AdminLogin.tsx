@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AlertCircle, Lock, User } from "lucide-react";
+import { Lock, User } from "lucide-react";
 import { useAuth } from "./AdminAuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ const AdminLogin = () => {
     username: "",
     password: "",
   });
-  const [error, setError] = useState("");
+  const [_, setError] = useState("");
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 

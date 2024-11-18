@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, User, Calculator, AlertCircle } from "lucide-react";
+import { Camera, User, AlertCircle } from "lucide-react";
 import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
 import apiClient from "../api/axios";
@@ -34,7 +34,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
   const [touched, setTouched] = useState<ICustomer>({} as any);
-  const [customerAdditionError, setCustomerAdditionError] = useState(null);
+  const [_, setCustomerAdditionError] = useState(null);
 
   useEffect(() => {
     if (isEdit && customerData) {

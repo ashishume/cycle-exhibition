@@ -47,11 +47,11 @@ interface IOrder {
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+  // const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [expandedImageRow, setExpandedImageRow] = useState<string | null>(null);
   const itemsPerPage = 5;
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [_, setIsEditModalOpen] = useState(false);
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
   const [orders, setOrders] = useState<IOrder[]>([]);

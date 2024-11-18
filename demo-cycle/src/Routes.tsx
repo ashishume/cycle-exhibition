@@ -5,7 +5,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import CyclesList from "./Pages/Dashboard";
 import CustomerForm from "./Pages/CustomerForm";

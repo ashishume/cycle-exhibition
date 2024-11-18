@@ -21,8 +21,8 @@ const CartPage = () => {
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
   const [cartItems, setCartItems] = useState<ICart[]>(loadCartFromStorage());
   const [errors, setErrors] = useState<any>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState("");
+  const [, setIsLoading] = useState(false);
+  const [, setCheckoutError] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {

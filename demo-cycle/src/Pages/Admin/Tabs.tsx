@@ -1,6 +1,6 @@
 // Tabs.tsx
 import React from "react";
-import { User, Package, ShoppingCart } from "lucide-react";
+import { User, Package } from "lucide-react";
 import { TAB_TYPE } from "../../constants/admin";
 
 interface TabsProps {

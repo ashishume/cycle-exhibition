@@ -7,7 +7,6 @@ import {
   Home,
   Users,
   Package,
-  Presentation,
   Settings,
 } from "lucide-react";
 import { loadCartFromStorage } from "../../utils/Localstorage";
