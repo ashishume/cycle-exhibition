@@ -127,7 +127,7 @@ const CartPage = () => {
           brand: item.brand,
           variant: item.variant,
           bundleQuantity: item.bundleQuantity,
-          totalCycles: item.totalCycles,
+          totalProducts: item.totalProducts,
           isTyreChargeable: item.isTyreChargeable,
           tyreLabel: item.tyreLabel,
           costPerCycle: item.costPerCycle,
@@ -283,7 +283,7 @@ const CartPage = () => {
                           {item.brand} ({item.variant} inch)
                         </div>
                         <div className="text-white/70 text-sm">
-                          ₹{item.costPerCycle}/cycle, {item.totalCycles} cycles
+                          ₹{item.costPerCycle}/cycle, {item.totalProducts} cycles
                         </div>
                       </div>
                       <div className="text-white/90">

@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { ChevronDown, ChevronUp, Edit, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
 import {
@@ -11,6 +11,7 @@ import {
 const DataTable: React.FC<any> = ({
   activeTab,
   handleDelete,
+  downloadPdf,
   handleEdit,
   toggleExpandedImages,
   getPaginatedData,
@@ -59,7 +60,9 @@ const DataTable: React.FC<any> = ({
                     <>
                       <td className="px-6 py-4">
                         <img
-                          src={`${import.meta.env.VITE_API_URL}/${item.customerImage}`}
+                          src={`${import.meta.env.VITE_API_URL}/${
+                            item.customerImage
+                          }`}
                           alt={item.customerName}
                           className="w-12 h-12 rounded-full"
                         />
@@ -198,10 +201,16 @@ const DataTable: React.FC<any> = ({
                           <Edit className="w-5 h-5" />
                         </button>
                         <button
+                          onClick={() => downloadPdf(item, "order")}
+                          className="ml-2 text-red-400 hover:text-red-600"
+                        >
+                          <Download className="w-5 h-5" color="white" />
+                        </button>
+                        <button
                           onClick={() => handleDelete(item._id, "order")}
                           className="ml-2 text-red-400 hover:text-red-600"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5" color="orange" />
                         </button>
                       </td>
                     </>

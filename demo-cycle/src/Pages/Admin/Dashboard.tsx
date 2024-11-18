@@ -12,8 +12,9 @@ import { IFormData } from "../../models/Form";
 import ModalWrapper from "./DataTableComponents/ProductFormModal";
 import CustomerForm from "../CustomerForm";
 import { useAuth } from "./AdminAuthContext";
+import { downloadPDF } from "../../utils/PdfGenerator";
 
-interface IOrder {
+export interface IOrder {
   _id: string;
   customer: {
     _id: string;
@@ -202,6 +203,19 @@ const AdminPanel = () => {
     }
   };
 
+  const handleDownloadPdf = async (orderDetails: IOrder, itemType: string) => {
+    const newOrderDetails = {
+      orderId: orderDetails._id,
+      ...orderDetails,
+    };
+
+    try {
+      await downloadPDF(newOrderDetails);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
@@ -232,6 +246,7 @@ const AdminPanel = () => {
           customers={customers}
           products={products}
           orders={orders}
+          downloadPdf={handleDownloadPdf}
           expandedImageRow={expandedImageRow}
         />
 

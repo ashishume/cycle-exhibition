@@ -35,7 +35,7 @@ const BikePresentation = () => {
     null
   );
   const [tyreStatus, setTyreStatus] = useState("");
-  const totalCycles = bundleQuantity * (currentBike?.bundleSize || 0);
+  const totalProducts = bundleQuantity * (currentBike?.bundleSize || 0);
   const totalCost =
     bundleQuantity *
     (currentBike?.bundleSize || 0) *
@@ -165,7 +165,7 @@ const BikePresentation = () => {
       brand: currentBike?.brand,
       variant: currentPriceVariant?.size,
       bundleQuantity,
-      totalCycles,
+      totalProducts,
       isTyreChargeable: tyreStatus === "branded" || tyreStatus === "tube-tyre",
       tyreLabel: tyreStatus,
       costPerCycle: currentPriceVariant?.costPerProduct,
@@ -275,7 +275,7 @@ const BikePresentation = () => {
           {/* <div className="text-center py-4">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4">
               <div className="text-white text-sm md:text-base mb-1 md:mb-2">
-                {bundleQuantity} bundles = {totalCycles} cycles
+                {bundleQuantity} bundles = {totalProducts} cycles
               </div>
               <div className="text-white font-bold text-lg md:text-xl">
                 Total: ₹{totalCost.toFixed(2)}

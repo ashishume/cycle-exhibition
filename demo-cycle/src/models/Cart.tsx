@@ -5,7 +5,7 @@ export interface ICart {
   costPerCycle: number;
   isTyreChargeable: boolean;
   total: number;
-  totalCycles: number;
+  totalProducts: number;
   tyreLabel: string;
   variant: number;
   _id: string;
