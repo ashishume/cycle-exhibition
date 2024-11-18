@@ -13,7 +13,6 @@ const ProductForm: React.FC<{
     imageLinks: [""],
     description: "",
     // remarks: "", //TODO: add this
-    // subtitle: "",
     category: "",
     variants: [
       {
@@ -144,10 +143,25 @@ const ProductForm: React.FC<{
     }
   };
 
+  /**
+   * extract google drive link from the normal link
+   * @param url 
+   * @returns 
+   */
+  function extractDriveId(url: string): string {
+    const regex = /\/d\/([a-zA-Z0-9_-]+)/;
+    const match = url.match(regex);
+    if (!match) return "";
+
+    const imageId = match[1];
+    return `https://lh3.googleusercontent.com/d/${imageId}=w1000?authuser=0`;
+  }
+
   const handleImageLinkChange = (index: number, value: string): void => {
     const newLinks = [...formData.imageLinks];
-    newLinks[index] = value;
+    newLinks[index] = extractDriveId(value);
     setFormData((prev) => ({ ...prev, imageLinks: newLinks }));
+
     if (touched.imageLinks) {
       validate("imageLinks", newLinks);
     }
@@ -241,9 +255,7 @@ const ProductForm: React.FC<{
   return (
     <div
       className={`${
-        mode === "edit"
-          ? "fixed inset-0 flex justify-center z-50"
-          : ""
+        mode === "edit" ? "fixed inset-0 flex justify-center z-50" : ""
       }`}
     >
       <div

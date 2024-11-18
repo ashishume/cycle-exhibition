@@ -8,6 +8,8 @@ import orderRoutes from "./src/routes/Orders.js";
 import couponRoutes from "./src/routes/Coupon.js";
 
 import cors from "cors";
+import { ensureDirectoryExists } from "./src/utils/createDir.js";
+import path from "path";
 
 // Load environment variables
 dotenv.config();
@@ -32,10 +34,16 @@ mongoose
 // Middleware
 app.use(express.json());
 
+ensureDirectoryExists(path.resolve("uploads/customers"));
+
 // Basic route
 app.get("/", (req, res) => {
   res.send("Hello, MongoDB is connected with Express using ES modules!");
 });
+app.use(
+  "/uploads",
+  express.static(path.resolve("../demo-cycle-backend/uploads"))
+);
 
 // Routes
 app.use("/api/products", productRoutes);

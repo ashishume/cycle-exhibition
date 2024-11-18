@@ -35,6 +35,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
   const [touched, setTouched] = useState<ICustomer>({} as any);
   const [_, setCustomerAdditionError] = useState(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (isEdit && customerData) {
@@ -50,7 +51,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       const imageCapture = new ImageCapture(videoTrack);
       const blob = await imageCapture.takePhoto();
       const imageUrl = URL.createObjectURL(blob);
+
       setFormData((prev) => ({ ...prev, customerImage: imageUrl }));
+      setImageFile(
+        new File([blob], "captured-image.jpg", { type: "image/jpeg" })
+      );
+
       stream.getTracks().forEach((track) => track.stop());
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -65,9 +71,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setFormData((prev) => ({ ...prev, customerImage: imageUrl }));
+      setImageFile(file);
     }
   };
-
   const validate = (
     fieldName: keyof ICustomer,
     value: string | number
@@ -120,10 +126,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     }
   };
 
-  /**
-   * submit only when page is opened individually
-   * @param e
-   */
   const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const touchedAll: any = {
@@ -141,26 +143,50 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
     if (isValid) {
       try {
-        if (isEdit) {
+        const formDataToSend = new FormData();
+
+        // Append other form fields
+        formDataToSend.append("customerName", formData.customerName);
+        formDataToSend.append("leadType", formData.leadType);
+        formDataToSend.append("description", formData.description || "");
+        formDataToSend.append("address", formData.address || "");
+        formDataToSend.append("transport", formData.transport || "");
+
+        // Append image if exists
+        if (imageFile) {
+          formDataToSend.append("customerImage", imageFile);
+        }
+
+        if (isEdit && customerData?._id) {
           const response = await apiClient.patch(
-            `/api/customers/${customerData?._id}`,
-            formData
+            `/api/customers/${customerData._id}`,
+            formDataToSend,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
           );
 
           onClose();
 
           if (response.status === 200) {
-            console.log("customer updated", response.data);
+            console.log("Customer updated", response.data);
           }
         } else {
-          // Handle form submission here
           const customerResponse = await apiClient.post(
             "/api/customers",
-            formData
+            formDataToSend,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
           );
 
           if (customerResponse.status === 201) {
             setFormData(initialState);
+            setImageFile(null);
           }
         }
       } catch (error: any) {

@@ -59,7 +59,7 @@ const DataTable: React.FC<any> = ({
                     <>
                       <td className="px-6 py-4">
                         <img
-                          src={item.customerImage || "/default-avatar.png"}
+                          src={`${import.meta.env.VITE_API_URL}/${item.customerImage}`}
                           alt={item.customerName}
                           className="w-12 h-12 rounded-full"
                         />
@@ -71,7 +71,9 @@ const DataTable: React.FC<any> = ({
                       <td className="px-6 py-4">{item.transport}</td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => handleEdit(item._id, TAB_TYPE.CUSTOMER)}
+                          onClick={() =>
+                            handleEdit(item._id, TAB_TYPE.CUSTOMER)
+                          }
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
