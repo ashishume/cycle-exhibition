@@ -198,7 +198,10 @@ const BikePresentation = () => {
 
       {/* Cart Summary */}
       <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20">
-        <div className="flex items-center gap-2 md:gap-4">
+        <div
+          className="flex items-center gap-2 md:gap-4 cursor-pointer"
+          onClick={() => navigate("/cart")}
+        >
           <div className="text-white text-right">
             <div className="text-xs md:text-sm opacity-80">Cart Total</div>
             <div className="text-sm md:text-base font-bold">
@@ -207,10 +210,7 @@ const BikePresentation = () => {
             </div>
           </div>
           <div className="relative">
-            <ShoppingCart
-              className="w-5 h-5 md:w-6 md:h-6 text-white"
-              onClick={() => navigate("/cart")}
-            />
+            <ShoppingCart className="w-5 h-5 md:w-6 md:h-6 text-white" />
             {cartItems.length > 0 && (
               <div className="absolute -top-2 -right-2 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full flex items-center justify-center">
                 <span className="text-xs font-bold text-indigo-600">

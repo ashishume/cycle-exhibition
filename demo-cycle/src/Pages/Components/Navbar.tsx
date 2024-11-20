@@ -36,10 +36,13 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex-shrink-0 flex items-center">
-            <Package className="h-8 w-8 text-white" />
-            <span className="ml-2 text-xl font-bold text-white">
-              CycleStore
-            </span>
+            {/* <Package className="h-8 w-8 text-white" /> */}
+
+            <NavLink to={"/"}>
+              <span className="ml-2 text-xl font-bold text-white flex items-center">
+                <img src="/logo.png" height={100} width={100} />
+              </span>
+            </NavLink>
           </div>
 
           {/* Desktop Navigation */}
@@ -157,7 +160,9 @@ const NavbarWrapper: React.FC<{ children: React.ReactNode }> = ({
     <div className={isPresentationPage ? "h-screen overflow-hidden" : ""}>
       {showNavbar && <Navbar />}
       <div
-        className={`${showNavbar ? "pt-16" : ""} ${isPresentationPage ? "h-full" : ""}`}
+        className={`${showNavbar ? "pt-16" : ""} ${
+          isPresentationPage ? "h-full" : ""
+        }`}
       >
         {children}
       </div>

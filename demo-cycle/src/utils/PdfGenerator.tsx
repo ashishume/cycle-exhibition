@@ -37,7 +37,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont("helvetica", "bold");
-    centerText("Your Company Name", 20);
+    centerText("Maharaja Bikes", 20);
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
