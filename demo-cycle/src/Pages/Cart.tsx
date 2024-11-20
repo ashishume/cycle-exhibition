@@ -14,7 +14,8 @@ const CartPage = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const [discountAmount, setDiscountAmount] = useState(0); // Changed from percentage to amount
+
   const [newCustomerData, setNewCustomerData] = useState<ICustomer | null>(
     null
   );
@@ -45,13 +46,18 @@ const CartPage = () => {
       (total, item) => (item.isTyreChargeable ? total + 300 : total),
       0
     );
-    const discountedSubtotal = subtotal + tyreCharge;
-    const discountAmount = (discountedSubtotal * discount) / 100;
-    const gst = (discountedSubtotal - discountAmount) * 0.12;
-    const total = discountedSubtotal - discountAmount + gst;
-    return { subtotal, tyreCharge, discountAmount, gst, total };
+    const calculatedDiscount = discountAmount; // Using state variable
+    const discountedSubtotal = subtotal + tyreCharge - calculatedDiscount;
+    const gst = discountedSubtotal * 0.12;
+    const total = discountedSubtotal + gst;
+    return {
+      subtotal,
+      tyreCharge,
+      calculatedDiscount,
+      gst,
+      total,
+    };
   };
-
   const handleCouponApply = async () => {
     try {
       const response = await apiClient.post<ICouponResponse>(
@@ -61,11 +67,11 @@ const CartPage = () => {
         }
       );
       if (response.status === 200) {
-        setDiscount(response.data.discount);
+        setDiscountAmount(response.data.discount);
       }
     } catch (e: any) {
       setErrors((prev: any) => ({ ...prev, coupon: "Invalid coupon code" }));
-      setDiscount(0);
+      setDiscountAmount(0);
       setTimeout(() => {
         setErrors((prev: any) => ({ ...prev, coupon: null }));
       }, 3000);
@@ -84,7 +90,7 @@ const CartPage = () => {
     setIsLoading(true);
     setCheckoutError("");
 
-    const { subtotal, tyreCharge, discountAmount, gst, total } =
+    const { subtotal, tyreCharge, calculatedDiscount, gst, total } =
       calculateTotals();
     let customerDetails;
 
@@ -138,12 +144,12 @@ const CartPage = () => {
         pricing: {
           subtotal,
           tyreCharge,
-          discount: discountAmount,
+          discount: calculatedDiscount,
           gst,
           total,
-          discountApplied: discount > 0,
-          discountCode: discount > 0 ? couponCode : null,
-          discountPercentage: discount,
+          discountApplied: calculatedDiscount > 0,
+          discountCode: calculatedDiscount > 0 ? couponCode : null,
+          discountAmount: calculatedDiscount,
         },
         remarks: remarks.trim() || "",
       };
@@ -155,7 +161,7 @@ const CartPage = () => {
       localStorage.removeItem(CART_STORAGE_KEY);
       setCartItems([]);
       setCouponCode("");
-      setDiscount(0);
+      setDiscountAmount(0);
       setSelectedCustomerId("");
       setNewCustomerData(null);
       setRemarks("");
@@ -178,11 +184,11 @@ const CartPage = () => {
             pricing: {
               subtotal,
               tyreCharge,
-              discount: discountAmount,
+              discount: calculatedDiscount,
               gst,
               total,
-              discountApplied: discount > 0,
-              discountPercentage: discount,
+              discountApplied: calculatedDiscount > 0,
+              discountAmount: calculatedDiscount,
             },
             remarks: remarks.trim() || "",
           },
@@ -199,7 +205,7 @@ const CartPage = () => {
     }
   };
 
-  const { subtotal, tyreCharge, discountAmount, gst, total } =
+  const { subtotal, tyreCharge, calculatedDiscount, gst, total } =
     calculateTotals();
 
   return (
@@ -350,10 +356,10 @@ const CartPage = () => {
                     <span>{errors.coupon}</span>
                   </div>
                 )}
-                {discount > 0 && (
+                {calculatedDiscount > 0 && (
                   <div className="flex items-center gap-2 text-green-400">
                     <Tag className="w-4 h-4" />
-                    <span>{discount}% discount applied!</span>
+                    <span>₹ {calculatedDiscount} discount applied!</span>
                   </div>
                 )}
               </div>
@@ -367,10 +373,10 @@ const CartPage = () => {
                   <span>Tyre Charge</span>
                   <span>₹{tyreCharge.toFixed(2)}</span>
                 </div>
-                {discount > 0 && (
+                {calculatedDiscount > 0 && (
                   <div className="flex justify-between text-green-400">
                     <span>Discount</span>
-                    <span>-₹{discountAmount.toFixed(2)}</span>
+                    <span>-₹{calculatedDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-white/90">

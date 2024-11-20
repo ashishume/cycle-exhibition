@@ -204,7 +204,7 @@ const DataTable: React.FC<any> = ({
                         {item.pricing.discountApplied ? (
                           <div>
                             <div className="text-green-400">
-                              {item.pricing.discountPercentage}% OFF
+                              ₹ {item.pricing.discount} OFF
                             </div>
                             <div className="text-sm text-white/70">
                               Code: {item.pricing.discountCode.toUpperCase()}

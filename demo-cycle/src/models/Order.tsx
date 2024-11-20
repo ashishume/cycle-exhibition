@@ -13,7 +13,7 @@ export interface Pricing {
   total: number;
   discountApplied: boolean;
   discountCode: string | null;
-  discountPercentage: number;
+  discountAmount: number;
   _id: string;
 }
 

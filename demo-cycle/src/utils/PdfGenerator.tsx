@@ -179,7 +179,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
 
     if (pricing.discountApplied) {
       doc.setTextColor(46, 174, 52); // Green color for discount
-      doc.text(`Discount (${pricing.discountPercentage}%):`, 125, finalY + 19);
+      doc.text(`Discount:`, 125, finalY + 19);
       doc.text(`-Rs.${pricing.discount.toFixed(2)}`, 170, finalY + 19, {
         align: "right",
       });

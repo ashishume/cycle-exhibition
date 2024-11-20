@@ -28,7 +28,7 @@ const orderSchema = new mongoose.Schema({
       total: { type: Number },
       discountApplied: { type: Boolean },
       discountCode: { type: String },
-      discountPercentage: { type: Number },
+      discountAmount: { type: Number },
     },
     required: true,
   },

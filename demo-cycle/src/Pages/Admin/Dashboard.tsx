@@ -41,7 +41,7 @@ export interface IOrder {
     total: number;
     discountApplied: boolean;
     discountCode: string;
-    discountPercentage: number;
+    discountAmount: number;
     _id: string;
   };
   remarks?: string;
