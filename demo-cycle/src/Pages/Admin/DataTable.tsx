@@ -240,12 +240,12 @@ const DataTable: React.FC<any> = ({
                         </select>
                       </td>
                       <td className="px-6 py-4">
-                        <button
+                        {/* <button
                           onClick={() => handleEdit(item._id, TAB_TYPE.ORDER)}
                           className="text-yellow-400 hover:text-yellow-600"
                         >
                           <Edit className="w-5 h-5" />
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => downloadPdf(item, "order")}
                           className="ml-2 text-red-400 hover:text-red-600"
