@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Lock, User } from "lucide-react";
 import { useAuth } from "./AdminAuthContext";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "../Components/Snackbar";
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({
@@ -11,7 +12,7 @@ const AdminLogin = () => {
   const [_, setError] = useState("");
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
+  const { showSnackbar } = useSnackbar();
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,7 +24,8 @@ const AdminLogin = () => {
     e.preventDefault();
     const success = login(credentials.username, credentials.password);
     if (!success) {
-      setError("Invalid credentials. Try admin/admin123");
+      setError("Invalid credentials");
+      showSnackbar("Invalid credentials", "error");
     }
   };
 

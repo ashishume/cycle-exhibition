@@ -3,6 +3,7 @@ import { Plus, Minus, Bike, AlertCircle } from "lucide-react";
 import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
 import apiClient from "../api/axios";
 import { ICategory } from "../models/Category";
+import { useSnackbar } from "./Components/Snackbar";
 const ProductForm: React.FC<{
   mode: string;
   product: IFormData | null;
@@ -48,6 +49,7 @@ const ProductForm: React.FC<{
   const [errors, setErrors] = useState<IFormErrors>({});
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
   const [categories, setCategories] = useState([] as ICategory[]);
+  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -145,8 +147,8 @@ const ProductForm: React.FC<{
 
   /**
    * extract google drive link from the normal link
-   * @param url 
-   * @returns 
+   * @param url
+   * @returns
    */
   function extractDriveId(url: string): string {
     const regex = /\/d\/([a-zA-Z0-9_-]+)/;
@@ -226,7 +228,7 @@ const ProductForm: React.FC<{
             cycleData
           );
           if (response.status === 201) {
-            console.log("Product added successfully", response.data);
+            showSnackbar("Product added successfully", "success");
           }
         } else if (mode === "edit") {
           const response = await apiClient.patch(
@@ -234,7 +236,7 @@ const ProductForm: React.FC<{
             cycleData
           );
           if (response.status === 200) {
-            console.log("Product updated successfully", response.data);
+            showSnackbar("Product updated successfully", "success");
           }
         }
 
@@ -244,6 +246,7 @@ const ProductForm: React.FC<{
         setTouched({} as ITouchedFields);
       } catch (error) {
         console.error("Error submitting form:", error);
+        showSnackbar("Error submitting form", "error");
       }
     }
 

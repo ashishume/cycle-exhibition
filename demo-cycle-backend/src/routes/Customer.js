@@ -107,7 +107,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Update customer by ID
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", upload.single("customerImage"), async (req, res) => {
   const { id } = req.params;
   const {
     customerName,
@@ -128,6 +128,7 @@ router.patch("/:id", async (req, res) => {
         description,
         address,
         transport,
+        ...(req.file ? { customerImage: req.file.path } : {}), // Add updated image path if a new file was uploaded
       },
       { new: true, runValidators: true } // Return the updated document and validate the changes
     );

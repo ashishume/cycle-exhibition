@@ -13,6 +13,7 @@ import ModalWrapper from "./DataTableComponents/ProductFormModal";
 import CustomerForm from "../CustomerForm";
 import { useAuth } from "./AdminAuthContext";
 import { downloadPDF } from "../../utils/PdfGenerator";
+import { useSnackbar } from "../Components/Snackbar";
 
 export interface IOrder {
   _id: string;
@@ -61,7 +62,7 @@ const AdminPanel = () => {
   const [editModalProduct, setEditModalProduct] = useState<
     IProduct | IFormData | ICustomer | null
   >(null);
-
+  const { showSnackbar } = useSnackbar();
   const { logout } = useAuth();
 
   useEffect(() => {
@@ -232,12 +233,16 @@ const AdminPanel = () => {
             order._id === id ? { ...order, orderStatus: updatedStatus } : order
           )
         );
+
+        showSnackbar("Order status updated", "success");
       }
     } catch (error: any) {
       console.log(
         error.response?.data?.message ||
-          "An error occurred during checkout. Please try again."
+          "An error occurred."
       );
+      showSnackbar("An error occurred.", "error");
+
     }
   };
   return (

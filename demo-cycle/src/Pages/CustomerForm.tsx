@@ -3,6 +3,7 @@ import { Camera, User, AlertCircle } from "lucide-react";
 import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
 import apiClient from "../api/axios";
+import { useSnackbar } from "./Components/Snackbar";
 
 interface CustomerFormProps {
   onFormDataChange: (data: ICustomer) => void;
@@ -29,6 +30,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     transport: "",
   };
   const leadTypes: string[] = ["Hot Lead", "Warm Lead", "Cold Lead"];
+  const { showSnackbar } = useSnackbar();
 
   const [formData, setFormData] = useState<ICustomer>(initialState);
 
@@ -60,6 +62,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       stream.getTracks().forEach((track) => track.stop());
     } catch (error) {
       console.error("Error accessing camera:", error);
+      showSnackbar("Error accessing camera", "error");
     }
   };
 
@@ -187,6 +190,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           if (customerResponse.status === 201) {
             setFormData(initialState);
             setImageFile(null);
+            showSnackbar("customer added successfully", "success");
           }
         }
       } catch (error: any) {
@@ -194,6 +198,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           error.response?.data?.message ||
             "Something went wrong with customer addition"
         );
+        showSnackbar("Something went wrong with customer addition", "error");
       }
     }
   };
