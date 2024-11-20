@@ -84,6 +84,27 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// Update order status by order ID
+router.patch("/status/:id", async (req, res) => {
+  const { id } = req.params;
+  const { orderStatus } = req.body;
+  try {
+    const order = await Order.findOneAndUpdate(
+      { _id: id },
+      { orderStatus },
+      { new: true }
+    )
+      .populate("customer", "customerName")
+      .populate("products._id", "productName");
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching order", error });
+  }
+});
+
 // Delete order by ID
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;

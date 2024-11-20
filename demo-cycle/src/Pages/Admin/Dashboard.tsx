@@ -43,6 +43,8 @@ export interface IOrder {
     discountPercentage: number;
     _id: string;
   };
+  remarks?: string;
+  orderStatus: string;
 }
 
 const AdminPanel = () => {
@@ -163,8 +165,6 @@ const AdminPanel = () => {
         break;
       }
       case TAB_TYPE.CUSTOMER: {
-        console.log(id, editTab);
-
         const customerToEdit = customers.find((p) => p._id === id);
         if (customerToEdit) {
           setEditModalProduct(customerToEdit);
@@ -216,6 +216,30 @@ const AdminPanel = () => {
     }
   };
 
+  const handleStatusChange = async (id: string, value: string) => {
+    try {
+      const response = await apiClient.patch<IOrder>(
+        `/api/orders/status/${id}`,
+        {
+          orderStatus: value,
+        }
+      );
+      if (response.status === 200) {
+        const updatedStatus = response.data?.orderStatus;
+
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === id ? { ...order, orderStatus: updatedStatus } : order
+          )
+        );
+      }
+    } catch (error: any) {
+      console.log(
+        error.response?.data?.message ||
+          "An error occurred during checkout. Please try again."
+      );
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
       <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
@@ -247,6 +271,7 @@ const AdminPanel = () => {
           products={products}
           orders={orders}
           downloadPdf={handleDownloadPdf}
+          handleStatusChange={handleStatusChange}
           expandedImageRow={expandedImageRow}
         />
 

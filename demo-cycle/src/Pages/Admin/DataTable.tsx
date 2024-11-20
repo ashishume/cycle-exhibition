@@ -19,6 +19,7 @@ const DataTable: React.FC<any> = ({
   products,
   expandedImageRow,
   orders,
+  handleStatusChange,
 }) => {
   function formatToIndianCurrency(amount: number) {
     let amountStr = amount.toString();
@@ -29,6 +30,13 @@ const DataTable: React.FC<any> = ({
     );
     return decimal ? `${formattedInteger}.${decimal}` : formattedInteger;
   }
+
+  const orderStatusColors: any = {
+    processing: "text-yellow-400",
+    dispatched: "text-blue-400",
+    completed: "text-green-400",
+    canceled: "text-red-400",
+  };
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">
@@ -193,8 +201,27 @@ const DataTable: React.FC<any> = ({
                           <span className="text-white/50">No discount</span>
                         )}
                       </td>
+                      <td className="px-6 py-4">{item?.remarks || "N/A"}</td>
                       <td className="px-6 py-4">
-                        {item?.remarks || "N/A"}
+                        <select
+                          value={item.orderStatus || "processing"}
+                          onChange={(e) =>
+                            handleStatusChange(item._id, e.target.value as any)
+                          }
+                          className={`
+                          w-full 
+                          bg-white/10 
+                          rounded 
+                          py-1 
+                          px-2 
+                          ${orderStatusColors[item.status || "processing"]}
+                        `}
+                        >
+                          <option value="processing">Processing</option>
+                          <option value="dispatched">Dispatched</option>
+                          <option value="completed">Completed</option>
+                          <option value="canceled">Canceled</option>
+                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <button

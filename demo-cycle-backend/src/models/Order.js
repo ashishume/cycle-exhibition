@@ -33,6 +33,7 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
   remarks: { type: String },
+  orderStatus: { type: String, default: "Order processing" },
 });
 
 export const Order = mongoose.model("Order", orderSchema);
