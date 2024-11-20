@@ -25,6 +25,7 @@ const CartPage = () => {
   const [, setIsLoading] = useState(false);
   const [, setCheckoutError] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [perCycleDiscount, setPerCycleDiscount] = useState(0);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -41,19 +42,38 @@ const CartPage = () => {
   };
 
   const calculateTotals = () => {
-    const subtotal = cartItems.reduce((total, item) => total + item.total, 0);
+    // Calculate subtotal with per-cycle discount
+    const subtotal = cartItems.reduce((total, item) => {
+      const itemTotalBeforeDiscount = item.total;
+      const perCycleDiscountForItem = perCycleDiscount * item.totalProducts;
+      const itemTotalAfterPerCycleDiscount = Math.max(
+        itemTotalBeforeDiscount - perCycleDiscountForItem,
+        0
+      );
+
+      return total + itemTotalAfterPerCycleDiscount;
+    }, 0);
+
     const tyreCharge = cartItems.reduce(
       (total, item) => (item.isTyreChargeable ? total + 300 : total),
       0
     );
-    const calculatedDiscount = discountAmount; // Using state variable
-    const discountedSubtotal = subtotal + tyreCharge - calculatedDiscount;
+
+    const calculatedDiscount = discountAmount;
+    const perCycleDiscountTotal =
+      perCycleDiscount *
+      cartItems.reduce((sum, item) => sum + item.totalProducts, 0);
+
+    const discountedSubtotal =
+      subtotal + tyreCharge - calculatedDiscount - perCycleDiscountTotal;
     const gst = discountedSubtotal * 0.12;
     const total = discountedSubtotal + gst;
+
     return {
       subtotal,
       tyreCharge,
       calculatedDiscount,
+      perCycleDiscountTotal,
       gst,
       total,
     };
@@ -66,12 +86,21 @@ const CartPage = () => {
           code: couponCode.toUpperCase(),
         }
       );
+
       if (response.status === 200) {
-        setDiscountAmount(response.data.discount);
+        // NEW: Check coupon type and apply appropriate discount
+        if (response?.data?.details.couponType === "totalAmount") {
+          setDiscountAmount(response.data.discount);
+          setPerCycleDiscount(0); // Reset per-cycle discount
+        } else if (response.data.details.couponType === "perCycle") {
+          setPerCycleDiscount(response.data.discount);
+          setDiscountAmount(0); // Reset total discount
+        }
       }
     } catch (e: any) {
       setErrors((prev: any) => ({ ...prev, coupon: "Invalid coupon code" }));
       setDiscountAmount(0);
+      setPerCycleDiscount(0); // Reset both discounts
       setTimeout(() => {
         setErrors((prev: any) => ({ ...prev, coupon: null }));
       }, 3000);
@@ -145,11 +174,19 @@ const CartPage = () => {
           subtotal,
           tyreCharge,
           discount: calculatedDiscount,
+          perCycleDiscount,
           gst,
           total,
-          discountApplied: calculatedDiscount > 0,
-          discountCode: calculatedDiscount > 0 ? couponCode : null,
+          discountApplied: calculatedDiscount > 0 || perCycleDiscount > 0,
+          discountCode:
+            calculatedDiscount > 0
+              ? couponCode
+              : perCycleDiscount > 0
+              ? couponCode
+              : null,
+          couponType: calculatedDiscount > 0 ? "totalAmount" : "perCycle",
           discountAmount: calculatedDiscount,
+          perCycleDiscountAmount: perCycleDiscount,
         },
         remarks: remarks.trim() || "",
       };
@@ -185,6 +222,7 @@ const CartPage = () => {
               subtotal,
               tyreCharge,
               discount: calculatedDiscount,
+              perCycleDiscount,
               gst,
               total,
               discountApplied: calculatedDiscount > 0,
@@ -205,8 +243,14 @@ const CartPage = () => {
     }
   };
 
-  const { subtotal, tyreCharge, calculatedDiscount, gst, total } =
-    calculateTotals();
+  const {
+    subtotal,
+    tyreCharge,
+    calculatedDiscount,
+    // perCycleDiscount,
+    gst,
+    total,
+  } = calculateTotals();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
@@ -356,10 +400,19 @@ const CartPage = () => {
                     <span>{errors.coupon}</span>
                   </div>
                 )}
-                {calculatedDiscount > 0 && (
+                {(calculatedDiscount > 0 || perCycleDiscount > 0) && (
                   <div className="flex items-center gap-2 text-green-400">
                     <Tag className="w-4 h-4" />
-                    <span>₹ {calculatedDiscount} discount applied!</span>
+                    {calculatedDiscount > 0 && (
+                      <span>
+                        ₹ {calculatedDiscount} total discount applied!
+                      </span>
+                    )}
+                    {perCycleDiscount > 0 && (
+                      <span>
+                        ₹ {perCycleDiscount} per-cycle discount applied!
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -377,6 +430,22 @@ const CartPage = () => {
                   <div className="flex justify-between text-green-400">
                     <span>Discount</span>
                     <span>-₹{calculatedDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+
+                {perCycleDiscount > 0 && (
+                  <div className="flex justify-between text-green-400">
+                    <span>Per-Cycle Discount</span>
+                    <span>
+                      -₹
+                      {(
+                        perCycleDiscount *
+                        cartItems.reduce(
+                          (sum, item) => sum + item.totalProducts,
+                          0
+                        )
+                      ).toFixed(2)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-white/90">
