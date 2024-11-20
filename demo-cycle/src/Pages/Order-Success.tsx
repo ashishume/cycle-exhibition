@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CheckCircle, Home, ShoppingBag, Download, Loader } from "lucide-react";
-import { downloadPDF } from "../utils/PdfGenerator";
+import { CheckCircle, Home, ShoppingBag, Download, Loader, Share2 } from "lucide-react";
+import {
+  downloadPDF,
+  generateOrderPDF,
+  previewPDF,
+} from "../utils/PdfGenerator";
 
 const OrderSuccessPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const orderDetails = location.state?.orderDetails;
+  // const orderDetails = location.state?.orderDetails;
+
+  // const location = useLocation();
+  // const navigate = useNavigate();
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
 
   const handleDownload = async () => {
     setIsGeneratingPDF(true);
@@ -17,6 +26,61 @@ const OrderSuccessPage = () => {
       console.error("Error generating PDF:", error);
     } finally {
       setIsGeneratingPDF(false);
+    }
+  };
+
+  useEffect(() => {
+    // Redirect if no order details
+    if (!location.state?.orderDetails) {
+      navigate("/");
+      return;
+    }
+
+    setOrderDetails(location.state.orderDetails);
+
+    // Generate PDF blob on page load
+    const generatePDFBlob = async () => {
+      try {
+        const doc = await generateOrderPDF(location.state.orderDetails);
+        const pdfDataUri = doc.output("datauristring");
+        const blob = await (await fetch(pdfDataUri)).blob();
+        setPdfBlob(blob);
+      } catch (error) {
+        console.error("Error generating PDF blob:", error);
+      }
+    };
+
+    generatePDFBlob();
+  }, [location, navigate]);
+
+  const handleWhatsAppShare = async () => {
+    if (!pdfBlob) return;
+
+    try {
+      // Create a file object from the blob
+      const pdfFile = new File(
+        [pdfBlob],
+        `Invoice-${orderDetails.orderId}.pdf`,
+        {
+          type: "application/pdf",
+        }
+      );
+
+      // Check if Web Share API is supported
+      if (navigator.share && (navigator as any).canShare) {
+        await navigator.share({
+          title: `Invoice ${orderDetails.orderId}`,
+          text: `Invoice for Order ${orderDetails.orderId}`,
+          files: [pdfFile],
+        });
+      } else {
+        // Fallback for WhatsApp sharing on desktop
+        const url = URL.createObjectURL(pdfBlob);
+        const whatsappUrl = `https://web.whatsapp.com/send?text=Invoice for Order ${orderDetails.orderId}: ${url}`;
+        window.open(whatsappUrl, "_blank");
+      }
+    } catch (error) {
+      console.error("Sharing error:", error);
     }
   };
 
@@ -80,6 +144,13 @@ const OrderSuccessPage = () => {
             >
               <Home className="w-5 h-5" />
               Return to Home
+            </button>
+            <button
+              onClick={handleWhatsAppShare}
+              className="flex-1 flex items-center justify-center gap-2 bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition"
+            >
+              <Share2 className="h-5 w-5" />
+              Share on WhatsApp
             </button>
           </div>
         </div>
