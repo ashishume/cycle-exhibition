@@ -194,6 +194,9 @@ const DataTable: React.FC<any> = ({
                         )}
                       </td>
                       <td className="px-6 py-4">
+                        {item?.remarks || "N/A"}
+                      </td>
+                      <td className="px-6 py-4">
                         <button
                           onClick={() => handleEdit(item._id, TAB_TYPE.ORDER)}
                           className="text-yellow-400 hover:text-yellow-600"

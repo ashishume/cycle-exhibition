@@ -23,6 +23,7 @@ const CartPage = () => {
   const [errors, setErrors] = useState<any>({});
   const [, setIsLoading] = useState(false);
   const [, setCheckoutError] = useState("");
+  const [remarks, setRemarks] = useState("");
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -144,6 +145,7 @@ const CartPage = () => {
           discountCode: discount > 0 ? couponCode : null,
           discountPercentage: discount,
         },
+        remarks: remarks.trim() || "",
       };
 
       // Create order
@@ -156,6 +158,7 @@ const CartPage = () => {
       setDiscount(0);
       setSelectedCustomerId("");
       setNewCustomerData(null);
+      setRemarks("");
 
       // Redirect to success page with order details
       navigate("/order-success", {
@@ -181,6 +184,7 @@ const CartPage = () => {
               discountApplied: discount > 0,
               discountPercentage: discount,
             },
+            remarks: remarks.trim() || "",
           },
         },
       });
@@ -283,7 +287,8 @@ const CartPage = () => {
                           {item.brand} ({item.variant} inch)
                         </div>
                         <div className="text-white/70 text-sm">
-                          ₹{item.costPerCycle}/cycle, {item.totalProducts} cycles
+                          ₹{item.costPerCycle}/cycle, {item.totalProducts}{" "}
+                          cycles
                         </div>
                       </div>
                       <div className="text-white/90">
@@ -297,6 +302,22 @@ const CartPage = () => {
                 ) : (
                   <div className="text-white">No products added</div>
                 )}
+              </div>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">
+                Additional Remarks
+              </h2>
+              <textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Enter any additional notes or instructions (optional)"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white min-h-[100px]"
+                maxLength={500}
+              />
+              <div className="text-white/70 text-sm mt-2">
+                {remarks.length}/500 characters
               </div>
             </div>
           </div>

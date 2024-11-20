@@ -34,6 +34,7 @@ export const OrdersHeaders = () => {
       <th className="px-6 py-4 text-left text-white/90">Products</th>
       <th className="px-6 py-4 text-left text-white/90">Total</th>
       <th className="px-6 py-4 text-left text-white/90">Discount</th>
+      <th className="px-6 py-4 text-left text-white/90">Remarks</th>
       <th className="px-6 py-4 text-left text-white/90">Actions</th>
     </>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CheckCircle, Home, ShoppingBag, Download, Loader } from "lucide-react";
 import { downloadPDF } from "../utils/PdfGenerator";
@@ -8,14 +8,6 @@ const OrderSuccessPage = () => {
   const location = useLocation();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const orderDetails = location.state?.orderDetails;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/");
-    }, 8000); // Increased to 8 seconds to give users time to download PDF
-
-    return () => clearTimeout(timer);
-  }, [navigate]);
 
   const handleDownload = async () => {
     setIsGeneratingPDF(true);
@@ -89,27 +81,6 @@ const OrderSuccessPage = () => {
               <Home className="w-5 h-5" />
               Return to Home
             </button>
-          </div>
-
-          <div className="mt-6 text-white/70">
-            Redirecting to home page in 8 seconds...
-          </div>
-        </div>
-
-        <div className="mt-8 flex justify-center">
-          <div className="flex gap-2">
-            <div
-              className="w-2 h-2 rounded-full bg-white/30 animate-bounce"
-              style={{ animationDelay: "0ms" }}
-            />
-            <div
-              className="w-2 h-2 rounded-full bg-white/30 animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            />
-            <div
-              className="w-2 h-2 rounded-full bg-white/30 animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            />
           </div>
         </div>
       </div>

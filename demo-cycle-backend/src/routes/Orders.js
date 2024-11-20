@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Add a new order
 router.post("/", async (req, res) => {
-  const { customer, products, pricing } = req.body;
+  const { customer, products, pricing, remarks } = req.body;
 
   try {
     // Check if customer exists
@@ -46,6 +46,7 @@ router.post("/", async (req, res) => {
       customer,
       products: enrichedProducts,
       pricing,
+      remarks,
     });
 
     const savedOrder = await newOrder.save();

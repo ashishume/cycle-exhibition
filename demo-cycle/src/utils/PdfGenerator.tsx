@@ -7,6 +7,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
       customer,
       products,
       pricing,
+      remarks,
       orderDate = new Date().toLocaleString("en-IN", {
         dateStyle: "long",
         timeStyle: "short",
@@ -66,9 +67,29 @@ export const generateOrderPDF = async (orderDetails: any) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text([`Name: ${customer.name}`, ``], 10, 95);
+    // Add remarks section if present
+    let startY = 0;
+
+    if (remarks) {
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("Additional Remarks", 10, 105);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+
+      // Wrap remarks text if it's too long
+      const maxWidth = 180;
+      const splitRemarks = doc.splitTextToSize(remarks, maxWidth);
+      doc.text(splitRemarks, 10, 115);
+
+      // Adjust starting Y for products table based on remarks length
+      startY = 115 + splitRemarks.length * 5;
+    } else {
+      startY = 110; // Default starting Y if no remarks
+    }
 
     // Products table header
-    let startY = 110;
     const columns = [
       "Product",
       "Variant (inch)",
