@@ -41,7 +41,7 @@ router.post("/validate", async (req, res) => {
 // POST: Create a new coupon
 router.post("/", async (req, res) => {
   try {
-    const { code, discount, expirationDate } = req.body;
+    const { code, discount, expirationDate, couponType } = req.body;
 
     // Check if coupon code already exists
     const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
@@ -53,6 +53,7 @@ router.post("/", async (req, res) => {
       code: code.toUpperCase(),
       discount,
       expirationDate,
+      couponType,
     });
     await newCoupon.save();
     res.status(201).json({
@@ -103,11 +104,11 @@ router.get("/:id", async (req, res) => {
 router.patch("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { code, discount, expirationDate, isActive } = req.body;
+    const { code, discount, expirationDate, couponType, isActive } = req.body;
 
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       id,
-      { code, discount, expirationDate, isActive },
+      { code, discount, expirationDate, isActive, couponType },
       { new: true, runValidators: true }
     );
 

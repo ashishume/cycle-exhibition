@@ -7,5 +7,6 @@ export interface ICouponResponse {
     discount: number;
     isActive: boolean;
     expirationDate: string;
+    couponType: "perCycle" | "totalAmount";
   };
 }
