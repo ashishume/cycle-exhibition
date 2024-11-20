@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { ChevronDown, ChevronUp, Download, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
@@ -7,6 +7,7 @@ import {
   OrdersHeaders,
   ProductHeaders,
 } from "./DataTableComponents/Headers";
+import CustomerImageModal from "./DataTableComponents/ImageModal";
 
 const DataTable: React.FC<any> = ({
   activeTab,
@@ -21,6 +22,14 @@ const DataTable: React.FC<any> = ({
   orders,
   handleStatusChange,
 }) => {
+  const [selectedCustomerImage, setSelectedCustomerImage] = useState<
+    string | null
+  >(null);
+
+  const handleCustomerImageClick = (imageUrl: string) => {
+    setSelectedCustomerImage(imageUrl);
+  };
+
   function formatToIndianCurrency(amount: number) {
     let amountStr = amount.toString();
     let [integer, decimal] = amountStr.split(".");
@@ -71,6 +80,13 @@ const DataTable: React.FC<any> = ({
                           src={`${import.meta.env.VITE_API_URL}/${
                             item.customerImage
                           }`}
+                          onClick={() =>
+                            handleCustomerImageClick(
+                              `${import.meta.env.VITE_API_URL}/${
+                                item.customerImage
+                              }`
+                            )
+                          }
                           alt={item.customerName}
                           className="w-12 h-12 rounded-full"
                         />
@@ -370,6 +386,20 @@ const DataTable: React.FC<any> = ({
           </tbody>
         </table>
       </div>
+      {/* Modal for Customer Image */}
+      {selectedCustomerImage && (
+        <CustomerImageModal
+          imageUrl={selectedCustomerImage}
+          customerName={
+            customers?.find(
+              (customer: any) =>
+                `${import.meta.env.VITE_API_URL}/${customer.customerImage}` ===
+                selectedCustomerImage
+            )?.customerName || "Customer"
+          }
+          onClose={() => setSelectedCustomerImage(null)}
+        />
+      )}
     </>
   );
 };
