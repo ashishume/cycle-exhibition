@@ -42,26 +42,13 @@ const CartPage = () => {
   };
 
   const calculateTotals = () => {
-    // Calculate subtotal with per-cycle discount
+    // Calculate original subtotal without any discounts
     const subtotal = cartItems.reduce((total, item) => {
-      // Calculate per-cycle discount as a percentage of the cycle cost
-      const perCycleDiscountPerCycle =
-        item.costPerCycle * (perCycleDiscount / 100);
-
-      // Total per-cycle discount for this item
-      const totalPerCycleDiscountForItem =
-        perCycleDiscountPerCycle * item.totalProducts;
-
-      // Subtract total per-cycle discount from item total
-      const itemTotalAfterPerCycleDiscount = Math.max(
-        item.total - totalPerCycleDiscountForItem,
-        0
-      );
-
-      return total + itemTotalAfterPerCycleDiscount;
+      return total + item.total;
     }, 0);
 
     const calculatedDiscount = discountAmount;
+
     const perCycleDiscountTotal = cartItems.reduce((sum, item) => {
       const perCycleDiscountPerCycle =
         item.costPerCycle * (perCycleDiscount / 100);
@@ -70,6 +57,7 @@ const CartPage = () => {
 
     const discountedSubtotal =
       subtotal - calculatedDiscount - perCycleDiscountTotal;
+
     const gst = discountedSubtotal * 0.12;
     const total = discountedSubtotal + gst;
 
