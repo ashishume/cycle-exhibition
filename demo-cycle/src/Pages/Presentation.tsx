@@ -34,23 +34,25 @@ const BikePresentation = () => {
   const [currentPriceVariant, setCurrentVariant] = useState<IVariant | null>(
     null
   );
-  const [tyreStatus, setTyreStatus] = useState("");
+  // const [tyreStatus, setTyreStatus] = useState("");
 
   const totalProducts = currentPriceVariant
     ? bundleQuantity * currentPriceVariant.bundleSize
     : 0;
-  const totalCost = currentPriceVariant
-    ? bundleQuantity *
-      currentPriceVariant.bundleSize *
-      currentPriceVariant.costPerProduct
-    : 0;
+
   const [cartItems, setCartItems] = useState<any[]>(loadCartFromStorage());
 
-  const tyreOptions = [
-    { label: "Branded", value: "branded" },
-    { label: "Non branded", value: "non-branded" },
-    { label: "Tubeless", value: "tubeless" },
-    { label: "Tube tyre", value: "tube-tyre" },
+  const [tyreType, setTyreType] = useState(""); // tube-tyre or tubeless
+  const [brandType, setBrandType] = useState(""); // branded or non-branded
+
+  const tyreTypeOptions = [
+    { label: "Tube tyre (+ ₹300)", value: "tube-tyre" },
+    { label: "Tubeless tyre (no cost)", value: "tubeless" },
+  ];
+
+  const brandOptions = [
+    { label: "Branded (+ ₹100)", value: "branded" },
+    { label: "Non branded (no cost)", value: "non-branded" },
   ];
 
   useEffect(() => {
@@ -165,6 +167,27 @@ const BikePresentation = () => {
 
   const handleTransitionEnd = () => setIsTransitioning(false);
 
+  const calculateTotalCost = () => {
+    let baseTotal = currentPriceVariant
+      ? bundleQuantity *
+        currentPriceVariant.bundleSize *
+        currentPriceVariant.costPerProduct
+      : 0;
+
+    let additionalCost = 0;
+
+    if (tyreType === "tube-tyre") {
+      additionalCost += 300; // Base cost for tube tyre
+      if (brandType === "branded") {
+        additionalCost += 100; // Additional cost for branded
+      }
+    }
+    // No additional cost for tubeless
+    return baseTotal + additionalCost;
+  };
+
+  const totalCost = calculateTotalCost();
+
   const handleAddToCart = () => {
     const newItem = {
       _id: currentBike?._id,
@@ -172,28 +195,25 @@ const BikePresentation = () => {
       variant: currentPriceVariant?.size,
       bundleQuantity,
       totalProducts,
-      isTyreChargeable: tyreStatus === "branded" || tyreStatus === "tube-tyre",
-      tyreLabel: tyreStatus,
+      tyreType,
+      brandType,
       costPerCycle: currentPriceVariant?.costPerProduct,
-      bundleSize: currentPriceVariant?.bundleSize, // Changed from common bundleSize
-      total:
-        totalCost +
-        ((tyreStatus === "branded" || tyreStatus === "tube-tyre") === true
-          ? 300
-          : 0),
+      bundleSize: currentPriceVariant?.bundleSize,
+      total: totalCost,
     };
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
-    setTyreStatus("");
+    setTyreType("");
+    setBrandType("");
   };
 
   const handleSizeChange = (variant: IVariant) => {
     setCurrentVariant(variant);
   };
 
-  const handleDropdownChange = (value: any) => {
-    setTyreStatus(value);
-  };
+  // const handleDropdownChange = (value: any) => {
+  //   setTyreStatus(value);
+  // };
 
   return (
     <div className={`relative w-screen h-screen overflow-hidden`}>
@@ -397,20 +417,34 @@ const BikePresentation = () => {
               </button>
             </div>
             <GlassDropdown
-              options={tyreOptions}
+              options={tyreTypeOptions}
               placeholder="Select tyre type"
-              value={tyreStatus}
-              onChange={(value) => handleDropdownChange(value)}
+              value={tyreType}
+              onChange={(value) => {
+                setTyreType(value);
+                if (value === "tubeless") {
+                  setBrandType(""); // Reset brand type if tubeless is selected
+                }
+              }}
             />
 
+            {tyreType === "tube-tyre" && (
+              <GlassDropdown
+                options={brandOptions}
+                placeholder="Select brand type"
+                value={brandType}
+                onChange={(value) => setBrandType(value)}
+              />
+            )}
+
             <GlassButton
-              disabled={!tyreStatus?.length}
+              disabled={!tyreType || (tyreType === "tube-tyre" && !brandType)}
               onClick={handleAddToCart}
               className="col-span-2 text-sm md:text-base"
             >
               <ShoppingCart size={20} />
               <span className="text-sm font-medium uppercase tracking-wider">
-                Add to Cart
+                Add to Cart {totalCost > 0 && `(₹${totalCost.toFixed(2)})`}
               </span>
             </GlassButton>
           </div>
