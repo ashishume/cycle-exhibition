@@ -3,7 +3,7 @@ export interface ICycle {
   id: number;
   brand: string;
   // bundleSize: number;
-  costPerCycle: number;
+  costPerProduct: number;
 }
 
 export interface ICustomerFormData {
@@ -28,6 +28,6 @@ export interface ITouchedFields {
 
 export interface IEstimate {
   cyclesInBundle: number;
-  costPerCycle: number;
+  costPerProduct: number;
   totalCost: number;
 }

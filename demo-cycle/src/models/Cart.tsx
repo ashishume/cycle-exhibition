@@ -2,7 +2,7 @@ export interface ICart {
   brand: string;
   bundleQuantity: number;
   bundleSize: number;
-  costPerCycle: number;
+  costPerProduct: number;
   isTyreChargeable: boolean;
   total: number;
   totalProducts: number;

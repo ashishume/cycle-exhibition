@@ -25,7 +25,7 @@ const CartPage = () => {
   const [, setIsLoading] = useState(false);
   const [, setCheckoutError] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [perCycleDiscount, setPerCycleDiscount] = useState(0);
+  const [perCycleDiscountPercent, setPerCycleDiscountPercent] = useState(0);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -51,7 +51,7 @@ const CartPage = () => {
 
     const perCycleDiscountTotal = cartItems.reduce((sum, item) => {
       const perCycleDiscountPerCycle =
-        item.costPerCycle * (perCycleDiscount / 100);
+        item.costPerProduct * (perCycleDiscountPercent / 100);
       return sum + perCycleDiscountPerCycle * item.totalProducts;
     }, 0);
 
@@ -82,16 +82,16 @@ const CartPage = () => {
         // NEW: Check coupon type and apply appropriate discount
         if (response?.data?.details.couponType === "totalAmount") {
           setDiscountAmount(response.data.discount);
-          setPerCycleDiscount(0); // Reset per-cycle discount
+          setPerCycleDiscountPercent(0); // Reset per-cycle discount
         } else if (response.data.details.couponType === "perCycle") {
-          setPerCycleDiscount(response.data.discount);
+          setPerCycleDiscountPercent(response.data.discount);
           setDiscountAmount(0); // Reset total discount
         }
       }
     } catch (e: any) {
       setErrors((prev: any) => ({ ...prev, coupon: "Invalid coupon code" }));
       setDiscountAmount(0);
-      setPerCycleDiscount(0); // Reset both discounts
+      setPerCycleDiscountPercent(0); // Reset both discounts
       setTimeout(() => {
         setErrors((prev: any) => ({ ...prev, coupon: null }));
       }, 3000);
@@ -110,7 +110,8 @@ const CartPage = () => {
     setIsLoading(true);
     setCheckoutError("");
 
-    const { subtotal, calculatedDiscount, gst, total } = calculateTotals();
+    const { subtotal, calculatedDiscount, perCycleDiscountTotal, gst, total } =
+      calculateTotals();
     let customerDetails;
 
     try {
@@ -157,26 +158,20 @@ const CartPage = () => {
           additionalCost: item.additionalCost,
           tyreType: item.tyreType,
           brandType: item.brandType,
-          costPerCycle: item.costPerCycle,
+          costPerProduct: item.costPerProduct,
           bundleSize: item.bundleSize,
           total: item.total,
         })),
         pricing: {
           subtotal,
           discount: calculatedDiscount,
-          perCycleDiscount,
+          perCycleDiscountPercent,
           gst,
           total,
-          discountApplied: calculatedDiscount > 0 || perCycleDiscount > 0,
-          discountCode:
-            calculatedDiscount > 0
-              ? couponCode
-              : perCycleDiscount > 0
-              ? couponCode
-              : null,
+          discountApplied: calculatedDiscount > 0 || perCycleDiscountTotal > 0,
+          discountCode: couponCode,
           couponType: calculatedDiscount > 0 ? "totalAmount" : "perCycle",
-          discountAmount: calculatedDiscount,
-          perCycleDiscountAmount: perCycleDiscount,
+          discountAmount: calculatedDiscount || perCycleDiscountTotal,
         },
         remarks: remarks.trim() || "",
       };
@@ -210,12 +205,12 @@ const CartPage = () => {
             products: cartItems,
             pricing: {
               subtotal,
-              discount: calculatedDiscount,
-              perCycleDiscount,
+              discount: calculatedDiscount || perCycleDiscountTotal,
+              perCycleDiscountPercent,
               gst,
               total,
-              discountApplied: calculatedDiscount > 0,
-              discountAmount: calculatedDiscount,
+              discountApplied: calculatedDiscount > 0 || perCycleDiscountPercent > 0,
+              discountAmount: calculatedDiscount || perCycleDiscountTotal,
             },
             remarks: remarks.trim() || "",
           },
@@ -323,7 +318,7 @@ const CartPage = () => {
                           Bundle size: {item.totalProducts / item.bundleSize}
                         </div>
                         <div className="text-white/70 text-sm">
-                          ₹{item.costPerCycle}/cycle, {item.totalProducts}{" "}
+                          ₹{item.costPerProduct}/cycle, {item.totalProducts}{" "}
                           cycles
                         </div>
                         <div className="text-white/70 text-sm">
@@ -392,7 +387,7 @@ const CartPage = () => {
                     <span>{errors.coupon}</span>
                   </div>
                 )}
-                {(calculatedDiscount > 0 || perCycleDiscount > 0) && (
+                {(calculatedDiscount > 0 || perCycleDiscountPercent > 0) && (
                   <div className="flex items-center gap-2 text-green-400">
                     <Tag className="w-4 h-4" />
                     {calculatedDiscount > 0 && (
@@ -400,9 +395,9 @@ const CartPage = () => {
                         ₹ {calculatedDiscount} total discount applied!
                       </span>
                     )}
-                    {perCycleDiscount > 0 && (
+                    {perCycleDiscountPercent > 0 && (
                       <span>
-                        {perCycleDiscount}% per-cycle discount applied!
+                        {perCycleDiscountPercent}% per-cycle discount applied!
                       </span>
                     )}
                   </div>
@@ -422,9 +417,9 @@ const CartPage = () => {
                   </div>
                 )}
 
-                {perCycleDiscount > 0 && (
+                {perCycleDiscountPercent > 0 && (
                   <div className="flex justify-between text-green-400">
-                    <span>Total per cycle discount ({perCycleDiscount}%)</span>
+                    <span>Total per cycle discount ({perCycleDiscountPercent}%)</span>
                     <span>-₹{perCycleDiscountTotal}</span>
                   </div>
                 )}

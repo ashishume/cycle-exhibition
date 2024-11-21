@@ -197,7 +197,7 @@ const BikePresentation = () => {
       totalProducts,
       tyreType,
       brandType,
-      costPerCycle: currentPriceVariant?.costPerProduct,
+      costPerProduct: currentPriceVariant?.costPerProduct,
       bundleSize: currentPriceVariant?.bundleSize,
       total: totalCost,
       additionalCost,
