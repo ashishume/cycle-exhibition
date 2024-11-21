@@ -34,10 +34,22 @@ export const generateOrderPDF = async (orderDetails: any) => {
     doc.setFillColor(88, 80, 236); // indigo color
     doc.rect(0, 0, doc.internal.pageSize.width, 40, "F");
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont("helvetica", "bold");
-    centerText("Maharaja Bikes", 20);
+    // Replace this URL with your actual logo URL or base64 string
+    const logoUrl = "/logo.png"; // You need to replace this with actual logo path
+    const logoWidth = 60; // Adjust based on your logo's dimensions
+    const logoHeight = 20; // Adjust based on your logo's dimensions
+    const logoX = (doc.internal.pageSize.width - logoWidth) / 2;
+
+    try {
+      const logoImg = await loadImage(logoUrl);
+      doc.addImage(logoImg, "PNG", logoX, 5, logoWidth, logoHeight);
+    } catch (error) {
+      console.error("Error loading logo:", error);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      centerText("Maharaja Bikes", 20);
+    }
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
@@ -53,11 +65,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text(
-      [`Order ID: ${orderId}`, `Date: ${orderDate}`, `Status: Confirmed`],
-      10,
-      60
-    );
+    doc.text([`Order ID: ${orderId}`, `Date: ${orderDate}`], 10, 60);
 
     // Add customer information
     doc.setFontSize(12);
@@ -66,7 +74,8 @@ export const generateOrderPDF = async (orderDetails: any) => {
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text([`Name: ${customer.name}`, ``], 10, 95);
+    doc.text([`Name: ${customer.name}`], 10, 95);
+
     // Add remarks section if present
     let startY = 0;
 
@@ -83,7 +92,6 @@ export const generateOrderPDF = async (orderDetails: any) => {
       const splitRemarks = doc.splitTextToSize(remarks, maxWidth);
       doc.text(splitRemarks, 10, 115);
 
-      // Adjust starting Y for products table based on remarks length
       startY = 115 + splitRemarks.length * 5;
     } else {
       startY = 110; // Default starting Y if no remarks
@@ -92,14 +100,15 @@ export const generateOrderPDF = async (orderDetails: any) => {
     // Products table header
     const columns = [
       "Product",
-      "Variant (inch)",
-      "No. of Cycles",
-      "tyre",
+      "Variant",
+      "Quantity",
       "Bundle qty",
+      "Tyre",
       "Cost/Product",
+      "Add. Cost",
       "Total",
     ];
-    const columnWidths = [40, 25, 25, 25, 25, 25, 25];
+    const columnWidths = [40, 20, 20, 20, 35, 25, 20, 20];
     let startX = 10;
 
     // Draw table header
@@ -128,13 +137,16 @@ export const generateOrderPDF = async (orderDetails: any) => {
     // Draw table rows
     products.forEach((product: any, index: any) => {
       const row = [
-        product.brand.toString(),
-        `${product.variant}"`.toString(),
+        product.brand,
+        `${product.variant}"`,
         product.totalProducts.toString(),
-        // product.tyreLabel.toString(),
-        product.bundleQuantity.toString(),
-        `Rs. ${product.costPerCycle}`.toString(),
-        `Rs. ${product.total.toFixed(2)}`.toString(),
+        (product.totalProducts / product.bundleSize).toString(),
+        `${product.tyreType}${
+          product.brandType ? "(" + product.brandType + ")" : ""
+        }`,
+        `Rs.${product.costPerProduct}`,
+        `Rs.${product.additionalCost}`,
+        `Rs.${product.total}`,
       ];
 
       // Alternate row background
@@ -164,45 +176,38 @@ export const generateOrderPDF = async (orderDetails: any) => {
     // Add box for total
     doc.setDrawColor(88, 80, 236);
     doc.setLineWidth(0.5);
-    doc.rect(120, finalY - 5, 70, pricing.discountApplied ? 45 : 35);
+    doc.rect(120, finalY - 5, 70, 45);
 
     // Pricing details
     doc.text(`Subtotal:`, 125, finalY + 5);
-    doc.text(`Rs ${pricing.subtotal.toFixed(2)}`, 170, finalY + 5, {
-      align: "right",
-    });
-
-    doc.text(`Tyre Charge:`, 125, finalY + 12);
-    doc.text(`Rs ${pricing.tyreCharge.toFixed(2)}`, 170, finalY + 12, {
+    doc.text(`Rs.${pricing.subtotal.toFixed(2)}`, 170, finalY + 5, {
       align: "right",
     });
 
     if (pricing.discountApplied) {
       doc.setTextColor(46, 174, 52); // Green color for discount
-      doc.text(`Discount:`, 125, finalY + 19);
-      doc.text(`-Rs.${pricing.discount.toFixed(2)}`, 170, finalY + 19, {
+      doc.text(
+        `Discount (${pricing.perCycleDiscountPercent}%):`,
+        125,
+        finalY + 12
+      );
+      doc.text(`-Rs.${pricing.discount.toFixed(2)}`, 170, finalY + 12, {
         align: "right",
       });
       doc.setTextColor(0, 0, 0); // Reset to black
     }
 
-    doc.text(`GST (12%):`, 125, finalY + (pricing.discountApplied ? 26 : 19));
-    doc.text(
-      `Rs.${pricing.gst.toFixed(2)}`,
-      170,
-      finalY + (pricing.discountApplied ? 26 : 19),
-      { align: "right" }
-    );
+    doc.text(`GST (12%):`, 125, finalY + 19);
+    doc.text(`Rs.${pricing.gst.toFixed(2)}`, 170, finalY + 19, {
+      align: "right",
+    });
 
     // Total
     doc.setFont("helvetica", "bold");
-    doc.text(`Total:`, 125, finalY + (pricing.discountApplied ? 33 : 26));
-    doc.text(
-      `Rs.${pricing.total.toFixed(2)}`,
-      170,
-      finalY + (pricing.discountApplied ? 33 : 26),
-      { align: "right" }
-    );
+    doc.text(`Total:`, 125, finalY + 26);
+    doc.text(`Rs.${pricing.total.toFixed(2)}`, 170, finalY + 26, {
+      align: "right",
+    });
 
     // Footer
     doc.setFont("helvetica", "normal");
@@ -238,7 +243,6 @@ export const downloadPDF = async (orderDetails: any) => {
   }
 };
 
-// Helper function to preview PDF in new tab (optional)
 export const previewPDF = async (orderDetails: any) => {
   try {
     const doc = await generateOrderPDF(orderDetails);
@@ -249,4 +253,38 @@ export const previewPDF = async (orderDetails: any) => {
     console.error("Error previewing PDF:", error);
     throw error;
   }
+};
+
+const loadImage = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous"; // Important for some server configurations
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0);
+
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        resolve(dataUrl);
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    img.onerror = () => {
+      reject(new Error("Failed to load image"));
+    };
+
+    img.src = url;
+  });
 };

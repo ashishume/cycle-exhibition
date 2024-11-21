@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CheckCircle, Home, ShoppingBag, Download, Loader, Share2 } from "lucide-react";
+import {
+  CheckCircle,
+  Home,
+  ShoppingBag,
+  Download,
+  Loader,
+  Share2,
+} from "lucide-react";
 import {
   downloadPDF,
   generateOrderPDF,
