@@ -16,7 +16,7 @@ import GlassButton from "./Components/GlassButton";
 import GlassDropdown from "./Components/GlassDropdown";
 import { useNavigate, useParams } from "react-router-dom";
 import { loadCartFromStorage } from "../utils/Localstorage";
-import { CART_STORAGE_KEY } from "../constants/Cart";
+import { CART_STORAGE_KEY, TYRE } from "../constants/Cart";
 
 const BikePresentation = () => {
   const navigate = useNavigate();
@@ -46,13 +46,13 @@ const BikePresentation = () => {
   const [brandType, setBrandType] = useState(""); // branded or non-branded
 
   const tyreTypeOptions = [
-    { label: "Tube tyre (+ ₹300)", value: "tube-tyre" },
-    { label: "Tubeless tyre (no cost)", value: "tubeless" },
+    { label: "Tube tyre (+ ₹300)", value: TYRE.TUBE_TYRE },
+    { label: "Tubeless tyre (no cost)", value: TYRE.TUBELESS },
   ];
 
   const brandOptions = [
-    { label: "Branded (+ ₹100)", value: "branded" },
-    { label: "Non branded (no cost)", value: "non-branded" },
+    { label: "Branded (+ ₹100)", value: TYRE.BRANDED },
+    { label: "Non branded (no cost)", value: TYRE.NON_BRANDED },
   ];
 
   useEffect(() => {
@@ -176,17 +176,17 @@ const BikePresentation = () => {
 
     let additionalCost = 0;
 
-    if (tyreType === "tube-tyre") {
+    if (tyreType === TYRE.TUBE_TYRE) {
       additionalCost += 300; // Base cost for tube tyre
-      if (brandType === "branded") {
+      if (brandType === TYRE.BRANDED) {
         additionalCost += 100; // Additional cost for branded
       }
     }
     // No additional cost for tubeless
-    return baseTotal + additionalCost;
+    return { totalCost: baseTotal + additionalCost, additionalCost };
   };
 
-  const totalCost = calculateTotalCost();
+  const { totalCost, additionalCost } = calculateTotalCost();
 
   const handleAddToCart = () => {
     const newItem = {
@@ -200,6 +200,7 @@ const BikePresentation = () => {
       costPerCycle: currentPriceVariant?.costPerProduct,
       bundleSize: currentPriceVariant?.bundleSize,
       total: totalCost,
+      additionalCost,
     };
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
@@ -422,13 +423,13 @@ const BikePresentation = () => {
               value={tyreType}
               onChange={(value) => {
                 setTyreType(value);
-                if (value === "tubeless") {
+                if (value === TYRE.TUBELESS) {
                   setBrandType(""); // Reset brand type if tubeless is selected
                 }
               }}
             />
 
-            {tyreType === "tube-tyre" && (
+            {tyreType === TYRE.TUBE_TYRE && (
               <GlassDropdown
                 options={brandOptions}
                 placeholder="Select brand type"

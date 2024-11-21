@@ -12,7 +12,10 @@ export interface IFormData {
   }[];
   // bundleSize: number;
   isTyreChargeable: boolean;
-  tyreLabel: "tubeless" | "branded" | "";
+  // tyreLabel: "tubeless" | "branded" | "";
+  tyreType: string;
+  additionalCost: number;
+  brandType: string;
 }
 
 export interface IFormErrors {

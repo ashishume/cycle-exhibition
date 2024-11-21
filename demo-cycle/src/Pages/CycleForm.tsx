@@ -47,7 +47,9 @@ const ProductForm: React.FC<{
         bundleSize: 1,
       },
     ],
-    tyreLabel: "",
+    tyreType: "",
+    brandType: "",
+    additionalCost: 0,
     isTyreChargeable: false,
   };
 
@@ -80,8 +82,11 @@ const ProductForm: React.FC<{
             ? product.category
             : product.category?.slug || "",
         variants: product.variants,
-        tyreLabel: product.tyreLabel,
+        // tyreLabel: product.tyreLabel,
         isTyreChargeable: product.isTyreChargeable,
+        tyreType: "",
+        additionalCost: 0,
+        brandType: "",
       });
     }
   }, [product]);
@@ -180,8 +185,10 @@ const ProductForm: React.FC<{
       description: formData.description || "",
       category: formData.category,
       variants: formData.variants,
-      tyreLabel: formData.tyreLabel,
       isTyreChargeable: formData.isTyreChargeable,
+      tyreType: formData.tyreType,
+      additionalCost: formData.additionalCost,
+      brandType: formData.brandType,
     };
   };
 
@@ -205,9 +212,8 @@ const ProductForm: React.FC<{
       const cycleData = transformFormData();
       try {
         if (mode === "add") {
-
           console.log(cycleData);
-          
+
           const response = await apiClient.post<ICategory[]>(
             "/api/products",
             cycleData

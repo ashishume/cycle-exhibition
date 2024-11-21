@@ -25,8 +25,6 @@ export interface IOrder {
   __v: number;
 }
 
-
-
 export interface IOrderAdmin {
   _id: string;
   customer: {
@@ -40,7 +38,9 @@ export interface IOrderAdmin {
     brand: string;
     variant: number;
     bundleQuantity: number;
-    tyreLabel: string;
+    // tyreLabel: string;
+    tyreType: string;
+    brandType: string;
     isTyreChargeable: boolean;
     // bundleSize: number;
     total: number;

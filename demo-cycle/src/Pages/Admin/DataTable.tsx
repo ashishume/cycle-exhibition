@@ -143,7 +143,7 @@ const DataTable: React.FC<any> = ({
                         </div>
                       </td>
                       <td className="px-6 py-4">{item.brand}</td>
-                      <td className="px-6 py-4">{item.tyreLabel}</td>
+                      {/* <td className="px-6 py-4">{item.tyreLabel}</td> */}
                       <td className="px-6 py-4">{item.category.name}</td>
                       <td className="px-6 py-4">
                         <div className="max-h-24 overflow-y-auto">

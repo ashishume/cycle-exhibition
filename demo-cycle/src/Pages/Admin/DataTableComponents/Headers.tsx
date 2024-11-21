@@ -29,7 +29,7 @@ export const ProductHeaders = () => (
     {createHeaders([
       "Images",
       "Brand",
-      "Tubeless/Branded",
+      // "Tubeless/Branded",
       "Category",
       "Variants",
       "Actions",

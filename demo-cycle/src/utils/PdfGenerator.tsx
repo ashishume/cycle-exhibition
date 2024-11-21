@@ -131,7 +131,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
         product.brand.toString(),
         `${product.variant}"`.toString(),
         product.totalProducts.toString(),
-        product.tyreLabel.toString(),
+        // product.tyreLabel.toString(),
         product.bundleQuantity.toString(),
         `Rs. ${product.costPerCycle}`.toString(),
         `Rs. ${product.total.toFixed(2)}`.toString(),

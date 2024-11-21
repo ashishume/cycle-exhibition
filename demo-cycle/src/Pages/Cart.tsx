@@ -145,7 +145,6 @@ const CartPage = () => {
         customerDetails = { id: selectedCustomerId };
       }
 
-      // Prepare order data
       const orderData = {
         customer: customerDetails.id,
         products: cartItems.map((item) => ({
@@ -154,8 +153,10 @@ const CartPage = () => {
           variant: item.variant,
           bundleQuantity: item.bundleQuantity,
           totalProducts: item.totalProducts,
-          isTyreChargeable: item.isTyreChargeable,
-          tyreLabel: item.tyreLabel,
+          isTyreChargeable: item.additionalCost > 0,
+          additionalCost: item.additionalCost,
+          tyreType: item.tyreType,
+          brandType: item.brandType,
           costPerCycle: item.costPerCycle,
           bundleSize: item.bundleSize,
           total: item.total,
@@ -319,15 +320,19 @@ const CartPage = () => {
                           {item.brand} ({item.variant} inch)
                         </div>
                         <div className="text-white/90">
-                          Bundle qty: {item.bundleSize}
+                          Bundle size: {item.totalProducts / item.bundleSize}
                         </div>
                         <div className="text-white/70 text-sm">
                           ₹{item.costPerCycle}/cycle, {item.totalProducts}{" "}
                           cycles
                         </div>
                         <div className="text-white/70 text-sm">
-                          {item.isTyreChargeable
-                            ? `Additional ₹300 tyre charges`
+                          {item.tyreType}
+                          {item.brandType ? `, (${item.brandType})` : null}
+                        </div>
+                        <div className="text-white text-sm">
+                          {item.additionalCost
+                            ? `Additional +₹${item.additionalCost} tyre charges`
                             : null}
                         </div>
                       </div>
