@@ -209,13 +209,28 @@ export const generateOrderPDF = async (orderDetails: any) => {
       align: "right",
     });
 
+    // Bank Details
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    centerText("Bank Details", doc.internal.pageSize.height - 35);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    centerText("HDFC A/C - 13412560003747", doc.internal.pageSize.height - 30);
+    centerText(
+      "RTGS/NEFT IFSC - HDFC0001341",
+      doc.internal.pageSize.height - 25
+    );
+
     // Footer
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-
-    const footerText = "Thank you for your business!";
-    centerText(footerText, doc.internal.pageSize.height - 20);
+    centerText(
+      "Thank you for your business!",
+      doc.internal.pageSize.height - 15
+    );
 
     return doc;
   } catch (error) {
