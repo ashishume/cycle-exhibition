@@ -10,6 +10,7 @@ import {
   ProductHeaders,
 } from "./DataTableComponents/Headers";
 import CustomerImageModal from "./DataTableComponents/ImageModal";
+import { formatToIndianCurrency } from "../../utils/CurrencyFormatter";
 
 const DataTable: React.FC<any> = ({
   activeTab,
@@ -34,16 +35,7 @@ const DataTable: React.FC<any> = ({
     setSelectedCustomerImage(imageUrl);
   };
 
-  function formatToIndianCurrency(amount: number) {
-    let amountStr = amount.toString();
-    let [integer, decimal] = amountStr.split(".");
-    let formattedInteger = integer.replace(
-      /\B(?=(\d{3})+(?!\d))/g, // Regular expression for Indian numbering system
-      ","
-    );
-    return decimal ? `${formattedInteger}.${decimal}` : formattedInteger;
-  }
-
+  
   const orderStatusColors: any = {
     processing: "text-yellow-400",
     dispatched: "text-blue-400",

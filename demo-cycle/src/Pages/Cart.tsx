@@ -61,11 +61,6 @@ const CartPage = () => {
       return total + itemTotalAfterPerCycleDiscount;
     }, 0);
 
-    const tyreCharge = cartItems.reduce(
-      (total, item) => (item.isTyreChargeable ? total + 300 : total),
-      0
-    );
-
     const calculatedDiscount = discountAmount;
     const perCycleDiscountTotal = cartItems.reduce((sum, item) => {
       const perCycleDiscountPerCycle =
@@ -74,13 +69,12 @@ const CartPage = () => {
     }, 0);
 
     const discountedSubtotal =
-      subtotal + tyreCharge - calculatedDiscount - perCycleDiscountTotal;
+      subtotal - calculatedDiscount - perCycleDiscountTotal;
     const gst = discountedSubtotal * 0.12;
     const total = discountedSubtotal + gst;
 
     return {
       subtotal,
-      tyreCharge,
       calculatedDiscount,
       perCycleDiscountTotal,
       gst,
@@ -128,8 +122,7 @@ const CartPage = () => {
     setIsLoading(true);
     setCheckoutError("");
 
-    const { subtotal, tyreCharge, calculatedDiscount, gst, total } =
-      calculateTotals();
+    const { subtotal, calculatedDiscount, gst, total } = calculateTotals();
     let customerDetails;
 
     try {
@@ -181,7 +174,6 @@ const CartPage = () => {
         })),
         pricing: {
           subtotal,
-          tyreCharge,
           discount: calculatedDiscount,
           perCycleDiscount,
           gst,
@@ -229,7 +221,6 @@ const CartPage = () => {
             products: cartItems,
             pricing: {
               subtotal,
-              tyreCharge,
               discount: calculatedDiscount,
               perCycleDiscount,
               gst,
@@ -252,14 +243,8 @@ const CartPage = () => {
     }
   };
 
-  const {
-    subtotal,
-    tyreCharge,
-    calculatedDiscount,
-    perCycleDiscountTotal,
-    gst,
-    total,
-  } = calculateTotals();
+  const { subtotal, calculatedDiscount, perCycleDiscountTotal, gst, total } =
+    calculateTotals();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
@@ -345,13 +330,18 @@ const CartPage = () => {
                         <div className="text-white font-medium">
                           {item.brand} ({item.variant} inch)
                         </div>
+                        <div className="text-white/90">
+                          Bundle qty: {item.bundleSize}
+                        </div>
                         <div className="text-white/70 text-sm">
                           ₹{item.costPerCycle}/cycle, {item.totalProducts}{" "}
                           cycles
                         </div>
-                      </div>
-                      <div className="text-white/90">
-                        Quantity: {item.bundleSize}
+                        <div className="text-white/70 text-sm">
+                          {item.isTyreChargeable
+                            ? `Additional ₹300 tyre charges`
+                            : null}
+                        </div>
                       </div>
                       <div className="text-white font-medium">
                         ₹{item.total}
@@ -431,10 +421,7 @@ const CartPage = () => {
                   <span>Subtotal</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-white/90">
-                  <span>Tyre Charge</span>
-                  <span>₹{tyreCharge.toFixed(2)}</span>
-                </div>
+
                 {calculatedDiscount > 0 && (
                   <div className="flex justify-between text-green-400">
                     <span>Discount</span>
