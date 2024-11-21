@@ -44,10 +44,17 @@ const CartPage = () => {
   const calculateTotals = () => {
     // Calculate subtotal with per-cycle discount
     const subtotal = cartItems.reduce((total, item) => {
-      const itemTotalBeforeDiscount = item.total;
-      const perCycleDiscountForItem = perCycleDiscount * item.totalProducts;
+      // Calculate per-cycle discount as a percentage of the cycle cost
+      const perCycleDiscountPerCycle =
+        item.costPerCycle * (perCycleDiscount / 100);
+
+      // Total per-cycle discount for this item
+      const totalPerCycleDiscountForItem =
+        perCycleDiscountPerCycle * item.totalProducts;
+
+      // Subtract total per-cycle discount from item total
       const itemTotalAfterPerCycleDiscount = Math.max(
-        itemTotalBeforeDiscount - perCycleDiscountForItem,
+        item.total - totalPerCycleDiscountForItem,
         0
       );
 
@@ -60,9 +67,11 @@ const CartPage = () => {
     );
 
     const calculatedDiscount = discountAmount;
-    const perCycleDiscountTotal =
-      perCycleDiscount *
-      cartItems.reduce((sum, item) => sum + item.totalProducts, 0);
+    const perCycleDiscountTotal = cartItems.reduce((sum, item) => {
+      const perCycleDiscountPerCycle =
+        item.costPerCycle * (perCycleDiscount / 100);
+      return sum + perCycleDiscountPerCycle * item.totalProducts;
+    }, 0);
 
     const discountedSubtotal =
       subtotal + tyreCharge - calculatedDiscount - perCycleDiscountTotal;
@@ -247,7 +256,7 @@ const CartPage = () => {
     subtotal,
     tyreCharge,
     calculatedDiscount,
-    // perCycleDiscount,
+    perCycleDiscountTotal,
     gst,
     total,
   } = calculateTotals();
@@ -410,7 +419,7 @@ const CartPage = () => {
                     )}
                     {perCycleDiscount > 0 && (
                       <span>
-                        ₹ {perCycleDiscount} per-cycle discount applied!
+                        {perCycleDiscount}% per-cycle discount applied!
                       </span>
                     )}
                   </div>
@@ -435,17 +444,8 @@ const CartPage = () => {
 
                 {perCycleDiscount > 0 && (
                   <div className="flex justify-between text-green-400">
-                    <span>Per-Cycle Discount</span>
-                    <span>
-                      -₹
-                      {(
-                        perCycleDiscount *
-                        cartItems.reduce(
-                          (sum, item) => sum + item.totalProducts,
-                          0
-                        )
-                      ).toFixed(2)}
-                    </span>
+                    <span>Total per cycle discount ({perCycleDiscount}%)</span>
+                    <span>-₹{perCycleDiscountTotal}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-white/90">
