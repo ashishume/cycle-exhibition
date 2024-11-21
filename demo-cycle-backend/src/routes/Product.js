@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
       subtitle,
       category,
       variants,
-      bundleSize,
+      // bundleSize,
       tyreLabel,
       isTyreChargeable,
     } = req.body;
@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
       subtitle,
       category: foundCategory._id, // Reference the ObjectId of the Category
       variants,
-      bundleSize,
+      // bundleSize,
       tyreLabel,
       isTyreChargeable,
     });
@@ -94,7 +94,7 @@ router.patch("/:id", async (req, res) => {
       subtitle,
       category,
       variants,
-      bundleSize,
+      // bundleSize,
       tyreLabel,
       isTyreChargeable,
     } = req.body;
@@ -118,7 +118,7 @@ router.patch("/:id", async (req, res) => {
         subtitle,
         category: req.body.category,
         variants,
-        bundleSize,
+        // bundleSize,
         tyreLabel,
         isTyreChargeable,
       },

@@ -3,6 +3,7 @@ import { ICategory } from "./Category";
 export interface IVariant {
   costPerProduct: number;
   size: number;
+  bundleSize: number;
   _id: string;
 }
 
@@ -14,7 +15,7 @@ export interface IProduct {
   subtitle: string;
   category: ICategory;
   variants: IVariant[];
-  bundleSize: number;
+  // bundleSize: number;
   tyreLabel: string;
   isTyreChargeable: boolean;
   __v: number;

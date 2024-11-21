@@ -2,14 +2,14 @@
 export interface ICycle {
   id: number;
   brand: string;
-  bundleSize: number;
+  // bundleSize: number;
   costPerCycle: number;
 }
 
 export interface ICustomerFormData {
   customerName: string;
   selectedCycle: string;
-  bundleSize: number;
+  // bundleSize: number;
   customerImage: string | null;
   leadType: string;
 }

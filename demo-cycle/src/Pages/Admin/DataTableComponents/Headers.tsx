@@ -17,7 +17,7 @@ export const CustomerHeaders = () => (
       "Name",
       "Lead Type",
       "Description",
-      "Address",
+      "GST No.",
       "Transport",
       "Actions",
     ])}

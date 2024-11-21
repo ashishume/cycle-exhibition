@@ -6,7 +6,7 @@ const customerSchema = new mongoose.Schema({
   leadType: { type: String, required: true },
   description: { type: String, default: "" },
   transport: { type: String, default: "" },
-  address: { type: String, default: "" },
+  gstNumber: { type: String, default: "" },
 });
 
 export const Customer = mongoose.model("Customer", customerSchema);

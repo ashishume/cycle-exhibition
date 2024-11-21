@@ -4,7 +4,7 @@ export interface ICustomer {
   customerImage: string | null;
   leadType: string;
   description: string;
-  address: string;
+  gstNumber: string;
   transport: string;
 }
 
@@ -13,5 +13,5 @@ export interface ICustomerFormErrors {
   customerName?: string;
   leadType?: string;
   transport?: string;
-  address?: string;
+  gstNumber?: string;
 }

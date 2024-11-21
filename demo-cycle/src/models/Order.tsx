@@ -42,7 +42,7 @@ export interface IOrderAdmin {
     bundleQuantity: number;
     tyreLabel: string;
     isTyreChargeable: boolean;
-    bundleSize: number;
+    // bundleSize: number;
     total: number;
   }>;
   pricing: {

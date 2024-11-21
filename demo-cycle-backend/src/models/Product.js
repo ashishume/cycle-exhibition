@@ -13,9 +13,10 @@ const productSchema = new mongoose.Schema({
     {
       costPerProduct: { type: Number, default: 0 },
       size: { type: Number, required: true },
+      bundleSize: { type: Number, required: true },
     },
   ],
-  bundleSize: { type: Number, required: true },
+  // bundleSize: { type: Number, required: true },
   tyreLabel: { type: String },
   isTyreChargeable: { type: Boolean, required: true },
 });

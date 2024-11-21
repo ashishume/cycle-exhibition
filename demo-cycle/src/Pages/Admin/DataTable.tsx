@@ -106,7 +106,7 @@ const DataTable: React.FC<any> = ({
                       <td className="px-6 py-4">{item.customerName}</td>
                       <td className="px-6 py-4">{item.leadType}</td>
                       <td className="px-6 py-4">{item.description}</td>
-                      <td className="px-6 py-4">{item.address}</td>
+                      <td className="px-6 py-4">{item.gstNumber}</td>
                       <td className="px-6 py-4">{item.transport}</td>
                       <td className="px-6 py-4">
                         <button

@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", upload.single("customerImage"), async (req, res) => {
   try {
-    const { customerName, leadType, description, address, transport } =
+    const { customerName, leadType, description, gstNumber, transport } =
       req.body;
 
     // Construct customer object
@@ -47,7 +47,7 @@ router.post("/", upload.single("customerImage"), async (req, res) => {
       customerName,
       leadType,
       description,
-      address,
+      gstNumber,
       transport,
       // Only add customerImage if a file was uploaded
       ...(req.file ? { customerImage: req.file.path } : {}),
@@ -114,7 +114,7 @@ router.patch("/:id", upload.single("customerImage"), async (req, res) => {
     customerImage,
     leadType,
     description,
-    address,
+    gstNumber,
     transport,
   } = req.body;
 
@@ -126,7 +126,7 @@ router.patch("/:id", upload.single("customerImage"), async (req, res) => {
         customerImage,
         leadType,
         description,
-        address,
+        gstNumber,
         transport,
         ...(req.file ? { customerImage: req.file.path } : {}), // Add updated image path if a new file was uploaded
       },

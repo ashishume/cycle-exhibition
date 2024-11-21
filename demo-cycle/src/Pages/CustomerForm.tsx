@@ -26,7 +26,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     customerImage: null,
     leadType: "",
     description: "",
-    address: "",
+    gstNumber: "",
     transport: "",
   };
   const leadTypes: string[] = ["Hot Lead", "Warm Lead", "Cold Lead"];
@@ -152,7 +152,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         formDataToSend.append("customerName", formData.customerName);
         formDataToSend.append("leadType", formData.leadType);
         formDataToSend.append("description", formData.description || "");
-        formDataToSend.append("address", formData.address || "");
+        formDataToSend.append("gstNumber", formData.gstNumber || "");
         formDataToSend.append("transport", formData.transport || "");
 
         // Append image if exists
@@ -235,15 +235,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             fieldKey={"customerName"}
           />
 
-          {/* Address */}
+          {/* gstNumber */}
           <InputField
             formData={formData}
             handleInputChange={handleInputChange}
             handleBlur={handleBlur}
             touched={touched}
             errors={errors}
-            label={"Address"}
-            fieldKey={"address"}
+            label={"GST Number"}
+            fieldKey={"gstNumber"}
           />
 
           {/* Transport */}
