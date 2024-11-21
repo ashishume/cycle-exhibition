@@ -35,12 +35,15 @@ const BikePresentation = () => {
     null
   );
   const [tyreStatus, setTyreStatus] = useState("");
-  const totalProducts = bundleQuantity * (currentBike?.bundleSize || 0);
-  const totalCost =
-    bundleQuantity *
-    (currentBike?.bundleSize || 0) *
-    (currentPriceVariant?.costPerProduct || 0);
 
+  const totalProducts = currentPriceVariant
+    ? bundleQuantity * currentPriceVariant.bundleSize
+    : 0;
+  const totalCost = currentPriceVariant
+    ? bundleQuantity *
+      currentPriceVariant.bundleSize *
+      currentPriceVariant.costPerProduct
+    : 0;
   const [cartItems, setCartItems] = useState<any[]>(loadCartFromStorage());
 
   const tyreOptions = [
@@ -55,9 +58,12 @@ const BikePresentation = () => {
   }, []);
 
   useEffect(() => {
-    setCurrentVariant(
-      currentBike?.variants?.find((v) => v?.costPerProduct !== 0) || null
-    );
+    if (currentBike?.variants) {
+      const validVariant = currentBike.variants.find(
+        (v) => v.costPerProduct > 0
+      );
+      setCurrentVariant(validVariant || null);
+    }
   }, [currentBike]);
 
   // New effect to set initial brand index based on ID
@@ -169,7 +175,7 @@ const BikePresentation = () => {
       isTyreChargeable: tyreStatus === "branded" || tyreStatus === "tube-tyre",
       tyreLabel: tyreStatus,
       costPerCycle: currentPriceVariant?.costPerProduct,
-      bundleSize: currentBike?.bundleSize,
+      bundleSize: currentPriceVariant?.bundleSize, // Changed from common bundleSize
       total:
         totalCost +
         ((tyreStatus === "branded" || tyreStatus === "tube-tyre") === true
@@ -181,7 +187,7 @@ const BikePresentation = () => {
     setTyreStatus("");
   };
 
-  const handleSizeChange = (variant: any) => {
+  const handleSizeChange = (variant: IVariant) => {
     setCurrentVariant(variant);
   };
 
@@ -230,12 +236,24 @@ const BikePresentation = () => {
             {currentBike?.brand}
           </h1>
           <div className="flex flex-col items-center gap-1 md:gap-2">
-            <div className="text-white drop-shadow-2xl  bg-black/30 px-2 rounded text-sm md:text-lg">
+            <div className="text-white drop-shadow-2xl bg-black/30 px-2 rounded text-sm md:text-lg">
               <Package className="inline-block mr-2 mb-1" size={16} />
-              Bundle of {currentBike?.bundleSize} products ( ₹
-              {currentPriceVariant?.costPerProduct.toFixed(2)} per piece)
+              {currentPriceVariant
+                ? `Bundle of ${
+                    currentPriceVariant.bundleSize
+                  } products (₹${currentPriceVariant.costPerProduct.toFixed(
+                    2
+                  )} per piece)`
+                : "Select a variant"}
             </div>
-            <div className="text-white text-lg md:text-2xl font-bold"></div>
+            {/* {currentPriceVariant && (
+              <div className="text-white text-sm md:text-base">
+                {bundleQuantity} bundles = {totalProducts} cycles
+                <span className="ml-2 font-bold">
+                  Total: ₹{totalCost.toFixed(2)}
+                </span>
+              </div>
+            )} */}
           </div>
         </div>
 
@@ -298,14 +316,19 @@ const BikePresentation = () => {
             <p>Sizes (inches)</p>
             <div className="flex gap-3 justify-center">
               {currentBike?.variants.map(
-                ({ _id, size, costPerProduct }: IVariant) => {
+                ({ _id, size, costPerProduct, bundleSize }: IVariant) => {
                   return Number(costPerProduct) !== 0 ? (
                     <GlassButton
                       key={_id}
                       isActive={currentPriceVariant?._id === _id}
                       className="col-span-2 text-sm md:text-base"
                       onClick={() =>
-                        handleSizeChange({ _id, size, costPerProduct })
+                        handleSizeChange({
+                          _id,
+                          size,
+                          costPerProduct,
+                          bundleSize,
+                        })
                       }
                     >
                       <span className="text-sm font-medium uppercase tracking-wider">
