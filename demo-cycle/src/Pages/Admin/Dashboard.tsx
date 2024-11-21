@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut, Plus } from "lucide-react";
 import Tabs from "./Tabs";
 import SearchBar from "./SearchBar";
 import DataTable from "./DataTable";
@@ -9,58 +9,31 @@ import { IProduct } from "../../models/Product";
 import { ICustomer } from "../../models/Customer";
 import ProductForm from "../CycleForm";
 import { IFormData } from "../../models/Form";
-import ModalWrapper from "./DataTableComponents/ProductFormModal";
+import ModalWrapper from "./DataTableComponents/ModalWrapper";
 import CustomerForm from "../CustomerForm";
 import { useAuth } from "./AdminAuthContext";
 import { downloadPDF } from "../../utils/PdfGenerator";
 import { useSnackbar } from "../Components/Snackbar";
-
-export interface IOrder {
-  _id: string;
-  customer: {
-    _id: string;
-    customerName: string;
-  };
-  products: Array<{
-    _id: {
-      _id: string;
-    };
-    brand: string;
-    variant: number;
-    bundleQuantity: number;
-    tyreLabel: string;
-    isTyreChargeable: boolean;
-    bundleSize: number;
-    total: number;
-  }>;
-  pricing: {
-    subtotal: number;
-    tyreCharge: number;
-    discount: number;
-    gst: number;
-    total: number;
-    discountApplied: boolean;
-    discountCode: string;
-    discountAmount: number;
-    _id: string;
-  };
-  remarks?: string;
-  orderStatus: string;
-}
+import { IOrderAdmin } from "../../models/Order";
+import { ICoupon } from "../../models/Coupon";
+import CouponForm from "./CouponForm";
+import GlassButton from "../Components/GlassButton";
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
   const [searchTerm, setSearchTerm] = useState("");
   // const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [addCoupon, setAddCoupon] = useState(false);
   const [expandedImageRow, setExpandedImageRow] = useState<string | null>(null);
   const itemsPerPage = 5;
   const [_, setIsEditModalOpen] = useState(false);
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
-  const [orders, setOrders] = useState<IOrder[]>([]);
+  const [coupons, setCoupons] = useState<ICoupon[]>([]);
+  const [orders, setOrders] = useState<IOrderAdmin[]>([]);
   const [editModalProduct, setEditModalProduct] = useState<
-    IProduct | IFormData | ICustomer | null
+    IProduct | IFormData | ICustomer | ICoupon | null
   >(null);
   const { showSnackbar } = useSnackbar();
   const { logout } = useAuth();
@@ -79,12 +52,16 @@ const AdminPanel = () => {
         fetchOrders();
         break;
       }
+      case TAB_TYPE.COUPON: {
+        fetchCoupons();
+        break;
+      }
     }
   }, [activeTab]);
 
   const fetchOrders = async () => {
     try {
-      const response = await apiClient.get<IOrder[]>("/api/orders");
+      const response = await apiClient.get<IOrderAdmin[]>("/api/orders");
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -104,6 +81,14 @@ const AdminPanel = () => {
     try {
       const response = await apiClient.get<ICustomer[]>("/api/customers");
       setCustomers(response.data);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  };
+  const fetchCoupons = async () => {
+    try {
+      const response = await apiClient.get<ICoupon[]>("/api/coupons");
+      setCoupons(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
     }
@@ -135,12 +120,14 @@ const AdminPanel = () => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       try {
         await apiClient.delete(`/api/${type}s/${id}`);
-        if (type === "customer") {
+        if (type === TAB_TYPE.CUSTOMER) {
           setCustomers((prev) => prev.filter((item) => item._id !== id));
-        } else if (type === "product") {
+        } else if (type === TAB_TYPE.PRODUCT) {
           setProducts((prev) => prev.filter((item) => item._id !== id));
-        } else {
+        } else if (type === TAB_TYPE.ORDER) {
           setOrders((prev) => prev.filter((item) => item._id !== id));
+        } else if (type === TAB_TYPE.COUPON) {
+          setCoupons((prev) => prev.filter((item) => item._id !== id));
         }
       } catch (error) {
         console.error(`Error deleting ${type}:`, error);
@@ -173,6 +160,14 @@ const AdminPanel = () => {
         }
         break;
       }
+      case TAB_TYPE.COUPON: {
+        const couponToEdit = coupons.find((p) => p._id === id);
+        if (couponToEdit) {
+          setEditModalProduct(couponToEdit);
+          setIsEditModalOpen(true);
+        }
+        break;
+      }
     }
   };
 
@@ -188,6 +183,11 @@ const AdminPanel = () => {
         fetchCustomers();
         break;
       }
+      case TAB_TYPE.COUPON: {
+        setAddCoupon(false);
+        fetchCoupons();
+        break;
+      }
     }
   };
 
@@ -199,12 +199,17 @@ const AdminPanel = () => {
         return products;
       case TAB_TYPE.ORDER:
         return orders;
+      case TAB_TYPE.COUPON:
+        return coupons;
       default:
         return [];
     }
   };
 
-  const handleDownloadPdf = async (orderDetails: IOrder, itemType: string) => {
+  const handleDownloadPdf = async (
+    orderDetails: IOrderAdmin,
+    itemType: string
+  ) => {
     const newOrderDetails = {
       orderId: orderDetails._id,
       ...orderDetails,
@@ -219,7 +224,7 @@ const AdminPanel = () => {
 
   const handleStatusChange = async (id: string, value: string) => {
     try {
-      const response = await apiClient.patch<IOrder>(
+      const response = await apiClient.patch<IOrderAdmin>(
         `/api/orders/status/${id}`,
         {
           orderStatus: value,
@@ -237,12 +242,8 @@ const AdminPanel = () => {
         showSnackbar("Order status updated", "success");
       }
     } catch (error: any) {
-      console.log(
-        error.response?.data?.message ||
-          "An error occurred."
-      );
+      console.log(error.response?.data?.message || "An error occurred.");
       showSnackbar("An error occurred.", "error");
-
     }
   };
   return (
@@ -266,6 +267,15 @@ const AdminPanel = () => {
           activeTab={activeTab}
         />
 
+        {activeTab === TAB_TYPE.COUPON ? (
+          <GlassButton className="my-2" onClick={() => setAddCoupon(true)}>
+            <Plus color="white" />
+            <span className="text-sm font-medium uppercase tracking-wider text-white">
+              Add new coupon
+            </span>
+          </GlassButton>
+        ) : null}
+
         <DataTable
           activeTab={activeTab}
           handleDelete={handleDelete}
@@ -274,6 +284,7 @@ const AdminPanel = () => {
           getPaginatedData={getPaginatedData}
           customers={customers}
           products={products}
+          coupons={coupons}
           orders={orders}
           downloadPdf={handleDownloadPdf}
           handleStatusChange={handleStatusChange}
@@ -287,6 +298,22 @@ const AdminPanel = () => {
               product={editModalProduct as IFormData}
               onClose={handleCloseModal}
             />
+          </ModalWrapper>
+        )}
+
+        {editModalProduct && activeTab === TAB_TYPE.COUPON && (
+          <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
+            <CouponForm
+              mode="edit"
+              coupon={editModalProduct as ICoupon}
+              onClose={handleCloseModal}
+            />
+          </ModalWrapper>
+        )}
+
+        {addCoupon && activeTab === TAB_TYPE.COUPON && (
+          <ModalWrapper isOpen={addCoupon} onClose={handleCloseModal}>
+            <CouponForm mode="add" coupon={null} onClose={handleCloseModal} />
           </ModalWrapper>
         )}
 

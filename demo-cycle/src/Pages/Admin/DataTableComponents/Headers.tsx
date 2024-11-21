@@ -1,42 +1,66 @@
-export const CustomerHeaders = () => {
-  return (
-    <>
-      <th className="px-6 py-4 text-left text-white/90">Image</th>
-      <th className="px-6 py-4 text-left text-white/90">Name</th>
-      <th className="px-6 py-4 text-left text-white/90">Lead Type</th>
-      <th className="px-6 py-4 text-left text-white/90">Description</th>
-      <th className="px-6 py-4 text-left text-white/90">Address</th>
-      <th className="px-6 py-4 text-left text-white/90">Transport</th>
-      <th className="px-6 py-4 text-left text-white/90">Actions</th>
-    </>
-  );
+
+// Centralized header style for consistent formatting
+const HEADER_STYLE = 'px-6 py-4 text-left text-white/90';
+
+// Generic header creation function
+const createHeaders = (headerTitles: string[]) => {
+  return headerTitles.map((title, index) => (
+    <th key={index} className={HEADER_STYLE}>
+      {title}
+    </th>
+  ));
 };
 
-export const ProductHeaders = () => {
-  return (
-    <>
-      <th className="px-6 py-4 text-left text-white/90">Images</th>
-      <th className="px-6 py-4 text-left text-white/90">Brand</th>
-      <th className="px-6 py-4 text-left text-white/90">tubeless/branded</th>
-      <th className="px-6 py-4 text-left text-white/90">Category</th>
-      <th className="px-6 py-4 text-left text-white/90">Variants</th>
-      <th className="px-6 py-4 text-left text-white/90">Actions</th>
-    </>
-  );
-};
-export const OrdersHeaders = () => {
-  return (
-    <>
-      {/* <th className="px-6 py-4 text-left text-white/90">
-                    Order ID
-                  </th> */}
-      <th className="px-6 py-4 text-left text-white/90">Customer</th>
-      <th className="px-6 py-4 text-left text-white/90">Products</th>
-      <th className="px-6 py-4 text-left text-white/90">Total</th>
-      <th className="px-6 py-4 text-left text-white/90">Discount</th>
-      <th className="px-6 py-4 text-left text-white/90">Remarks</th>
-      <th className="px-6 py-4 text-left text-white/90">Status</th>
-      <th className="px-6 py-4 text-left text-white/90">Actions</th>
-    </>
-  );
-};
+export const CustomerHeaders = () => (
+  <>
+    {createHeaders([
+      'Image', 
+      'Name', 
+      'Lead Type', 
+      'Description', 
+      'Address', 
+      'Transport', 
+      'Actions'
+    ])}
+  </>
+);
+
+export const ProductHeaders = () => (
+  <>
+    {createHeaders([
+      'Images', 
+      'Brand', 
+      'Tubeless/Branded', 
+      'Category', 
+      'Variants', 
+      'Actions'
+    ])}
+  </>
+);
+
+export const OrdersHeaders = () => (
+  <>
+    {createHeaders([
+      'Customer', 
+      'Products', 
+      'Total', 
+      'Discount', 
+      'Remarks', 
+      'Status', 
+      'Actions'
+    ])}
+  </>
+);
+
+export const CouponHeaders = () => (
+  <>
+    {createHeaders([
+      'Code', 
+      'Discount', 
+      'Is Active', 
+      'Coupon Type', 
+      'Expiration Date', 
+      'Actions'
+    ])}
+  </>
+);

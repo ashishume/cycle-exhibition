@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Download, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
 import {
+  CouponHeaders,
   CustomerHeaders,
   OrdersHeaders,
   ProductHeaders,
@@ -20,6 +21,7 @@ const DataTable: React.FC<any> = ({
   products,
   expandedImageRow,
   orders,
+  coupons,
   handleStatusChange,
 }) => {
   const [selectedCustomerImage, setSelectedCustomerImage] = useState<
@@ -58,6 +60,8 @@ const DataTable: React.FC<any> = ({
                 <ProductHeaders />
               ) : activeTab === TAB_TYPE.ORDER ? (
                 <OrdersHeaders />
+              ) : activeTab === TAB_TYPE.COUPON ? (
+                <CouponHeaders />
               ) : null}
             </tr>
           </thead>
@@ -69,6 +73,8 @@ const DataTable: React.FC<any> = ({
                 ? products
                 : activeTab === TAB_TYPE.ORDER
                 ? orders
+                : activeTab === TAB_TYPE.COUPON
+                ? coupons
                 : null
             )?.data?.map((item: any) => (
               <Fragment key={item._id}>
@@ -381,6 +387,45 @@ const DataTable: React.FC<any> = ({
                       </td>
                     </tr>
                   )}
+
+                {activeTab === TAB_TYPE.COUPON ? (
+                  <tr>
+                    <td className="px-6 py-4">{item.code}</td>
+                    <td className="px-6 py-4">₹{item.discount}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`
+                              px-2 py-1 rounded text-sm 
+                              ${
+                                item.isActive
+                                  ? "bg-green-400/20 text-green-400"
+                                  : "bg-red-400/20 text-red-400"
+                              }
+                            `}
+                      >
+                        {item.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{item.couponType}</td>
+                    <td className="px-6 py-4">
+                      {new Date(item.expirationDate).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleEdit(item._id, TAB_TYPE.COUPON)}
+                        className="text-yellow-400 hover:text-yellow-600"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id, TAB_TYPE.COUPON)}
+                        className="ml-2 text-red-400 hover:text-red-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
               </Fragment>
             ))}
           </tbody>

@@ -1,11 +1,5 @@
-// src/Routes.tsx
-
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CyclesList from "./Pages/Dashboard";
 import CustomerForm from "./Pages/CustomerForm";
 import ProductForm from "./Pages/CycleForm";

@@ -3,4 +3,5 @@ export const TAB_TYPE = {
   PRODUCT: "product",
   ORDER: "order",
   CATEGORY: "category",
+  COUPON: "coupon",
 };
