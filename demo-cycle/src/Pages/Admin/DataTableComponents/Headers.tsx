@@ -1,6 +1,5 @@
-
 // Centralized header style for consistent formatting
-const HEADER_STYLE = 'px-6 py-4 text-left text-white/90';
+const HEADER_STYLE = "px-6 py-4 text-left text-white/90";
 
 // Generic header creation function
 const createHeaders = (headerTitles: string[]) => {
@@ -14,13 +13,13 @@ const createHeaders = (headerTitles: string[]) => {
 export const CustomerHeaders = () => (
   <>
     {createHeaders([
-      'Image', 
-      'Name', 
-      'Lead Type', 
-      'Description', 
-      'Address', 
-      'Transport', 
-      'Actions'
+      "Image",
+      "Name",
+      "Lead Type",
+      "Description",
+      "Address",
+      "Transport",
+      "Actions",
     ])}
   </>
 );
@@ -28,12 +27,12 @@ export const CustomerHeaders = () => (
 export const ProductHeaders = () => (
   <>
     {createHeaders([
-      'Images', 
-      'Brand', 
-      'Tubeless/Branded', 
-      'Category', 
-      'Variants', 
-      'Actions'
+      "Images",
+      "Brand",
+      "Tubeless/Branded",
+      "Category",
+      "Variants",
+      "Actions",
     ])}
   </>
 );
@@ -41,13 +40,13 @@ export const ProductHeaders = () => (
 export const OrdersHeaders = () => (
   <>
     {createHeaders([
-      'Customer', 
-      'Products', 
-      'Total', 
-      'Discount', 
-      'Remarks', 
-      'Status', 
-      'Actions'
+      "Customer",
+      "Products",
+      "Total",
+      "Discount",
+      "Remarks",
+      "Status",
+      "Actions",
     ])}
   </>
 );
@@ -55,12 +54,15 @@ export const OrdersHeaders = () => (
 export const CouponHeaders = () => (
   <>
     {createHeaders([
-      'Code', 
-      'Discount', 
-      'Is Active', 
-      'Coupon Type', 
-      'Expiration Date', 
-      'Actions'
+      "Code",
+      "Discount",
+      "Is Active",
+      "Coupon Type",
+      "Expiration Date",
+      "Actions",
     ])}
   </>
+);
+export const CategoryHeaders = () => (
+  <>{createHeaders(["name", "Actions"])}</>
 );

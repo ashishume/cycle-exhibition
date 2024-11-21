@@ -18,13 +18,15 @@ import { IOrderAdmin } from "../../models/Order";
 import { ICoupon } from "../../models/Coupon";
 import CouponForm from "./CouponForm";
 import GlassButton from "../Components/GlassButton";
+import { ICategory } from "../../models/Category";
+import CategoryForm from "./CategoryForm";
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
   const [searchTerm, setSearchTerm] = useState("");
   // const [editingId, setEditingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [addCoupon, setAddCoupon] = useState(false);
+  const [isAddModal, setAddModal] = useState(false);
   const [expandedImageRow, setExpandedImageRow] = useState<string | null>(null);
   const itemsPerPage = 5;
   const [_, setIsEditModalOpen] = useState(false);
@@ -32,8 +34,9 @@ const AdminPanel = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [coupons, setCoupons] = useState<ICoupon[]>([]);
   const [orders, setOrders] = useState<IOrderAdmin[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [editModalProduct, setEditModalProduct] = useState<
-    IProduct | IFormData | ICustomer | ICoupon | null
+    IProduct | IFormData | ICustomer | ICoupon | ICategory | null
   >(null);
   const { showSnackbar } = useSnackbar();
   const { logout } = useAuth();
@@ -54,6 +57,10 @@ const AdminPanel = () => {
       }
       case TAB_TYPE.COUPON: {
         fetchCoupons();
+        break;
+      }
+      case TAB_TYPE.CATEGORY: {
+        fetchCategories();
         break;
       }
     }
@@ -85,12 +92,22 @@ const AdminPanel = () => {
       console.error("Error fetching customers:", error);
     }
   };
+
   const fetchCoupons = async () => {
     try {
       const response = await apiClient.get<ICoupon[]>("/api/coupons");
       setCoupons(response.data);
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error("Error fetching coupons:", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get<ICategory[]>("/api/categories");
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     }
   };
 
@@ -115,22 +132,28 @@ const AdminPanel = () => {
 
   const handleDelete = async (
     id: string,
-    type: "customer" | "product" | "order"
+    type: "customer" | "product" | "order" | "category" | "coupon"
   ) => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       try {
         await apiClient.delete(`/api/${type}s/${id}`);
-        if (type === TAB_TYPE.CUSTOMER) {
-          setCustomers((prev) => prev.filter((item) => item._id !== id));
-        } else if (type === TAB_TYPE.PRODUCT) {
-          setProducts((prev) => prev.filter((item) => item._id !== id));
-        } else if (type === TAB_TYPE.ORDER) {
-          setOrders((prev) => prev.filter((item) => item._id !== id));
-        } else if (type === TAB_TYPE.COUPON) {
-          setCoupons((prev) => prev.filter((item) => item._id !== id));
-        }
-      } catch (error) {
-        console.error(`Error deleting ${type}:`, error);
+        const stateMap: Record<
+          typeof type,
+          React.Dispatch<React.SetStateAction<any[]>>
+        > = {
+          customer: setCustomers,
+          product: setProducts,
+          order: setOrders,
+          category: setCategories,
+          coupon: setCoupons,
+        };
+
+        stateMap[type]((prev) => prev.filter((item) => item._id !== id));
+      } catch (error: any) {
+        showSnackbar(
+          `Error deleting ${type}:${error.response?.data?.message}`,
+          "error"
+        );
       }
     }
   };
@@ -139,41 +162,30 @@ const AdminPanel = () => {
     setExpandedImageRow(expandedImageRow === id ? null : id);
   };
 
-  const handleEdit = (id: string, editTab: string) => {
-    switch (editTab) {
-      case TAB_TYPE.PRODUCT: {
-        const productToEdit = products.find((p) => p._id === id);
-        if (productToEdit) {
-          setEditModalProduct(productToEdit);
-          setIsEditModalOpen(true);
-        }
-        break;
-      }
-      case TAB_TYPE.ORDER: {
-        break;
-      }
-      case TAB_TYPE.CUSTOMER: {
-        const customerToEdit = customers.find((p) => p._id === id);
-        if (customerToEdit) {
-          setEditModalProduct(customerToEdit);
-          setIsEditModalOpen(true);
-        }
-        break;
-      }
-      case TAB_TYPE.COUPON: {
-        const couponToEdit = coupons.find((p) => p._id === id);
-        if (couponToEdit) {
-          setEditModalProduct(couponToEdit);
-          setIsEditModalOpen(true);
-        }
-        break;
-      }
+  const handleEdit = (
+    id: string,
+    editTab: "product" | "order" | "customer" | "coupon" | "category"
+  ) => {
+    const dataMap: Record<typeof editTab, any[]> = {
+      product: products,
+      order: orders,
+      customer: customers,
+      coupon: coupons,
+      category: categories,
+    };
+
+    const itemToEdit = dataMap[editTab]?.find((item) => item._id === id);
+    if (itemToEdit) {
+      setEditModalProduct(itemToEdit);
+      setIsEditModalOpen(true);
     }
   };
 
   const handleCloseModal = () => {
     setIsEditModalOpen(false);
     setEditModalProduct(null);
+    setAddModal(false);
+
     switch (activeTab) {
       case TAB_TYPE.PRODUCT: {
         fetchProducts();
@@ -184,8 +196,11 @@ const AdminPanel = () => {
         break;
       }
       case TAB_TYPE.COUPON: {
-        setAddCoupon(false);
         fetchCoupons();
+        break;
+      }
+      case TAB_TYPE.CATEGORY: {
+        fetchCategories();
         break;
       }
     }
@@ -268,10 +283,19 @@ const AdminPanel = () => {
         />
 
         {activeTab === TAB_TYPE.COUPON ? (
-          <GlassButton className="my-2" onClick={() => setAddCoupon(true)}>
+          <GlassButton className="my-2" onClick={() => setAddModal(true)}>
             <Plus color="white" />
             <span className="text-sm font-medium uppercase tracking-wider text-white">
               Add new coupon
+            </span>
+          </GlassButton>
+        ) : null}
+
+        {activeTab === TAB_TYPE.CATEGORY ? (
+          <GlassButton className="my-2" onClick={() => setAddModal(true)}>
+            <Plus color="white" />
+            <span className="text-sm font-medium uppercase tracking-wider text-white">
+              Add new category
             </span>
           </GlassButton>
         ) : null}
@@ -284,6 +308,7 @@ const AdminPanel = () => {
           getPaginatedData={getPaginatedData}
           customers={customers}
           products={products}
+          categories={categories}
           coupons={coupons}
           orders={orders}
           downloadPdf={handleDownloadPdf}
@@ -311,9 +336,29 @@ const AdminPanel = () => {
           </ModalWrapper>
         )}
 
-        {addCoupon && activeTab === TAB_TYPE.COUPON && (
-          <ModalWrapper isOpen={addCoupon} onClose={handleCloseModal}>
+        {editModalProduct && activeTab === TAB_TYPE.CATEGORY && (
+          <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
+            <CategoryForm
+              mode="edit"
+              category={editModalProduct as ICategory}
+              onClose={handleCloseModal}
+            />
+          </ModalWrapper>
+        )}
+
+        {isAddModal && activeTab === TAB_TYPE.COUPON && (
+          <ModalWrapper isOpen={isAddModal} onClose={handleCloseModal}>
             <CouponForm mode="add" coupon={null} onClose={handleCloseModal} />
+          </ModalWrapper>
+        )}
+
+        {isAddModal && activeTab === TAB_TYPE.CATEGORY && (
+          <ModalWrapper isOpen={isAddModal} onClose={handleCloseModal}>
+            <CategoryForm
+              mode="add"
+              category={null}
+              onClose={handleCloseModal}
+            />
           </ModalWrapper>
         )}
 

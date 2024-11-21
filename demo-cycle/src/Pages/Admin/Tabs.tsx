@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Package, TicketPercent, ShoppingCart } from "lucide-react";
+import { User, Package, TicketPercent, ShoppingCart, Folder } from "lucide-react";
 import { TAB_TYPE } from "../../constants/admin";
 
 export interface TabConfig {
@@ -34,6 +34,11 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
       type: TAB_TYPE.COUPON, 
       label: 'Coupons', 
       icon: TicketPercent 
+    },
+    { 
+      type: TAB_TYPE.CATEGORY, 
+      label: 'Categories', 
+      icon: Folder 
     }
   ];
 

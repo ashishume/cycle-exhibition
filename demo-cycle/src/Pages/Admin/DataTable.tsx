@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Download, Edit, Trash2 } from "lucide-react";
 import { IVariant } from "../../models/Product";
 import { TAB_TYPE } from "../../constants/admin";
 import {
+  CategoryHeaders,
   CouponHeaders,
   CustomerHeaders,
   OrdersHeaders,
@@ -19,6 +20,7 @@ const DataTable: React.FC<any> = ({
   getPaginatedData,
   customers,
   products,
+  categories,
   expandedImageRow,
   orders,
   coupons,
@@ -62,6 +64,8 @@ const DataTable: React.FC<any> = ({
                 <OrdersHeaders />
               ) : activeTab === TAB_TYPE.COUPON ? (
                 <CouponHeaders />
+              ) : activeTab === TAB_TYPE.CATEGORY ? (
+                <CategoryHeaders />
               ) : null}
             </tr>
           </thead>
@@ -75,6 +79,8 @@ const DataTable: React.FC<any> = ({
                 ? orders
                 : activeTab === TAB_TYPE.COUPON
                 ? coupons
+                : activeTab === TAB_TYPE.CATEGORY
+                ? categories
                 : null
             )?.data?.map((item: any) => (
               <Fragment key={item._id}>
@@ -419,6 +425,26 @@ const DataTable: React.FC<any> = ({
                       </button>
                       <button
                         onClick={() => handleDelete(item._id, TAB_TYPE.COUPON)}
+                        className="ml-2 text-red-400 hover:text-red-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
+
+                {activeTab === TAB_TYPE.CATEGORY ? (
+                  <tr>
+                    <td className="px-6 py-4">{item.name}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleEdit(item._id, TAB_TYPE.CATEGORY)}
+                        className="text-yellow-400 hover:text-yellow-600"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id, TAB_TYPE.CATEGORY)}
                         className="ml-2 text-red-400 hover:text-red-600"
                       >
                         <Trash2 className="w-5 h-5" />
