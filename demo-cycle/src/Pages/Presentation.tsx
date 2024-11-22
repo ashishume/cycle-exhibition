@@ -311,9 +311,10 @@ const BikePresentation = () => {
             </div>
           </div>
         </div>
-
         {/* Navigation Controls - Always Visible */}
-        <div className="fixed left-0 right-0 top-1/2 -translate-y-1/2 flex justify-between px-4 md:px-8 pointer-events-none z-20">
+        {/* use the below class to unhide the arrow keys */}
+        {/* <div className="fixed left-0 right-0 top-1/2 -translate-y-1/2 flex justify-between px-4 md:px-8 pointer-events-none z-20"> */}
+        <div className="fixed left-0 right-0 top-1/2 -translate-y-1/2 hidden md:flex justify-between px-4 md:px-8 pointer-events-none z-20">
           {/* Previous/Next Image Controls */}
           <div className="flex flex-col gap-4">
             <GlassButton
@@ -360,7 +361,6 @@ const BikePresentation = () => {
             </GlassButton>
           </div>
         </div>
-
         {/* Image Container */}
         <div
           {...swipeHandlers}
@@ -380,7 +380,6 @@ const BikePresentation = () => {
             />
           </div>
         </div>
-
         {/* Mobile Toggle Controls Button */}
         <button
           onClick={() => setShowControls(!showControls)}
@@ -388,7 +387,6 @@ const BikePresentation = () => {
         >
           {showControls ? <ChevronDown size={24} /> : <ChevronUp size={24} />}
         </button>
-
         {/* Controls Container */}
         <div
           className={`fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md transition-transform duration-300 ease-in-out md:relative md:bg-transparent md:backdrop-blur-none
