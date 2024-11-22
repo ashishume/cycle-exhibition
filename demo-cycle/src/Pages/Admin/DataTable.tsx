@@ -85,11 +85,7 @@ const DataTable: React.FC<any> = ({
                       <img
                         src={item.customerImage}
                         onClick={() =>
-                          handleCustomerImageClick(
-                            `${import.meta.env.VITE_API_URL}/${
-                              item.customerImage
-                            }`
-                          )
+                          handleCustomerImageClick(item.customerImage)
                         }
                         alt={item.customerName}
                         className="w-12 h-12 rounded-full"
@@ -473,8 +469,7 @@ const DataTable: React.FC<any> = ({
           customerName={
             customers?.find(
               (customer: any) =>
-                `${import.meta.env.VITE_API_URL}/${customer.customerImage}` ===
-                selectedCustomerImage
+                customer.customerImage === selectedCustomerImage
             )?.customerName || "Customer"
           }
           onClose={() => setSelectedCustomerImage(null)}

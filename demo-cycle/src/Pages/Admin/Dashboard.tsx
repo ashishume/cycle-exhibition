@@ -130,13 +130,19 @@ const AdminPanel = () => {
     };
   };
 
-  const handleDelete = async (
-    id: string,
-    type: "customer" | "product" | "order" | "category" | "coupon"
-  ) => {
+  const handleDelete = async (id: string, type: string) => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       try {
-        await apiClient.delete(`/api/${type}s/${id}`);
+        const apiCallMap = {
+          [TAB_TYPE.CATEGORY]: "categories",
+          [TAB_TYPE.PRODUCT]: "products",
+          [TAB_TYPE.ORDER]: "orders",
+          [TAB_TYPE.COUPON]: "coupons",
+          [TAB_TYPE.CUSTOMER]: "customers",
+        };
+        const response = await apiClient.delete(
+          `/api/${apiCallMap[type]}/${id}`
+        );
         const stateMap: Record<
           typeof type,
           React.Dispatch<React.SetStateAction<any[]>>
@@ -144,11 +150,14 @@ const AdminPanel = () => {
           customer: setCustomers,
           product: setProducts,
           order: setOrders,
-          category: setCategories,
+          categories: setCategories,
           coupon: setCoupons,
         };
 
-        stateMap[type]((prev) => prev.filter((item) => item._id !== id));
+        if (response.status === 200) {
+          stateMap[type]((prev) => prev.filter((item) => item._id !== id));
+          showSnackbar("Category removed successfully", "success");
+        }
       } catch (error: any) {
         showSnackbar(
           `Error deleting ${type}:${error.response?.data?.message}`,
@@ -164,14 +173,14 @@ const AdminPanel = () => {
 
   const handleEdit = (
     id: string,
-    editTab: "product" | "order" | "customer" | "coupon" | "category"
+    editTab: "product" | "order" | "customer" | "coupon" | "categories"
   ) => {
     const dataMap: Record<typeof editTab, any[]> = {
       product: products,
       order: orders,
       customer: customers,
       coupon: coupons,
-      category: categories,
+      categories: categories,
     };
 
     const itemToEdit = dataMap[editTab]?.find((item) => item._id === id);

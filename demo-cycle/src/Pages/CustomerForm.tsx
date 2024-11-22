@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, User, AlertCircle } from "lucide-react";
+import { Camera, User, AlertCircle, Loader2 } from "lucide-react";
 import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
 import apiClient from "../api/axios";
@@ -14,6 +14,7 @@ interface CustomerFormProps {
   onClose: any;
   isAdminPage: boolean;
 }
+
 const CustomerForm: React.FC<CustomerFormProps> = ({
   onFormDataChange,
   onValidationChange,
@@ -35,19 +36,18 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   const { showSnackbar } = useSnackbar();
 
   const [formData, setFormData] = useState<ICustomer>(initialState);
-
   const [errors, setErrors] = useState<ICustomerFormErrors>({});
   const [touched, setTouched] = useState<ICustomer>({} as any);
   const [_, setCustomerAdditionError] = useState(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isEdit && customerData) {
-      setFormData(customerData); // Pre-fill form data in edit mode
+      setFormData(customerData);
     }
   }, [isEdit, customerData]);
 
-  // Handle image capture
   const handleImageCapture = async (): Promise<void> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -68,7 +68,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     }
   };
 
-  // Handle file upload
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -79,6 +78,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       setImageFile(file);
     }
   };
+
   const validate = (
     fieldName: keyof ICustomer,
     value: string | number
@@ -93,13 +93,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           delete newErrors.customerName;
         }
         break;
-      // case "leadType":
-      //   if (!String(value).trim()) {
-      //     newErrors.leadType = "Please select lead type";
-      //   } else {
-      //     delete newErrors.leadType;
-      //   }
-      //   break;
     }
 
     setErrors(newErrors);
@@ -133,9 +126,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    if (isLoading) return; // Prevent multiple submissions
+
     const touchedAll: any = {
       customerName: true,
-      // leadType: true,
     };
     setTouched(touchedAll);
 
@@ -147,17 +142,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     );
 
     if (isValid) {
+      setIsLoading(true);
       try {
         const formDataToSend = new FormData();
 
-        // Append other form fields
         formDataToSend.append("customerName", formData.customerName);
-        // formDataToSend.append("leadType", formData.leadType);
         formDataToSend.append("description", formData.description || "");
         formDataToSend.append("gstNumber", formData.gstNumber || "");
         formDataToSend.append("transport", formData.transport || "");
 
-        // Append image if exists
         if (imageFile) {
           formDataToSend.append("customerImage", imageFile);
         }
@@ -201,6 +194,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             "Something went wrong with customer addition"
         );
         showSnackbar("Something went wrong with customer addition", "error");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -218,15 +213,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           isEdit ? "h-[95vh]" : null
         }`}
       >
-        {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <User className="w-8 h-8 text-white" />
           <h1 className="text-3xl font-bold text-white">Add New Customer</h1>
         </div>
 
-        {/* <form onSubmit={handleSubmit} className="space-y-6"> */}
         <div className="space-y-6">
-          {/* Customer Name */}
           <InputField
             formData={formData}
             handleInputChange={handleInputChange}
@@ -237,7 +229,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             fieldKey={"customerName"}
           />
 
-          {/* gstNumber */}
           <InputField
             formData={formData}
             handleInputChange={handleInputChange}
@@ -248,7 +239,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             fieldKey={"gstNumber"}
           />
 
-          {/* Transport */}
           <InputField
             formData={formData}
             handleInputChange={handleInputChange}
@@ -259,7 +249,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             fieldKey={"transport"}
           />
 
-          {/* Customer Image */}
           <div className="space-y-2">
             <label className="block text-white/90 font-medium">
               Customer Image
@@ -268,23 +257,28 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               <button
                 type="button"
                 onClick={handleImageCapture}
+                disabled={isLoading}
                 className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 
                          hover:bg-white/20 transition-all duration-300 text-white
-                         flex items-center justify-center gap-2"
+                         flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Camera className="w-5 h-5" />
                 Take Photo
               </button>
               <label
-                className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 
+                className={`flex-1 p-3 rounded-xl bg-white/5 border border-white/10 
                              hover:bg-white/20 transition-all duration-300 text-white
-                             flex items-center justify-center gap-2 cursor-pointer"
+                             flex items-center justify-center gap-2 cursor-pointer
+                             ${
+                               isLoading ? "opacity-50 cursor-not-allowed" : ""
+                             }`}
               >
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
                   className="hidden"
+                  disabled={isLoading}
                 />
                 Upload Image
               </label>
@@ -300,8 +294,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             )}
           </div>
 
-          {/* Lead Type */}
-          {isAdminPage ? (
+          {isAdminPage && (
             <div className="space-y-2">
               <label className="block text-white/90 font-medium">
                 Lead Type *
@@ -311,6 +304,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                 value={formData.leadType}
                 onChange={handleInputChange}
                 onBlur={() => handleBlur("leadType")}
+                disabled={isLoading}
                 className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
                 ${
                   touched.leadType && errors.leadType
@@ -318,7 +312,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                     : "border-white/10"
                 }
                 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white transition-all duration-300`}
+                text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <option value="" className="bg-gray-800">
                   Select lead type
@@ -329,16 +323,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                   </option>
                 ))}
               </select>
-              {/* {touched.leadType && errors.leadType && (
-                <div className="flex items-center gap-1 text-red-400 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.leadType}
-                </div>
-              )} */}
             </div>
-          ) : null}
+          )}
 
-          {/* Description Field */}
           <div className="space-y-2">
             <label className="block text-white/90 font-medium">
               Description (Optional)
@@ -347,37 +334,43 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               name="description"
               value={formData.description}
               onChange={handleInputChange}
+              disabled={isLoading}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                        text-white placeholder-white/50 transition-all duration-300
-                       min-h-[100px] resize-y"
+                       min-h-[100px] resize-y disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Enter cycle description"
             />
           </div>
 
-          {/* Submit Button */}
-          {!isCheckoutPage ? (
+          {!isCheckoutPage && (
             <button
-              onClick={(e) => handleSubmit(e)}
+              onClick={handleSubmit}
+              disabled={isLoading}
               className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
                      hover:from-purple-600 hover:to-indigo-600 
                      rounded-xl text-white font-medium shadow-lg
-                     transition-all duration-300 transform hover:scale-[1.02]"
+                     transition-all duration-300 transform hover:scale-[1.02]
+                     disabled:opacity-50 disabled:cursor-not-allowed
+                     flex items-center justify-center gap-2"
             >
-              {!isEdit ? "Add Customer" : "Update Customer"}
+              {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+              {isEdit ? "Update Customer" : "Add Customer"}
             </button>
-          ) : null}
-          {isEdit ? (
+          )}
+
+          {isEdit && (
             <button
               onClick={onClose}
-              className="w-full py-3 px-4  hover:to-indigo-600 
+              disabled={isLoading}
+              className="w-full py-3 px-4 hover:to-indigo-600 
               rounded-xl text-white font-medium shadow-lg
-              transition-all duration-300 transform hover:scale-[1.02]"
+              transition-all duration-300 transform hover:scale-[1.02]
+              disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
-          ) : null}
-          {/* </form> */}
+          )}
         </div>
       </div>
     </div>
