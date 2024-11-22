@@ -2,20 +2,23 @@ import express from "express";
 import { Customer } from "../models/Customer.js";
 import { Order } from "../models/Order.js";
 import multer from "multer";
-import path from "path";
+import ImageKit from "imagekit";
+import * as dotenv from "dotenv";
+// import fs from "fs/promises";
+
+dotenv.config();
+
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/customers/"); // Ensure this directory exists
-  },
-  filename: (req, file, cb) => {
-    cb(null, `customer-${Date.now()}${path.extname(file.originalname)}`);
-  },
+// Initialize ImageKit
+const imagekit = new ImageKit({
+  publicKey: "public_q0/ktGeuDNKUfH7euI9rNgO+7K8=",
+  privateKey: "private_J0MMlVXD6emQ8ff6TRCJWy0uhBw=",
+  urlEndpoint: "https://ik.imagekit.io/cycle",
 });
-
+// Configure Multer for temporary storage
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
@@ -27,6 +30,21 @@ const upload = multer({
   },
 });
 
+// Helper function to upload to ImageKit
+async function uploadToImageKit(file) {
+  try {
+    const result = await imagekit.upload({
+      file: file.buffer.toString("base64"),
+      fileName: `customer-${Date.now()}-${file.originalname}`,
+      folder: "/customers",
+    });
+    return result.url;
+  } catch (error) {
+    console.error("ImageKit upload error:", error);
+    throw new Error("Failed to upload image");
+  }
+}
+
 // Fetch all customers
 router.get("/", async (req, res) => {
   try {
@@ -37,22 +55,30 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Create customer
 router.post("/", upload.single("customerImage"), async (req, res) => {
   try {
-    const { customerName, leadType, description, address, transport } =
+    const { customerName, leadType, description, gstNumber, transport } =
       req.body;
 
-    // Construct customer object
+    let customerImage;
+    if (req.file) {
+      customerImage = await uploadToImageKit(req.file);
+      console.log(customerImage);
+      
+    }
+
     const customerData = {
       customerName,
       leadType,
       description,
-      address,
+      gstNumber,
       transport,
-      // Only add customerImage if a file was uploaded
-      ...(req.file ? { customerImage: req.file.path } : {}),
+      ...(customerImage ? { customerImage } : {}),
     };
 
+    console.log(customerData);
+    
     const newCustomer = new Customer(customerData);
     const savedCustomer = await newCustomer.save();
 
@@ -83,10 +109,20 @@ router.get("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // Check if the customer exists
     const customer = await Customer.findById(id);
     if (!customer)
       return res.status(404).json({ message: "Customer not found" });
+
+    // Extract the file ID from the ImageKit URL if it exists
+    if (customer.customerImage) {
+      try {
+        const fileId = customer.customerImage.split("/").pop();
+        await imagekit.deleteFile(fileId);
+      } catch (error) {
+        console.error("Error deleting image from ImageKit:", error);
+        // Continue with customer deletion even if image deletion fails
+      }
+    }
 
     // Delete all orders linked to the customer
     await Order.deleteMany({ customer: id });
@@ -109,16 +145,33 @@ router.delete("/:id", async (req, res) => {
 // Update customer by ID
 router.patch("/:id", upload.single("customerImage"), async (req, res) => {
   const { id } = req.params;
-  const {
-    customerName,
-    customerImage,
-    leadType,
-    description,
-    address,
-    transport,
-  } = req.body;
+  const { customerName, leadType, description, gstNumber, transport } =
+    req.body;
 
   try {
+    const existingCustomer = await Customer.findById(id);
+    if (!existingCustomer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    let customerImage = existingCustomer.customerImage;
+
+    // If new image is uploaded, update it
+    if (req.file) {
+      // Delete old image if it exists
+      if (existingCustomer.customerImage) {
+        try {
+          const fileId = existingCustomer.customerImage.split("/").pop();
+          await imagekit.deleteFile(fileId);
+        } catch (error) {
+          console.error("Error deleting old image from ImageKit:", error);
+        }
+      }
+
+      // Upload new image
+      customerImage = await uploadToImageKit(req.file);
+    }
+
     const updatedCustomer = await Customer.findByIdAndUpdate(
       id,
       {
@@ -126,16 +179,11 @@ router.patch("/:id", upload.single("customerImage"), async (req, res) => {
         customerImage,
         leadType,
         description,
-        address,
+        gstNumber,
         transport,
-        ...(req.file ? { customerImage: req.file.path } : {}), // Add updated image path if a new file was uploaded
       },
-      { new: true, runValidators: true } // Return the updated document and validate the changes
+      { new: true, runValidators: true }
     );
-
-    if (!updatedCustomer) {
-      return res.status(404).json({ message: "Customer not found" });
-    }
 
     res.status(200).json(updatedCustomer);
   } catch (error) {

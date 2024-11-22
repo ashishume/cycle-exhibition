@@ -47,26 +47,29 @@ const DetailsModal = ({
               <p className="text-white/90">{cycle.description}</p>
             )}
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-white">
-                <Package className="w-5 h-5" />
-                <span>Minimum Bundle Size: {cycle.bundleSize}</span>
-              </div>
               <div className="text-white">
                 <h4 className="font-medium mb-2">Available Sizes:</h4>
                 <div className="grid grid-cols-3 gap-2">
-                  {cycle.variants.map((variant) => (
-                    <div
-                      key={variant._id}
-                      className="bg-white/10 rounded-lg p-2 text-center"
-                    >
-                      <div className="font-medium">{variant.size}"</div>
-                      {variant.costPerProduct > 0 && (
-                        <div className="text-sm text-white/70">
-                          ₹{variant.costPerProduct}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {cycle.variants.map((variant) =>
+                    variant.costPerProduct > 0 ? (
+                      <div
+                        key={variant._id}
+                        className="bg-white/10 rounded-lg p-2 text-center"
+                      >
+                        <div className="font-medium">{variant.size}"</div>
+                        {
+                          <>
+                            <div className="text-sm text-white/70">
+                              ₹{variant.costPerProduct}
+                            </div>
+                            <div className="text-sm text-white/70">
+                              bundle: {variant.bundleSize}
+                            </div>
+                          </>
+                        }
+                      </div>
+                    ) : null
+                  )}
                 </div>
               </div>
             </div>
@@ -133,10 +136,6 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-white">
-              <Package className="w-4 h-4" />
-              <span>Bundle: {cycle.bundleSize}</span>
-            </div>
             {/* <div className="text-white text-sm">Type: {cycle.tyreLabel}</div> */}
           </div>
 

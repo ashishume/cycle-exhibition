@@ -130,13 +130,19 @@ const AdminPanel = () => {
     };
   };
 
-  const handleDelete = async (
-    id: string,
-    type: "customer" | "product" | "order" | "category" | "coupon"
-  ) => {
+  const handleDelete = async (id: string, type: string) => {
     if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
       try {
-        await apiClient.delete(`/api/${type}s/${id}`);
+        const apiCallMap = {
+          [TAB_TYPE.CATEGORY]: "categories",
+          [TAB_TYPE.PRODUCT]: "products",
+          [TAB_TYPE.ORDER]: "orders",
+          [TAB_TYPE.COUPON]: "coupons",
+          [TAB_TYPE.CUSTOMER]: "customers",
+        };
+        const response = await apiClient.delete(
+          `/api/${apiCallMap[type]}/${id}`
+        );
         const stateMap: Record<
           typeof type,
           React.Dispatch<React.SetStateAction<any[]>>
@@ -144,11 +150,14 @@ const AdminPanel = () => {
           customer: setCustomers,
           product: setProducts,
           order: setOrders,
-          category: setCategories,
+          categories: setCategories,
           coupon: setCoupons,
         };
 
-        stateMap[type]((prev) => prev.filter((item) => item._id !== id));
+        if (response.status === 200) {
+          stateMap[type]((prev) => prev.filter((item) => item._id !== id));
+          showSnackbar("Category removed successfully", "success");
+        }
       } catch (error: any) {
         showSnackbar(
           `Error deleting ${type}:${error.response?.data?.message}`,
@@ -164,14 +173,14 @@ const AdminPanel = () => {
 
   const handleEdit = (
     id: string,
-    editTab: "product" | "order" | "customer" | "coupon" | "category"
+    editTab: "product" | "order" | "customer" | "coupon" | "categories"
   ) => {
     const dataMap: Record<typeof editTab, any[]> = {
       product: products,
       order: orders,
       customer: customers,
       coupon: coupons,
-      category: categories,
+      categories: categories,
     };
 
     const itemToEdit = dataMap[editTab]?.find((item) => item._id === id);
@@ -276,11 +285,13 @@ const AdminPanel = () => {
         </div>
         <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
 
-        <SearchBar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          activeTab={activeTab}
-        />
+        {activeTab !== TAB_TYPE.ADD_PRODUCT ? (
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            activeTab={activeTab}
+          />
+        ) : null}
 
         {activeTab === TAB_TYPE.COUPON ? (
           <GlassButton className="my-2" onClick={() => setAddModal(true)}>
@@ -365,6 +376,7 @@ const AdminPanel = () => {
         {editModalProduct && activeTab === TAB_TYPE.CUSTOMER && (
           <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
             <CustomerForm
+              isAdminPage={true}
               isEdit={true}
               customerData={editModalProduct as any}
               onClose={handleCloseModal}
@@ -375,25 +387,27 @@ const AdminPanel = () => {
           </ModalWrapper>
         )}
 
-        <div className="flex justify-between items-center mt-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="text-white/70 hover:text-white/90 disabled:opacity-50"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="text-white">Page {page}</span>
-          <button
-            disabled={
-              page === getPaginatedData(getDataForCurrentTab()).totalPages
-            }
-            onClick={() => setPage(page + 1)}
-            className="text-white/70 hover:text-white/90 disabled:opacity-50"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        {activeTab !== TAB_TYPE.ADD_PRODUCT ? (
+          <div className="flex justify-between items-center mt-4">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="text-white/70 hover:text-white/90 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-white">Page {page}</span>
+            <button
+              disabled={
+                page === getPaginatedData(getDataForCurrentTab()).totalPages
+              }
+              onClick={() => setPage(page + 1)}
+              className="text-white/70 hover:text-white/90 disabled:opacity-50"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

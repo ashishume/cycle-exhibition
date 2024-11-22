@@ -7,6 +7,7 @@ import {
   ICouponFormErrors,
   ITouchedFields,
 } from "../../models/Coupon";
+import { COUPON_TYPE } from "../../constants/admin";
 
 const CouponForm: React.FC<{
   mode: string;
@@ -268,10 +269,10 @@ const CouponForm: React.FC<{
                 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                 text-white placeholder-black/50 transition-all duration-300"
               >
-                <option value="perCycle" className="text-black">
+                <option value={COUPON_TYPE.PER_CYCLE} className="text-black">
                   Per Cycle
                 </option>
-                <option value="totalAmount" className="text-black">
+                <option value={COUPON_TYPE.TOTAL_AMOUNT} className="text-black">
                   Total Amount
                 </option>
               </select>

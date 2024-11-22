@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Tag, ShoppingCart, AlertCircle } from "lucide-react";
+import { Tag, ShoppingCart, AlertCircle, X, Loader } from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
 import { loadCartFromStorage } from "../utils/Localstorage";
@@ -8,6 +8,7 @@ import apiClient from "../api/axios";
 import { CART_STORAGE_KEY } from "../constants/Cart";
 import { useNavigate } from "react-router-dom";
 import { ICouponResponse } from "../models/Coupon";
+import { COUPON_TYPE } from "../constants/admin";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -15,17 +16,24 @@ const CartPage = () => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0); // Changed from percentage to amount
-
   const [newCustomerData, setNewCustomerData] = useState<ICustomer | null>(
     null
   );
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
   const [cartItems, setCartItems] = useState<ICart[]>(loadCartFromStorage());
   const [errors, setErrors] = useState<any>({});
-  const [, setIsLoading] = useState(false);
-  const [, setCheckoutError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
+  const [checkoutError, setCheckoutError] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [perCycleDiscount, setPerCycleDiscount] = useState(0);
+  const [perCycleDiscountPercent, setPerCycleDiscountPercent] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<ICouponResponse | null>(
+    null
+  );
+  const [customerFormData, setCustomerFormData] = useState<FormData | null>(
+    null
+  );
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -42,36 +50,27 @@ const CartPage = () => {
   };
 
   const calculateTotals = () => {
-    // Calculate subtotal with per-cycle discount
+    // Calculate original subtotal without any discounts
     const subtotal = cartItems.reduce((total, item) => {
-      const itemTotalBeforeDiscount = item.total;
-      const perCycleDiscountForItem = perCycleDiscount * item.totalProducts;
-      const itemTotalAfterPerCycleDiscount = Math.max(
-        itemTotalBeforeDiscount - perCycleDiscountForItem,
-        0
-      );
-
-      return total + itemTotalAfterPerCycleDiscount;
+      return total + item.total;
     }, 0);
 
-    const tyreCharge = cartItems.reduce(
-      (total, item) => (item.isTyreChargeable ? total + 300 : total),
-      0
-    );
-
     const calculatedDiscount = discountAmount;
-    const perCycleDiscountTotal =
-      perCycleDiscount *
-      cartItems.reduce((sum, item) => sum + item.totalProducts, 0);
+
+    const perCycleDiscountTotal = cartItems.reduce((sum, item) => {
+      const perCycleDiscountPerCycle =
+        item.costPerProduct * (perCycleDiscountPercent / 100);
+      return sum + perCycleDiscountPerCycle * item.totalProducts;
+    }, 0);
 
     const discountedSubtotal =
-      subtotal + tyreCharge - calculatedDiscount - perCycleDiscountTotal;
+      subtotal - calculatedDiscount - perCycleDiscountTotal;
+
     const gst = discountedSubtotal * 0.12;
     const total = discountedSubtotal + gst;
 
     return {
       subtotal,
-      tyreCharge,
       calculatedDiscount,
       perCycleDiscountTotal,
       gst,
@@ -88,27 +87,33 @@ const CartPage = () => {
       );
 
       if (response.status === 200) {
+        setAppliedCoupon(response.data);
+
         // NEW: Check coupon type and apply appropriate discount
-        if (response?.data?.details.couponType === "totalAmount") {
+        if (response?.data?.details.couponType === COUPON_TYPE.TOTAL_AMOUNT) {
           setDiscountAmount(response.data.discount);
-          setPerCycleDiscount(0); // Reset per-cycle discount
-        } else if (response.data.details.couponType === "perCycle") {
-          setPerCycleDiscount(response.data.discount);
+          setPerCycleDiscountPercent(0); // Reset per-cycle discount
+        } else if (response.data.details.couponType === COUPON_TYPE.PER_CYCLE) {
+          setPerCycleDiscountPercent(response.data.discount);
           setDiscountAmount(0); // Reset total discount
         }
       }
     } catch (e: any) {
       setErrors((prev: any) => ({ ...prev, coupon: "Invalid coupon code" }));
       setDiscountAmount(0);
-      setPerCycleDiscount(0); // Reset both discounts
+      setPerCycleDiscountPercent(0); // Reset both discounts
       setTimeout(() => {
         setErrors((prev: any) => ({ ...prev, coupon: null }));
       }, 3000);
     }
   };
 
-  const handleCustomerFormDataChange = (data: ICustomer) => {
+  const handleCustomerFormDataChange = (
+    data: ICustomer,
+    formData: FormData | null
+  ) => {
     setNewCustomerData(data);
+    setCustomerFormData(formData);
   };
 
   const handleCustomerFormValidationChange = (isValid: boolean) => {
@@ -119,12 +124,11 @@ const CartPage = () => {
     setIsLoading(true);
     setCheckoutError("");
 
-    const { subtotal, tyreCharge, calculatedDiscount, gst, total } =
+    const { subtotal, calculatedDiscount, perCycleDiscountTotal, gst, total } =
       calculateTotals();
     let customerDetails;
 
     try {
-      // Handle customer creation/selection
       if (isNewCustomer) {
         if (!isCustomerFormValid || !newCustomerData) {
           setCheckoutError("Please fill in all required customer information");
@@ -132,11 +136,24 @@ const CartPage = () => {
           return;
         }
 
-        // Create new customer
+        if (!customerFormData) {
+          setCheckoutError("Please prepare customer data properly");
+          setIsLoading(false);
+          return;
+        }
+
+        setLoadingMessage("Creating new customer...");
+        // Create new customer using FormData
         const customerResponse = await apiClient.post(
           "/api/customers",
-          newCustomerData
+          customerFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
+
         const { customerName, customerImage, leadType, _id } =
           customerResponse?.data;
 
@@ -154,8 +171,7 @@ const CartPage = () => {
         }
         customerDetails = { id: selectedCustomerId };
       }
-
-      // Prepare order data
+      setLoadingMessage("Processing order...");
       const orderData = {
         customer: customerDetails.id,
         products: cartItems.map((item) => ({
@@ -164,29 +180,27 @@ const CartPage = () => {
           variant: item.variant,
           bundleQuantity: item.bundleQuantity,
           totalProducts: item.totalProducts,
-          isTyreChargeable: item.isTyreChargeable,
-          tyreLabel: item.tyreLabel,
-          costPerCycle: item.costPerCycle,
+          isTyreChargeable: item.additionalCost > 0,
+          additionalCost: item.additionalCost,
+          tyreType: item.tyreType,
+          brandType: item.brandType,
+          costPerProduct: item.costPerProduct,
           bundleSize: item.bundleSize,
           total: item.total,
         })),
         pricing: {
           subtotal,
-          tyreCharge,
           discount: calculatedDiscount,
-          perCycleDiscount,
+          perCycleDiscountPercent,
           gst,
           total,
-          discountApplied: calculatedDiscount > 0 || perCycleDiscount > 0,
-          discountCode:
+          discountApplied: calculatedDiscount > 0 || perCycleDiscountTotal > 0,
+          discountCode: couponCode,
+          couponType:
             calculatedDiscount > 0
-              ? couponCode
-              : perCycleDiscount > 0
-              ? couponCode
-              : null,
-          couponType: calculatedDiscount > 0 ? "totalAmount" : "perCycle",
-          discountAmount: calculatedDiscount,
-          perCycleDiscountAmount: perCycleDiscount,
+              ? COUPON_TYPE.TOTAL_AMOUNT
+              : COUPON_TYPE.PER_CYCLE,
+          discountAmount: calculatedDiscount || perCycleDiscountTotal,
         },
         remarks: remarks.trim() || "",
       };
@@ -202,8 +216,9 @@ const CartPage = () => {
       setSelectedCustomerId("");
       setNewCustomerData(null);
       setRemarks("");
+      setCustomerFormData(null);
 
-      // Redirect to success page with order details
+      // Navigate to success page
       navigate("/order-success", {
         state: {
           orderDetails: {
@@ -220,13 +235,13 @@ const CartPage = () => {
             products: cartItems,
             pricing: {
               subtotal,
-              tyreCharge,
-              discount: calculatedDiscount,
-              perCycleDiscount,
+              discount: calculatedDiscount || perCycleDiscountTotal,
+              perCycleDiscountPercent,
               gst,
               total,
-              discountApplied: calculatedDiscount > 0,
-              discountAmount: calculatedDiscount,
+              discountApplied:
+                calculatedDiscount > 0 || perCycleDiscountPercent > 0,
+              discountAmount: calculatedDiscount || perCycleDiscountTotal,
             },
             remarks: remarks.trim() || "",
           },
@@ -240,20 +255,30 @@ const CartPage = () => {
       );
     } finally {
       setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
-  const {
-    subtotal,
-    tyreCharge,
-    calculatedDiscount,
-    // perCycleDiscount,
-    gst,
-    total,
-  } = calculateTotals();
+  const handleRemoveCoupon = () => {
+    setCouponCode("");
+    setDiscountAmount(0);
+    setPerCycleDiscountPercent(0);
+    setAppliedCoupon(null);
+  };
+
+  const { subtotal, calculatedDiscount, perCycleDiscountTotal, gst, total } =
+    calculateTotals();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 flex flex-col items-center gap-4">
+            <Loader className="w-8 h-8 text-white animate-spin" />
+            <p className="text-white font-medium">{loadingMessage}</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <ShoppingCart className="w-8 h-8 text-white" />
@@ -303,7 +328,7 @@ const CartPage = () => {
                       value={customer._id}
                       className="bg-gray-800"
                     >
-                      {customer.customerName} ({customer.leadType})
+                      {customer.customerName}
                     </option>
                   ))}
                 </select>
@@ -311,6 +336,7 @@ const CartPage = () => {
 
               {isNewCustomer && (
                 <CustomerForm
+                  isAdminPage={false}
                   isCheckoutPage={true}
                   onFormDataChange={handleCustomerFormDataChange}
                   onValidationChange={handleCustomerFormValidationChange}
@@ -336,13 +362,22 @@ const CartPage = () => {
                         <div className="text-white font-medium">
                           {item.brand} ({item.variant} inch)
                         </div>
+                        <div className="text-white/90">
+                          Bundle size: {item.totalProducts / item.bundleSize}
+                        </div>
                         <div className="text-white/70 text-sm">
-                          ₹{item.costPerCycle}/cycle, {item.totalProducts}{" "}
+                          ₹{item.costPerProduct}/cycle, {item.totalProducts}{" "}
                           cycles
                         </div>
-                      </div>
-                      <div className="text-white/90">
-                        Quantity: {item.bundleSize}
+                        <div className="text-white/70 text-sm">
+                          {item.tyreType}
+                          {item.brandType ? `, (${item.brandType})` : null}
+                        </div>
+                        <div className="text-white text-sm">
+                          {item.additionalCost
+                            ? `Additional +₹${item.additionalCost} tyre charges/cycle`
+                            : null}
+                        </div>
                       </div>
                       <div className="text-white font-medium">
                         ₹{item.total}
@@ -379,28 +414,46 @@ const CartPage = () => {
               </h2>
 
               <div className="space-y-4 mb-6">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
-                  />
-                  <button
-                    onClick={handleCouponApply}
-                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white"
-                  >
-                    Apply
-                  </button>
-                </div>
+                {!appliedCoupon ? (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
+                    />
+                    <button
+                      onClick={handleCouponApply}
+                      className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-white"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                    <div className="flex items-center gap-2 text-white">
+                      <Tag className="w-4 h-4" />
+                      <span className="font-medium">
+                        {appliedCoupon.details.code}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                      title="Remove coupon"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 {errors.coupon && (
                   <div className="text-red-400 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4" />
                     <span>{errors.coupon}</span>
                   </div>
                 )}
-                {(calculatedDiscount > 0 || perCycleDiscount > 0) && (
+                {(calculatedDiscount > 0 || perCycleDiscountPercent > 0) && (
                   <div className="flex items-center gap-2 text-green-400">
                     <Tag className="w-4 h-4" />
                     {calculatedDiscount > 0 && (
@@ -408,9 +461,9 @@ const CartPage = () => {
                         ₹ {calculatedDiscount} total discount applied!
                       </span>
                     )}
-                    {perCycleDiscount > 0 && (
+                    {perCycleDiscountPercent > 0 && (
                       <span>
-                        ₹ {perCycleDiscount} per-cycle discount applied!
+                        {perCycleDiscountPercent}% per-cycle discount applied!
                       </span>
                     )}
                   </div>
@@ -422,10 +475,7 @@ const CartPage = () => {
                   <span>Subtotal</span>
                   <span>₹{subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-white/90">
-                  <span>Tyre Charge</span>
-                  <span>₹{tyreCharge.toFixed(2)}</span>
-                </div>
+
                 {calculatedDiscount > 0 && (
                   <div className="flex justify-between text-green-400">
                     <span>Discount</span>
@@ -433,19 +483,12 @@ const CartPage = () => {
                   </div>
                 )}
 
-                {perCycleDiscount > 0 && (
+                {perCycleDiscountPercent > 0 && (
                   <div className="flex justify-between text-green-400">
-                    <span>Per-Cycle Discount</span>
                     <span>
-                      -₹
-                      {(
-                        perCycleDiscount *
-                        cartItems.reduce(
-                          (sum, item) => sum + item.totalProducts,
-                          0
-                        )
-                      ).toFixed(2)}
+                      Total per cycle discount ({perCycleDiscountPercent}%)
                     </span>
+                    <span>-₹{perCycleDiscountTotal}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-white/90">
@@ -461,18 +504,30 @@ const CartPage = () => {
               <button
                 onClick={handleCheckout}
                 disabled={
-                  isNewCustomer ? !isCustomerFormValid : !selectedCustomerId
+                  isLoading ||
+                  (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
                 }
                 className={`w-full mt-6 py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 
-        ${
-          (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"
-        }
-        rounded-xl text-white font-medium shadow-lg transition-all duration-300`}
+            ${
+              isLoading ||
+              (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"
+            }
+            rounded-xl text-white font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2`}
               >
-                Proceed to Checkout
+                {isLoading && <Loader className="w-4 h-4 animate-spin" />}
+                {isLoading ? loadingMessage : "Proceed to Checkout"}
               </button>
+
+              {checkoutError && (
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                  <p className="text-red-400 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {checkoutError}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

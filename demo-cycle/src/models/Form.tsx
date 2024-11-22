@@ -8,10 +8,14 @@ export interface IFormData {
   variants: {
     costPerProduct: number;
     size: 12 | 14 | 16 | 20 | 24 | 26;
+    bundleSize: number;
   }[];
-  bundleSize: number;
+  // bundleSize: number;
   isTyreChargeable: boolean;
-  tyreLabel: "tubeless" | "branded" | "";
+  // tyreLabel: "tubeless" | "branded" | "";
+  tyreType: string;
+  additionalCost: number;
+  brandType: string;
 }
 
 export interface IFormErrors {
@@ -24,6 +28,6 @@ export interface IFormErrors {
 export interface ITouchedFields {
   brand?: boolean;
   imageLinks?: boolean;
-  bundleSize?: boolean;
+  // bundleSize?: boolean;
   category?: boolean;
 }

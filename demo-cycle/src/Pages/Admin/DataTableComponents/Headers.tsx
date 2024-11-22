@@ -17,7 +17,7 @@ export const CustomerHeaders = () => (
       "Name",
       "Lead Type",
       "Description",
-      "Address",
+      "GST No.",
       "Transport",
       "Actions",
     ])}
@@ -29,7 +29,7 @@ export const ProductHeaders = () => (
     {createHeaders([
       "Images",
       "Brand",
-      "Tubeless/Branded",
+      // "Tubeless/Branded",
       "Category",
       "Variants",
       "Actions",
@@ -40,6 +40,7 @@ export const ProductHeaders = () => (
 export const OrdersHeaders = () => (
   <>
     {createHeaders([
+      // "OrderId",
       "Customer",
       "Products",
       "Total",

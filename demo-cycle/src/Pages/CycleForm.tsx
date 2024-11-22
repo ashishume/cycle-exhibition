@@ -4,6 +4,7 @@ import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
 import apiClient from "../api/axios";
 import { ICategory } from "../models/Category";
 import { useSnackbar } from "./Components/Snackbar";
+
 const ProductForm: React.FC<{
   mode: string;
   product: IFormData | null;
@@ -13,38 +14,45 @@ const ProductForm: React.FC<{
     brand: "",
     imageLinks: [""],
     description: "",
-    // remarks: "", //TODO: add this
     category: "",
     variants: [
       {
-        costPerProduct: 0,
         size: 12,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
       {
-        costPerProduct: 0,
         size: 14,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
       {
-        costPerProduct: 0,
         size: 16,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
       {
-        costPerProduct: 0,
         size: 20,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
       {
-        costPerProduct: 0,
         size: 24,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
       {
-        costPerProduct: 0,
         size: 26,
+        costPerProduct: 0,
+        bundleSize: 1,
       },
     ],
-    bundleSize: 1,
-    tyreLabel: "",
+    tyreType: "",
+    brandType: "",
+    additionalCost: 0,
     isTyreChargeable: false,
   };
+
   const [formData, setFormData] = useState<IFormData>(initialFormData);
   const [errors, setErrors] = useState<IFormErrors>({});
   const [touched, setTouched] = useState<ITouchedFields>({} as any);
@@ -63,22 +71,22 @@ const ProductForm: React.FC<{
     fetchCategories();
   }, []);
 
-  // Initialize form data with product details when editing
   useEffect(() => {
     if (mode == "edit" && product) {
       setFormData({
         brand: product.brand,
         imageLinks: product.imageLinks,
         description: product.description,
-        // subtitle: product.subtitle,
         category:
           typeof product?.category === "string"
             ? product.category
             : product.category?.slug || "",
         variants: product.variants,
-        bundleSize: product.bundleSize,
-        tyreLabel: product.tyreLabel,
+        // tyreLabel: product.tyreLabel,
         isTyreChargeable: product.isTyreChargeable,
+        tyreType: "",
+        additionalCost: 0,
+        brandType: "",
       });
     }
   }, [product]);
@@ -111,18 +119,6 @@ const ProductForm: React.FC<{
           delete newErrors.category;
         }
         break;
-      case "bundleSize":
-        if (
-          !value ||
-          isNaN(Number(value)) ||
-          Number(value) < 1 ||
-          !Number.isInteger(Number(value))
-        ) {
-          newErrors.bundleSize = "Please enter a valid bundle size";
-        } else {
-          delete newErrors.bundleSize;
-        }
-        break;
     }
 
     setErrors(newErrors);
@@ -145,11 +141,6 @@ const ProductForm: React.FC<{
     }
   };
 
-  /**
-   * extract google drive link from the normal link
-   * @param url
-   * @returns
-   */
   function extractDriveId(url: string): string {
     const regex = /\/d\/([a-zA-Z0-9_-]+)/;
     const match = url.match(regex);
@@ -192,12 +183,12 @@ const ProductForm: React.FC<{
       brand: formData.brand,
       imageLinks: formData.imageLinks,
       description: formData.description || "",
-      // subtitle: formData.subtitle || "",
       category: formData.category,
       variants: formData.variants,
-      bundleSize: Number(formData.bundleSize),
-      tyreLabel: formData.tyreLabel,
       isTyreChargeable: formData.isTyreChargeable,
+      tyreType: formData.tyreType,
+      additionalCost: formData.additionalCost,
+      brandType: formData.brandType,
     };
   };
 
@@ -206,17 +197,15 @@ const ProductForm: React.FC<{
     const touchedAll: ITouchedFields = {
       brand: true,
       imageLinks: true,
-      bundleSize: true,
       category: true,
     };
     setTouched(touchedAll);
 
-    const isValid = ["brand", "imageLinks", "bundleSize", "category"].every(
-      (field) =>
-        validate(
-          field as keyof IFormData,
-          (formData as any)[field as keyof IFormData]
-        )
+    const isValid = ["brand", "imageLinks", "category"].every((field) =>
+      validate(
+        field as keyof IFormData,
+        (formData as any)[field as keyof IFormData]
+      )
     );
 
     if (isValid) {
@@ -405,89 +394,60 @@ const ProductForm: React.FC<{
               </div>
             </div>
 
-            {/* Subtitle Field */}
-            {/* <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
-                Subtitle (Optional)
-              </label>
-              <input
-                type="text"
-                value={formData.subtitle}
-                onChange={(e) => handleInputChange(e, "subtitle")}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
-                         focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                         text-white placeholder-white/50 transition-all duration-300"
-                placeholder="Enter subtitle"
-              />
-            </div> */}
-
-            {/* Bundle Size Field */}
+            {/* Price and Bundle Size based on size */}
             <div className="space-y-2">
               <label className="block text-white/90 font-medium">
-                Minimum Bundle Size *
+                Price and Bundle Size based on Variant *
               </label>
-              <input
-                type="number"
-                value={formData.bundleSize}
-                onChange={(e) => handleInputChange(e, "bundleSize")}
-                onBlur={() => handleBlur("bundleSize")}
-                className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                ${
-                  touched.bundleSize && errors.bundleSize
-                    ? "border-red-400"
-                    : "border-white/10"
-                }
-                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white placeholder-white/50 transition-all duration-300`}
-                placeholder="Enter minimum bundle size"
-                min="1"
-                step="1"
-              />
-              {touched.bundleSize && errors.bundleSize && (
-                <div className="flex items-center gap-1 text-red-400 text-sm">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.bundleSize}
-                </div>
-              )}
-            </div>
-
-            {/* Price based on size */}
-            <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
-                Price based on size (₹) *
-              </label>
-              {formData.variants.map((size, index) => (
-                <div key={size.size} className="flex items-center gap-3">
-                  <span className="text-white/90">{size.size} inch:</span>
-                  <input
-                    type="number"
-                    value={size.costPerProduct}
-                    onChange={(e) => {
-                      const newPricingPerSize = [...formData.variants];
-                      newPricingPerSize[index].costPerProduct = parseFloat(
-                        e.target.value
-                      );
-                      setFormData((prev) => ({
-                        ...prev,
-                        variants: newPricingPerSize,
-                      }));
-                    }}
-                    onBlur={() =>
-                      handleBlur(`variants.${index}.costPerProduct` as any)
-                    }
-                    className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                ${
-                  (touched as any)[`variants.${index}.costPerProduct`] &&
-                  (errors as any)[`variants.${index}.costPerProduct`]
-                    ? "border-red-400"
-                    : "border-white/10"
-                }
-                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white placeholder-white/50 transition-all duration-300`}
-                    placeholder={`Enter price for ${size.size}`}
-                    min="0"
-                    step="0.01"
-                  />
+              {formData.variants.map((variant, index) => (
+                <div key={variant.size} className="flex flex-col gap-2 mb-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-white/90 w-16">
+                      {variant.size} inch:
+                    </span>
+                    <div className="flex flex-1 gap-2">
+                      <input
+                        type="number"
+                        value={variant.costPerProduct}
+                        onChange={(e) => {
+                          const newVariants = [...formData.variants];
+                          newVariants[index].costPerProduct = parseFloat(
+                            e.target.value
+                          );
+                          setFormData((prev) => ({
+                            ...prev,
+                            variants: newVariants,
+                          }));
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
+                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                        text-white placeholder-white/50 transition-all duration-300"
+                        placeholder={`Price for ${variant.size} inch`}
+                        min="0"
+                        step="0"
+                      />
+                      <input
+                        type="number"
+                        value={variant.bundleSize}
+                        onChange={(e) => {
+                          const newVariants = [...formData.variants];
+                          newVariants[index].bundleSize = parseInt(
+                            e.target.value
+                          );
+                          setFormData((prev) => ({
+                            ...prev,
+                            variants: newVariants,
+                          }));
+                        }}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
+                        focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                        text-white placeholder-white/50 transition-all duration-300"
+                        placeholder={`Bundle Size for ${variant.size} inch`}
+                        min="1"
+                        step="1"
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -507,39 +467,6 @@ const ProductForm: React.FC<{
                 placeholder="Enter product description"
               />
             </div>
-
-            {/* Tyre label */}
-            {/* <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
-                Which tyre label you want to show *
-              </label>
-              <div className="flex gap-3">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="tyre-type"
-                    checked={formData.tyreLabel === "tubeless"}
-                    value="tubeless"
-                    onChange={(e) => handleInputChange(e, "tyreLabel")}
-                    className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
-                  />
-                  <span className="text-white/90">Tubeless/Tube tyre</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="tyre-type"
-                    value="branded"
-                    checked={formData.tyreLabel === "branded"}
-                    onChange={(e) => handleInputChange(e, "tyreLabel")}
-                    className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 focus:ring-indigo-500"
-                  />
-                  <span className="text-white/90">
-                    Branded/Non-branded tyres
-                  </span>
-                </div>
-              </div>
-            </div> */}
 
             {/* Submit Button */}
             <button
