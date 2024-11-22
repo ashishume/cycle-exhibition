@@ -55,25 +55,34 @@ const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <div className="flex gap-4 mb-6">
-      {tabConfigs.map((tab) => {
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.type}
-            onClick={() => setActiveTab(tab.type)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 
-              ${
-                activeTab === tab.type
-                  ? "bg-white/20 text-white"
-                  : "bg-white/5 text-white/70 hover:bg-white/10"
-              }`}
-          >
-            <Icon className="w-5 h-5" />
-            {tab.label}
-          </button>
-        );
-      })}
+    <div className="relative w-full">
+      {/* Gradient indicators for scroll */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/10 to-transparent pointer-events-none md:hidden" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/10 to-transparent pointer-events-none md:hidden" />
+
+      {/* Scrollable container */}
+      <div className="overflow-x-auto scrollbar-hide mb-6">
+        <div className="flex gap-2 md:gap-4 min-w-min pb-2 md:pb-0">
+          {tabConfigs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.type}
+                onClick={() => setActiveTab(tab.type)}
+                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl whitespace-nowrap transition-all duration-300 text-sm md:text-base
+                  ${
+                    activeTab === tab.type
+                      ? "bg-white/20 text-white"
+                      : "bg-white/5 text-white/70 hover:bg-white/10"
+                  }`}
+              >
+                <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
