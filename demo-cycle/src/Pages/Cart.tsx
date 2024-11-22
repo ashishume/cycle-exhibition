@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Tag, ShoppingCart, AlertCircle, X } from "lucide-react";
+import { Tag, ShoppingCart, AlertCircle, X, Loader } from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
 import { loadCartFromStorage } from "../utils/Localstorage";
@@ -16,15 +16,16 @@ const CartPage = () => {
   const [customers, setCustomers] = useState<ICustomer[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0); // Changed from percentage to amount
-
   const [newCustomerData, setNewCustomerData] = useState<ICustomer | null>(
     null
   );
   const [isCustomerFormValid, setIsCustomerFormValid] = useState(false);
   const [cartItems, setCartItems] = useState<ICart[]>(loadCartFromStorage());
   const [errors, setErrors] = useState<any>({});
-  const [, setIsLoading] = useState(false);
-  const [, setCheckoutError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
+  const [checkoutError, setCheckoutError] = useState("");
   const [remarks, setRemarks] = useState("");
   const [perCycleDiscountPercent, setPerCycleDiscountPercent] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState<ICouponResponse | null>(
@@ -141,6 +142,7 @@ const CartPage = () => {
           return;
         }
 
+        setLoadingMessage("Creating new customer...");
         // Create new customer using FormData
         const customerResponse = await apiClient.post(
           "/api/customers",
@@ -169,7 +171,7 @@ const CartPage = () => {
         }
         customerDetails = { id: selectedCustomerId };
       }
-
+      setLoadingMessage("Processing order...");
       const orderData = {
         customer: customerDetails.id,
         products: cartItems.map((item) => ({
@@ -253,6 +255,7 @@ const CartPage = () => {
       );
     } finally {
       setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -268,6 +271,14 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 flex flex-col items-center gap-4">
+            <Loader className="w-8 h-8 text-white animate-spin" />
+            <p className="text-white font-medium">{loadingMessage}</p>
+          </div>
+        </div>
+      )}
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <ShoppingCart className="w-8 h-8 text-white" />
@@ -493,18 +504,30 @@ const CartPage = () => {
               <button
                 onClick={handleCheckout}
                 disabled={
-                  isNewCustomer ? !isCustomerFormValid : !selectedCustomerId
+                  isLoading ||
+                  (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
                 }
                 className={`w-full mt-6 py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 
-        ${
-          (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"
-        }
-        rounded-xl text-white font-medium shadow-lg transition-all duration-300`}
+            ${
+              isLoading ||
+              (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"
+            }
+            rounded-xl text-white font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2`}
               >
-                Proceed to Checkout
+                {isLoading && <Loader className="w-4 h-4 animate-spin" />}
+                {isLoading ? loadingMessage : "Proceed to Checkout"}
               </button>
+
+              {checkoutError && (
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                  <p className="text-red-400 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    {checkoutError}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
