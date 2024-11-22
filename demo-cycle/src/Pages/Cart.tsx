@@ -9,6 +9,7 @@ import { CART_STORAGE_KEY } from "../constants/Cart";
 import { useNavigate } from "react-router-dom";
 import { ICouponResponse } from "../models/Coupon";
 import { COUPON_TYPE } from "../constants/admin";
+import { BACKGROUND_COLOR } from "../constants/styles";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -270,7 +271,7 @@ const CartPage = () => {
     calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+    <div className={`min-h-screen ${BACKGROUND_COLOR} p-8`}>
       {isLoading && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 flex flex-col items-center gap-4">

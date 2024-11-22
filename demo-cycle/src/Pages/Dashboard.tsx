@@ -5,6 +5,7 @@ import apiClient from "../api/axios";
 import { IProduct } from "../models/Product";
 import { createPortal } from "react-dom";
 import { ICategory } from "../models/Category";
+import { BACKGROUND_COLOR, MODAL_BACKGROUND } from "../constants/styles";
 
 interface ICycleCardProps {
   cycle: IProduct;
@@ -19,14 +20,14 @@ const DetailsModal = ({
 }) => {
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-gradient-to-br from-indigo-900/90 to-purple-900/90 backdrop-blur-md 
+        className={`${MODAL_BACKGROUND} backdrop-blur-md 
                  rounded-2xl border border-white/20 p-6 max-w-2xl w-full space-y-6
-                 animate-in slide-in-from-bottom duration-300"
+                 animate-in slide-in-from-bottom duration-300`}
       >
         <div className="flex justify-between items-start">
           <h2 className="text-2xl font-bold text-white">{cycle.brand}</h2>
@@ -105,7 +106,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
   return (
     <div className="relative group">
       <div
-        className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
+        className="bg-white/40 bg-gradient-to-br from-gray-500 to-gray-700 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
                    transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
       >
         {/* Image Carousel */}
@@ -239,7 +240,7 @@ const CyclesList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+    <div className={`min-h-screen ${BACKGROUND_COLOR} p-8`}>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center gap-3">
           <Bike className="w-8 h-8 text-white" />

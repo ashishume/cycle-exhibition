@@ -31,6 +31,7 @@ const RoutesComponent: React.FC = () => {
               element={
                 <ErrorBoundary>
                   <CustomerForm
+                    isAdminPage={false}
                     isCheckoutPage={false}
                     isEdit={false}
                     customerData={null}

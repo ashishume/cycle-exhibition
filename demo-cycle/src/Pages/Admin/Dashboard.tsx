@@ -20,6 +20,7 @@ import CouponForm from "./CouponForm";
 import GlassButton from "../Components/GlassButton";
 import { ICategory } from "../../models/Category";
 import CategoryForm from "./CategoryForm";
+import { BACKGROUND_COLOR } from "../../constants/styles";
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState(TAB_TYPE.PRODUCT);
@@ -270,8 +271,13 @@ const AdminPanel = () => {
       showSnackbar("An error occurred.", "error");
     }
   };
+
+  const handleTabChanges = (tabName: string) => {
+    setActiveTab(tabName);
+    setPage(1);
+  };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+    <div className={`min-h-screen ${BACKGROUND_COLOR} p-8`}>
       <div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
@@ -283,7 +289,7 @@ const AdminPanel = () => {
             Logout
           </button>
         </div>
-        <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
+        <Tabs setActiveTab={handleTabChanges} activeTab={activeTab} />
 
         {activeTab !== TAB_TYPE.ADD_PRODUCT ? (
           <SearchBar
