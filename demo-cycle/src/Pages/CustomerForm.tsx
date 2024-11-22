@@ -232,23 +232,25 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
   return (
     <div
-      className={
+      className={`${
         isEdit
-          ? `fixed inset-0 z-50 bg-black/50 flex items-center justify-center overflow-y-auto`
-          : `min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center`
-      }
+          ? "fixed inset-0 z-50 bg-black/50 flex items-center justify-center overflow-y-auto p-4 md:p-0"
+          : "min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-4 md:p-8 flex items-center justify-center"
+      }`}
     >
       <div
-        className={`w-full overflow-y-auto max-w-2xl bg-[#2d2d2d] backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 ${
-          isEdit ? "h-[95vh]" : null
+        className={`w-full overflow-y-auto max-w-2xl bg-[#2d2d2d] backdrop-blur-md rounded-xl md:rounded-2xl shadow-2xl border border-white/20 p-4 md:p-8 ${
+          isEdit ? "max-h-[95vh] md:h-auto" : null
         }`}
       >
-        <div className="flex items-center gap-3 mb-8">
-          <User className="w-8 h-8 text-white" />
-          <h1 className="text-3xl font-bold text-white">Add New Customer</h1>
+        <div className="flex items-center gap-2 md:gap-3 mb-6 md:mb-8">
+          <User className="w-6 h-6 md:w-8 md:h-8 text-white" />
+          <h1 className="text-xl md:text-3xl font-bold text-white">
+            Add New Customer
+          </h1>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <InputField
             formData={formData}
             handleInputChange={handleInputChange}
@@ -280,28 +282,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           />
 
           <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
+            <label className="block text-white/90 font-medium text-sm md:text-base">
               Customer Image
             </label>
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={handleImageCapture}
-                disabled={isLoading}
-                className="flex-1 p-3 rounded-xl bg-white/5 border border-white/10 
-                         hover:bg-white/20 transition-all duration-300 text-white
-                         flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Camera className="w-5 h-5" />
-                Take Photo
-              </button>
+            <div className="flex gap-2 md:gap-4">
               <label
-                className={`flex-1 p-3 rounded-xl bg-white/5 border border-white/10 
-                             hover:bg-white/20 transition-all duration-300 text-white
-                             flex items-center justify-center gap-2 cursor-pointer
-                             ${
-                               isLoading ? "opacity-50 cursor-not-allowed" : ""
-                             }`}
+                className={`flex-1 p-2 md:p-3 rounded-lg md:rounded-xl bg-white/5 border border-white/10 
+                         hover:bg-white/20 transition-all duration-300 text-white text-sm md:text-base
+                         flex items-center justify-center gap-2 cursor-pointer
+                         ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <input
                   type="file"
@@ -314,11 +303,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               </label>
             </div>
             {formData.customerImage && (
-              <div className="mt-4">
+              <div className="mt-2 md:mt-4">
                 <img
                   src={formData.customerImage}
                   alt="Customer"
-                  className="w-32 h-32 rounded-xl object-cover"
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-lg md:rounded-xl object-cover"
                 />
               </div>
             )}
@@ -326,7 +315,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
           {isAdminPage && (
             <div className="space-y-2">
-              <label className="block text-white/90 font-medium">
+              <label className="block text-white/90 font-medium text-sm md:text-base">
                 Lead Type *
               </label>
               <select
@@ -335,14 +324,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                 onChange={handleInputChange}
                 onBlur={() => handleBlur("leadType")}
                 disabled={isLoading}
-                className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
-                ${
-                  touched.leadType && errors.leadType
-                    ? "border-red-400"
-                    : "border-white/10"
-                }
-                focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl bg-white/5 border text-sm md:text-base
+              ${
+                touched.leadType && errors.leadType
+                  ? "border-red-400"
+                  : "border-white/10"
+              }
+              focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+              text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <option value="" className="bg-gray-800">
                   Select lead type
@@ -357,7 +346,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           )}
 
           <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
+            <label className="block text-white/90 font-medium text-sm md:text-base">
               Description (Optional)
             </label>
             <textarea
@@ -365,11 +354,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               value={formData.description}
               onChange={handleInputChange}
               disabled={isLoading}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 
-                       focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
-                       text-white placeholder-white/50 transition-all duration-300
-                       min-h-[100px] resize-y disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="Enter cycle description"
+              className="w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl bg-white/5 border border-white/10 
+                     focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
+                     text-white placeholder-white/50 transition-all duration-300 text-sm md:text-base
+                     min-h-[80px] md:min-h-[100px] resize-y disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Enter customer description"
             />
           </div>
 
@@ -377,14 +366,16 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
-                     hover:from-purple-600 hover:to-indigo-600 
-                     rounded-xl text-white font-medium shadow-lg
-                     transition-all duration-300 transform hover:scale-[1.02]
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     flex items-center justify-center gap-2"
+              className="w-full py-2 md:py-3 px-3 md:px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+                   hover:from-purple-600 hover:to-indigo-600 text-sm md:text-base
+                   rounded-lg md:rounded-xl text-white font-medium shadow-lg
+                   transition-all duration-300 transform hover:scale-[1.02]
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2"
             >
-              {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+              {isLoading && (
+                <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+              )}
               {isEdit ? "Update Customer" : "Add Customer"}
             </button>
           )}
@@ -393,10 +384,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="w-full py-3 px-4 hover:to-indigo-600 
-              rounded-xl text-white font-medium shadow-lg
-              transition-all duration-300 transform hover:scale-[1.02]
-              disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2 md:py-3 px-3 md:px-4 text-sm md:text-base
+            rounded-lg md:rounded-xl text-white font-medium shadow-lg
+            transition-all duration-300 transform hover:scale-[1.02]
+            disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
