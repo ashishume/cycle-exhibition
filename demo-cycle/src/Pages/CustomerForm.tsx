@@ -4,6 +4,7 @@ import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
 import apiClient from "../api/axios";
 import { useSnackbar } from "./Components/Snackbar";
+import { BACKGROUND_COLOR } from "../constants/styles";
 
 interface CustomerFormProps {
   onFormDataChange: (data: ICustomer, formData: FormData | null) => void;
@@ -237,7 +238,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       className={`${
         isEdit
           ? "fixed inset-0 z-50 bg-black/50 flex items-center justify-center overflow-y-auto p-4 md:p-0"
-          : "min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-4 md:p-8 flex items-center justify-center"
+          : `min-h-screen ${BACKGROUND_COLOR} p-4 md:p-8 flex items-center justify-center`
       }`}
     >
       <div

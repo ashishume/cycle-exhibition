@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Bike, Package, Info, X, Search, Filter } from "lucide-react";
+import { Bike, Info, X, Search, Filter, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { IProduct } from "../models/Product";
 import { createPortal } from "react-dom";
 import { ICategory } from "../models/Category";
+import { BACKGROUND_COLOR, MODAL_BACKGROUND } from "../constants/styles";
+import LucideLoaderComp from "./Components/Loader";
 
 interface ICycleCardProps {
   cycle: IProduct;
@@ -19,14 +21,14 @@ const DetailsModal = ({
 }) => {
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-gradient-to-br from-indigo-900/90 to-purple-900/90 backdrop-blur-md 
+        className={`${MODAL_BACKGROUND} backdrop-blur-md 
                  rounded-2xl border border-white/20 p-6 max-w-2xl w-full space-y-6
-                 animate-in slide-in-from-bottom duration-300"
+                 animate-in slide-in-from-bottom duration-300`}
       >
         <div className="flex justify-between items-start">
           <h2 className="text-2xl font-bold text-white">{cycle.brand}</h2>
@@ -105,7 +107,7 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
   return (
     <div className="relative group">
       <div
-        className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
+        className="bg-white/40 bg-gradient-to-br from-gray-500 to-gray-700 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
                    transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
       >
         {/* Image Carousel */}
@@ -176,7 +178,9 @@ const CyclesList: React.FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
 
   // const [products, setProducts] = useState<IProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<IProduct[] | null>(
+    null
+  );
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,16 +192,6 @@ const CyclesList: React.FC = () => {
   useEffect(() => {
     filterProducts();
   }, [products, selectedCategory, searchQuery]);
-
-  // const fetchProducts = async () => {
-  //   try {
-  //     const response = await apiClient.get<IProduct[]>("/api/products");
-  //     setProducts(response.data);
-  //     setFilteredProducts(response.data);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //   }
-  // };
 
   const fetchCategories = async () => {
     try {
@@ -239,7 +233,7 @@ const CyclesList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8">
+    <div className={`min-h-screen ${BACKGROUND_COLOR} p-8`}>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center gap-3">
           <Bike className="w-8 h-8 text-white" />
@@ -282,22 +276,31 @@ const CyclesList: React.FC = () => {
 
         {/* Results count */}
         <div className="text-white/70">
-          Showing {filteredProducts.length} of {products.length} cycles
+          Showing {filteredProducts?.length} of {products.length} cycles
         </div>
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((cycle) => (
+          {filteredProducts?.map((cycle) => (
             <CycleCard key={cycle._id} cycle={cycle} />
           ))}
 
-          {filteredProducts.length === 0 && (
+          {filteredProducts?.length === 0 && (
             <div className="col-span-full text-center text-white/70 py-12">
               No cycles found matching your criteria.
             </div>
           )}
         </div>
       </div>
+      {filteredProducts === null && (
+        <LucideLoaderComp
+          icon={Loader2}
+          size={64}
+          color="white"
+          message={"Loading..."}
+          speed={1.5}
+        />
+      )}
     </div>
   );
 };

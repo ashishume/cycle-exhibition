@@ -31,7 +31,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
     };
 
     // Add company header
-    doc.setFillColor(88, 80, 236); // indigo color
+    doc.setFillColor(25, 25, 25); // indigo color
     doc.rect(0, 0, doc.internal.pageSize.width, 40, "F");
 
     // Replace this URL with your actual logo URL or base64 string
@@ -99,20 +99,20 @@ export const generateOrderPDF = async (orderDetails: any) => {
 
     // Products table header
     const columns = [
-      "Product",
-      "Variant",
-      "Quantity",
+      "Item",
+      "Size (inch)",
+      "Qty",
       "Bundle qty",
       "Tyre",
-      "Cost/Product",
-      "Add. Cost",
+      "Cost/item",
+      "Add. cost/item",
       "Total",
     ];
-    const columnWidths = [40, 20, 20, 20, 35, 25, 20, 20];
-    let startX = 10;
+    const columnWidths = [40, 18, 20, 20, 35, 25, 25, 20];
+    let startX = 5;
 
     // Draw table header
-    doc.setFillColor(88, 80, 236);
+    doc.setFillColor(25, 25, 25);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.rect(
@@ -174,7 +174,7 @@ export const generateOrderPDF = async (orderDetails: any) => {
     const finalY = startY + 10;
 
     // Add box for total
-    doc.setDrawColor(88, 80, 236);
+    doc.setDrawColor(25, 25, 25);
     doc.setLineWidth(0.5);
     doc.rect(120, finalY - 5, 70, 45);
 

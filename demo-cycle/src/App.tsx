@@ -2,7 +2,7 @@ import RoutesComponent from "./Routes";
 
 const App = () => {
   return (
-    <div className="bg-gradient-to-br from-indigo-600 to-purple-700">
+    <div className="bg-black/80">
       <RoutesComponent />
     </div>
   );

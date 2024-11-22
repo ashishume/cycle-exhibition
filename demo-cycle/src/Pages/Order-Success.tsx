@@ -13,6 +13,7 @@ import {
   generateOrderPDF,
   previewPDF,
 } from "../utils/PdfGenerator";
+import { BACKGROUND_COLOR } from "../constants/styles";
 
 const OrderSuccessPage = () => {
   const navigate = useNavigate();
@@ -92,7 +93,9 @@ const OrderSuccessPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center p-4">
+    <div
+      className={`min-h-screen ${BACKGROUND_COLOR} flex items-center justify-center p-4`}
+    >
       <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8">
         <div className="flex flex-col items-center text-center">
           <div className="relative">

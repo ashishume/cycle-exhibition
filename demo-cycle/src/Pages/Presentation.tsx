@@ -295,7 +295,7 @@ const BikePresentation = () => {
       <div className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8">
         {/* Header */}
         <div className="absolute top-4 md:top-8 left-0 right-0 text-center z-10">
-          <h1 className="text-black text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
+          <h1 className="text-white text-3xl md:text-4xl font-bold tracking-tight mb-1 md:mb-2">
             {currentBike?.brand}
           </h1>
           <div className="flex flex-col items-center gap-1 md:gap-2">
@@ -334,7 +334,7 @@ const BikePresentation = () => {
               }
               className="pointer-events-auto !p-2 md:!p-4"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft color="white" size={20} />
             </GlassButton>
           </div>
 
@@ -357,7 +357,7 @@ const BikePresentation = () => {
               }
               className="pointer-events-auto !p-2 md:!p-4"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={20} color="white" />
             </GlassButton>
           </div>
         </div>

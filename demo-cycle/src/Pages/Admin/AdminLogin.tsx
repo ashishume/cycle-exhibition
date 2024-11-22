@@ -3,6 +3,7 @@ import { Lock, User } from "lucide-react";
 import { useAuth } from "./AdminAuthContext";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "../Components/Snackbar";
+import { BACKGROUND_COLOR } from "../../constants/styles";
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({
@@ -30,13 +31,17 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+    <div
+      className={`min-h-screen flex items-center justify-center ${BACKGROUND_COLOR} p-4`}
+    >
       <div className="relative w-full max-w-md">
         {/* Card */}
         <div className="relative bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-8">
           {/* Logo/Header */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <div
+              className={`w-16 h-16 ${BACKGROUND_COLOR} rounded-2xl flex items-center justify-center mb-4 shadow-lg`}
+            >
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-white">Admin Portal</h2>

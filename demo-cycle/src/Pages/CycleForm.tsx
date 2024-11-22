@@ -4,6 +4,7 @@ import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
 import apiClient from "../api/axios";
 import { ICategory } from "../models/Category";
 import { useSnackbar } from "./Components/Snackbar";
+import { BACKGROUND_COLOR } from "../constants/styles";
 
 const ProductForm: React.FC<{
   mode: string;
@@ -254,7 +255,7 @@ const ProductForm: React.FC<{
         className={` ${
           mode === "edit"
             ? "w-screen flex justify-center"
-            : "min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-8 flex items-center justify-center"
+            : `min-h-screen ${BACKGROUND_COLOR} p-8 flex items-center justify-center`
         }`}
       >
         <div
