@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Tag, ShoppingCart, AlertCircle, X, Loader } from "lucide-react";
+import { Tag, ShoppingCart, AlertCircle, X, Loader, Trash2 } from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
-import { loadCartFromStorage } from "../utils/Localstorage";
+import { loadCartFromStorage, saveCartToStorage } from "../utils/Localstorage";
 import { ICart } from "../models/Cart";
 import apiClient from "../api/axios";
 import { CART_STORAGE_KEY } from "../constants/Cart";
@@ -119,6 +119,25 @@ const CartPage = () => {
 
   const handleCustomerFormValidationChange = (isValid: boolean) => {
     setIsCustomerFormValid(isValid);
+  };
+
+  // New function to remove an item from the cart
+  const handleRemoveCartItem = (indexToRemove: number) => {
+    // Filter out the item at the specified index
+    const updatedCartItems = cartItems.filter(
+      (_, index) => index !== indexToRemove
+    );
+
+    // Update cart items state
+    setCartItems(updatedCartItems);
+
+    // Save updated cart to local storage
+    saveCartToStorage(updatedCartItems);
+
+    // Reset coupon if cart becomes empty
+    if (updatedCartItems.length === 0) {
+      handleRemoveCoupon();
+    }
   };
 
   const handleCheckout = async () => {
@@ -383,6 +402,13 @@ const CartPage = () => {
                       <div className="text-white font-medium">
                         ₹{item.total}
                       </div>
+                      <button
+                        onClick={() => handleRemoveCartItem(index)}
+                        className="text-red-400 hover:text-red-500 transition-colors"
+                        title="Remove item from cart"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
                   ))
                 ) : (
@@ -421,6 +447,7 @@ const CartPage = () => {
                       type="text"
                       placeholder="Enter coupon code"
                       value={couponCode}
+                      disabled={!cartItems?.length}
                       onChange={(e) => setCouponCode(e.target.value)}
                       className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
                     />

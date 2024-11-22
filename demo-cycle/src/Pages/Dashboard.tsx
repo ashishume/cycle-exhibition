@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Bike, Package, Info, X, Search, Filter } from "lucide-react";
+import { Bike, Info, X, Search, Filter, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { IProduct } from "../models/Product";
 import { createPortal } from "react-dom";
 import { ICategory } from "../models/Category";
 import { BACKGROUND_COLOR, MODAL_BACKGROUND } from "../constants/styles";
+import LucideLoaderComp from "./Components/Loader";
 
 interface ICycleCardProps {
   cycle: IProduct;
@@ -177,7 +178,9 @@ const CyclesList: React.FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
 
   // const [products, setProducts] = useState<IProduct[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<IProduct[] | null>(
+    null
+  );
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -189,16 +192,6 @@ const CyclesList: React.FC = () => {
   useEffect(() => {
     filterProducts();
   }, [products, selectedCategory, searchQuery]);
-
-  // const fetchProducts = async () => {
-  //   try {
-  //     const response = await apiClient.get<IProduct[]>("/api/products");
-  //     setProducts(response.data);
-  //     setFilteredProducts(response.data);
-  //   } catch (error) {
-  //     console.error("Error fetching products:", error);
-  //   }
-  // };
 
   const fetchCategories = async () => {
     try {
@@ -283,22 +276,31 @@ const CyclesList: React.FC = () => {
 
         {/* Results count */}
         <div className="text-white/70">
-          Showing {filteredProducts.length} of {products.length} cycles
+          Showing {filteredProducts?.length} of {products.length} cycles
         </div>
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((cycle) => (
+          {filteredProducts?.map((cycle) => (
             <CycleCard key={cycle._id} cycle={cycle} />
           ))}
 
-          {filteredProducts.length === 0 && (
+          {filteredProducts?.length === 0 && (
             <div className="col-span-full text-center text-white/70 py-12">
               No cycles found matching your criteria.
             </div>
           )}
         </div>
       </div>
+      {filteredProducts === null && (
+        <LucideLoaderComp
+          icon={Loader2}
+          size={64}
+          color="white"
+          message={"Loading..."}
+          speed={1.5}
+        />
+      )}
     </div>
   );
 };
