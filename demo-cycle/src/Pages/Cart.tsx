@@ -327,7 +327,7 @@ const CartPage = () => {
                         </div>
                         <div className="text-white text-sm">
                           {item.additionalCost
-                            ? `Additional +₹${item.additionalCost} tyre charges`
+                            ? `Additional +₹${item.additionalCost} tyre charges/cycle`
                             : null}
                         </div>
                       </div>

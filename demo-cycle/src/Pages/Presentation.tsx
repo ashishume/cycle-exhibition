@@ -168,25 +168,30 @@ const BikePresentation = () => {
   const handleTransitionEnd = () => setIsTransitioning(false);
 
   const calculateTotalCost = () => {
-    let baseTotal = currentPriceVariant
-      ? bundleQuantity *
-        currentPriceVariant.bundleSize *
-        currentPriceVariant.costPerProduct
-      : 0;
-
-    let additionalCost = 0;
+    const baseCostPerProduct = currentPriceVariant?.costPerProduct || 0;
+    let additionalCostPerProduct = 0;
 
     if (tyreType === TYRE.TUBE_TYRE) {
-      additionalCost += 300; // Base cost for tube tyre
+      additionalCostPerProduct += 300; // Base tube tyre cost per cycle
       if (brandType === TYRE.BRANDED) {
-        additionalCost += 100; // Additional cost for branded
+        additionalCostPerProduct += 100; // Additional branded cost per cycle
       }
     }
-    // No additional cost for tubeless
-    return { totalCost: baseTotal + additionalCost, additionalCost };
+
+    const totalCostPerProduct = baseCostPerProduct + additionalCostPerProduct;
+    const totalProducts =
+      bundleQuantity * (currentPriceVariant?.bundleSize || 0);
+    const totalCost = totalProducts * totalCostPerProduct;
+
+    return {
+      totalCost,
+      additionalCostPerProduct,
+      totalCostPerProduct,
+      baseCostPerProduct,
+    };
   };
 
-  const { totalCost, additionalCost } = calculateTotalCost();
+  const { totalCost, additionalCostPerProduct } = calculateTotalCost();
 
   const handleAddToCart = () => {
     const newItem = {
@@ -200,7 +205,7 @@ const BikePresentation = () => {
       costPerProduct: currentPriceVariant?.costPerProduct,
       bundleSize: currentPriceVariant?.bundleSize,
       total: totalCost,
-      additionalCost,
+      additionalCost: additionalCostPerProduct,
     };
     setCartItems([...cartItems, newItem]);
     setBundleQuantity(1);
