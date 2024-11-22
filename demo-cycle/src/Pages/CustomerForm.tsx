@@ -6,7 +6,7 @@ import apiClient from "../api/axios";
 import { useSnackbar } from "./Components/Snackbar";
 
 interface CustomerFormProps {
-  onFormDataChange: (data: ICustomer) => void;
+  onFormDataChange: (data: ICustomer, formData: FormData | null) => void;
   onValidationChange: (isValid: boolean) => void;
   isCheckoutPage: boolean;
   customerData: ICustomer | null;
@@ -48,6 +48,22 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     }
   }, [isEdit, customerData]);
 
+  const prepareFormData = (): FormData | null => {
+    if (!imageFile && !formData.customerName) return null;
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("customerName", formData.customerName);
+    formDataToSend.append("description", formData.description || "");
+    formDataToSend.append("gstNumber", formData.gstNumber || "");
+    formDataToSend.append("transport", formData.transport || "");
+
+    if (imageFile) {
+      formDataToSend.append("customerImage", imageFile);
+    }
+
+    return formDataToSend;
+  };
+
   const handleImageCapture = async (): Promise<void> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -56,10 +72,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       const blob = await imageCapture.takePhoto();
       const imageUrl = URL.createObjectURL(blob);
 
-      setFormData((prev) => ({ ...prev, customerImage: imageUrl }));
-      setImageFile(
-        new File([blob], "captured-image.jpg", { type: "image/jpeg" })
-      );
+      const newFile = new File([blob], "captured-image.jpg", {
+        type: "image/jpeg",
+      });
+      setImageFile(newFile);
+
+      const newFormData = { ...formData, customerImage: imageUrl };
+      setFormData(newFormData);
+
+      // Pass both the form data and prepared FormData
+      const preparedFormData = prepareFormData();
+      onFormDataChange(newFormData, preparedFormData);
 
       stream.getTracks().forEach((track) => track.stop());
     } catch (error) {
@@ -74,8 +97,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     const file = event.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, customerImage: imageUrl }));
       setImageFile(file);
+
+      const newFormData = { ...formData, customerImage: imageUrl };
+      setFormData(newFormData);
+
+      // Pass both the form data and prepared FormData
+      const preparedFormData = prepareFormData();
+      onFormDataChange(newFormData, preparedFormData);
     }
   };
 
@@ -117,7 +146,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     const { name, value } = e.target;
     const newFormData = { ...formData, [name]: value };
     setFormData(newFormData);
-    onFormDataChange(newFormData);
+    const preparedFormData = prepareFormData();
+    onFormDataChange(newFormData, preparedFormData);
 
     if (touched[name as keyof ICustomer]) {
       validate(name as keyof ICustomer, value);

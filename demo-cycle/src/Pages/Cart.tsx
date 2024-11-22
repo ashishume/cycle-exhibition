@@ -30,6 +30,9 @@ const CartPage = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<ICouponResponse | null>(
     null
   );
+  const [customerFormData, setCustomerFormData] = useState<FormData | null>(
+    null
+  );
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -104,8 +107,12 @@ const CartPage = () => {
     }
   };
 
-  const handleCustomerFormDataChange = (data: ICustomer) => {
+  const handleCustomerFormDataChange = (
+    data: ICustomer,
+    formData: FormData | null
+  ) => {
     setNewCustomerData(data);
+    setCustomerFormData(formData);
   };
 
   const handleCustomerFormValidationChange = (isValid: boolean) => {
@@ -121,7 +128,6 @@ const CartPage = () => {
     let customerDetails;
 
     try {
-      // Handle customer creation/selection
       if (isNewCustomer) {
         if (!isCustomerFormValid || !newCustomerData) {
           setCheckoutError("Please fill in all required customer information");
@@ -129,11 +135,23 @@ const CartPage = () => {
           return;
         }
 
-        // Create new customer
+        if (!customerFormData) {
+          setCheckoutError("Please prepare customer data properly");
+          setIsLoading(false);
+          return;
+        }
+
+        // Create new customer using FormData
         const customerResponse = await apiClient.post(
           "/api/customers",
-          newCustomerData
+          customerFormData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
         );
+
         const { customerName, customerImage, leadType, _id } =
           customerResponse?.data;
 
@@ -196,8 +214,9 @@ const CartPage = () => {
       setSelectedCustomerId("");
       setNewCustomerData(null);
       setRemarks("");
+      setCustomerFormData(null);
 
-      // Redirect to success page with order details
+      // Navigate to success page
       navigate("/order-success", {
         state: {
           orderDetails: {
