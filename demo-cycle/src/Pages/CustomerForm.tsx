@@ -55,6 +55,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     formDataToSend.append("customerName", formData.customerName);
     formDataToSend.append("description", formData.description || "");
     formDataToSend.append("gstNumber", formData.gstNumber || "");
+    formDataToSend.append("leadType", formData.leadType || "");
     formDataToSend.append("transport", formData.transport || "");
 
     if (imageFile) {
@@ -64,32 +65,32 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     return formDataToSend;
   };
 
-  const handleImageCapture = async (): Promise<void> => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const videoTrack = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(videoTrack);
-      const blob = await imageCapture.takePhoto();
-      const imageUrl = URL.createObjectURL(blob);
+  // const handleImageCapture = async (): Promise<void> => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  //     const videoTrack = stream.getVideoTracks()[0];
+  //     const imageCapture = new ImageCapture(videoTrack);
+  //     const blob = await imageCapture.takePhoto();
+  //     const imageUrl = URL.createObjectURL(blob);
 
-      const newFile = new File([blob], "captured-image.jpg", {
-        type: "image/jpeg",
-      });
-      setImageFile(newFile);
+  //     const newFile = new File([blob], "captured-image.jpg", {
+  //       type: "image/jpeg",
+  //     });
+  //     setImageFile(newFile);
 
-      const newFormData = { ...formData, customerImage: imageUrl };
-      setFormData(newFormData);
+  //     const newFormData = { ...formData, customerImage: imageUrl };
+  //     setFormData(newFormData);
 
-      // Pass both the form data and prepared FormData
-      const preparedFormData = prepareFormData();
-      onFormDataChange(newFormData, preparedFormData);
+  //     // Pass both the form data and prepared FormData
+  //     const preparedFormData = prepareFormData();
+  //     onFormDataChange(newFormData, preparedFormData);
 
-      stream.getTracks().forEach((track) => track.stop());
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-      showSnackbar("Error accessing camera", "error");
-    }
-  };
+  //     stream.getTracks().forEach((track) => track.stop());
+  //   } catch (error) {
+  //     console.error("Error accessing camera:", error);
+  //     showSnackbar("Error accessing camera", "error");
+  //   }
+  // };
 
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -178,6 +179,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
         formDataToSend.append("customerName", formData.customerName);
         formDataToSend.append("description", formData.description || "");
+        formDataToSend.append("leadType", formData.leadType || "");
         formDataToSend.append("gstNumber", formData.gstNumber || "");
         formDataToSend.append("transport", formData.transport || "");
 
