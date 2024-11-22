@@ -276,11 +276,13 @@ const AdminPanel = () => {
         </div>
         <Tabs setActiveTab={setActiveTab} activeTab={activeTab} />
 
-        <SearchBar
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          activeTab={activeTab}
-        />
+        {activeTab !== TAB_TYPE.ADD_PRODUCT ? (
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            activeTab={activeTab}
+          />
+        ) : null}
 
         {activeTab === TAB_TYPE.COUPON ? (
           <GlassButton className="my-2" onClick={() => setAddModal(true)}>
@@ -365,6 +367,7 @@ const AdminPanel = () => {
         {editModalProduct && activeTab === TAB_TYPE.CUSTOMER && (
           <ModalWrapper isOpen={!!editModalProduct} onClose={handleCloseModal}>
             <CustomerForm
+              isAdminPage={true}
               isEdit={true}
               customerData={editModalProduct as any}
               onClose={handleCloseModal}
@@ -375,25 +378,27 @@ const AdminPanel = () => {
           </ModalWrapper>
         )}
 
-        <div className="flex justify-between items-center mt-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="text-white/70 hover:text-white/90 disabled:opacity-50"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="text-white">Page {page}</span>
-          <button
-            disabled={
-              page === getPaginatedData(getDataForCurrentTab()).totalPages
-            }
-            onClick={() => setPage(page + 1)}
-            className="text-white/70 hover:text-white/90 disabled:opacity-50"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        {activeTab !== TAB_TYPE.ADD_PRODUCT ? (
+          <div className="flex justify-between items-center mt-4">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="text-white/70 hover:text-white/90 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-white">Page {page}</span>
+            <button
+              disabled={
+                page === getPaginatedData(getDataForCurrentTab()).totalPages
+              }
+              onClick={() => setPage(page + 1)}
+              className="text-white/70 hover:text-white/90 disabled:opacity-50"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

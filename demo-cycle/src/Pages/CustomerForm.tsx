@@ -12,6 +12,7 @@ interface CustomerFormProps {
   customerData: ICustomer | null;
   isEdit: boolean;
   onClose: any;
+  isAdminPage: boolean;
 }
 const CustomerForm: React.FC<CustomerFormProps> = ({
   onFormDataChange,
@@ -20,6 +21,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   customerData = null,
   isEdit = false,
   onClose,
+  isAdminPage = false,
 }) => {
   const initialState = {
     customerName: "",
@@ -299,16 +301,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           </div>
 
           {/* Lead Type */}
-          <div className="space-y-2">
-            <label className="block text-white/90 font-medium">
-              Lead Type *
-            </label>
-            <select
-              name="leadType"
-              value={formData.leadType}
-              onChange={handleInputChange}
-              onBlur={() => handleBlur("leadType")}
-              className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
+          {isAdminPage ? (
+            <div className="space-y-2">
+              <label className="block text-white/90 font-medium">
+                Lead Type *
+              </label>
+              <select
+                name="leadType"
+                value={formData.leadType}
+                onChange={handleInputChange}
+                onBlur={() => handleBlur("leadType")}
+                className={`w-full px-4 py-3 rounded-xl bg-white/5 border 
                 ${
                   touched.leadType && errors.leadType
                     ? "border-red-400"
@@ -316,23 +319,24 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                 }
                 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20
                 text-white transition-all duration-300`}
-            >
-              <option value="" className="bg-gray-800">
-                Select lead type
-              </option>
-              {leadTypes.map((type) => (
-                <option key={type} value={type} className="bg-gray-800">
-                  {type}
+              >
+                <option value="" className="bg-gray-800">
+                  Select lead type
                 </option>
-              ))}
-            </select>
-            {touched.leadType && errors.leadType && (
-              <div className="flex items-center gap-1 text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                {errors.leadType}
-              </div>
-            )}
-          </div>
+                {leadTypes.map((type) => (
+                  <option key={type} value={type} className="bg-gray-800">
+                    {type}
+                  </option>
+                ))}
+              </select>
+              {touched.leadType && errors.leadType && (
+                <div className="flex items-center gap-1 text-red-400 text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.leadType}
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* Description Field */}
           <div className="space-y-2">

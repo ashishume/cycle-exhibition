@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
         bundleQuantity: { type: Number },
         totalProducts: { type: Number },
         tyreType: { type: String },
-        brandtype: { type: String },
+        brandType: { type: String },
         isTyreChargeable: { type: Boolean },
         additionalCost: { type: Number },
         costPerProduct: { type: Number },

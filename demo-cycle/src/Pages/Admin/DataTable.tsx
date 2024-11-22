@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { ChevronDown, ChevronUp, Download, Edit, Trash2 } from "lucide-react";
-import { IVariant } from "../../models/Product";
-import { TAB_TYPE } from "../../constants/admin";
+import { IProduct, IVariant } from "../../models/Product";
+import { COUPON_TYPE, TAB_TYPE } from "../../constants/admin";
 import {
   CategoryHeaders,
   CouponHeaders,
@@ -11,6 +11,8 @@ import {
 } from "./DataTableComponents/Headers";
 import CustomerImageModal from "./DataTableComponents/ImageModal";
 import { formatToIndianCurrency } from "../../utils/CurrencyFormatter";
+import ProductForm from "../CycleForm";
+import { IOrderAdmin, IOrderAdminProduct } from "../../models/Order";
 
 const DataTable: React.FC<any> = ({
   activeTab,
@@ -35,13 +37,14 @@ const DataTable: React.FC<any> = ({
     setSelectedCustomerImage(imageUrl);
   };
 
-  
   const orderStatusColors: any = {
     processing: "text-yellow-400",
     dispatched: "text-blue-400",
     completed: "text-green-400",
     canceled: "text-red-400",
   };
+  console.log(orders);
+
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">
@@ -58,6 +61,8 @@ const DataTable: React.FC<any> = ({
                 <CouponHeaders />
               ) : activeTab === TAB_TYPE.CATEGORY ? (
                 <CategoryHeaders />
+              ) : activeTab === TAB_TYPE.ADD_PRODUCT ? (
+                <ProductForm mode="add" product={null} onClose={() => {}} />
               ) : null}
             </tr>
           </thead>
@@ -68,205 +73,210 @@ const DataTable: React.FC<any> = ({
                 : activeTab === TAB_TYPE.PRODUCT
                 ? products
                 : activeTab === TAB_TYPE.ORDER
-                ? orders
+                ? (orders as IOrderAdmin)
                 : activeTab === TAB_TYPE.COUPON
                 ? coupons
                 : activeTab === TAB_TYPE.CATEGORY
                 ? categories
-                : null
+                : []
             )?.data?.map((item: any) => (
               <Fragment key={item._id}>
-                <tr className="border-b border-white/10">
-                  {activeTab === TAB_TYPE.CUSTOMER ? (
-                    <>
-                      <td className="px-6 py-4">
+                {activeTab === TAB_TYPE.CUSTOMER ? (
+                  <tr className="border-b border-white/10">
+                    <td className="px-6 py-4">
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}/${
+                          item.customerImage
+                        }`}
+                        onClick={() =>
+                          handleCustomerImageClick(
+                            `${import.meta.env.VITE_API_URL}/${
+                              item.customerImage
+                            }`
+                          )
+                        }
+                        alt={item.customerName}
+                        className="w-12 h-12 rounded-full"
+                      />
+                    </td>
+                    <td className="px-6 py-4">{item.customerName}</td>
+                    <td className="px-6 py-4">{item.leadType}</td>
+                    <td className="px-6 py-4">{item.description}</td>
+                    <td className="px-6 py-4">{item.gstNumber}</td>
+                    <td className="px-6 py-4">{item.transport}</td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleEdit(item._id, TAB_TYPE.CUSTOMER)}
+                        className="text-yellow-400 hover:text-yellow-600"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleDelete(item._id, TAB_TYPE.CUSTOMER)
+                        }
+                        className="ml-2 text-red-400 hover:text-red-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
+
+                {activeTab === TAB_TYPE.PRODUCT ? (
+                  <tr className="border-b border-white/10">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
                         <img
-                          src={`${import.meta.env.VITE_API_URL}/${
-                            item.customerImage
-                          }`}
-                          onClick={() =>
-                            handleCustomerImageClick(
-                              `${import.meta.env.VITE_API_URL}/${
-                                item.customerImage
-                              }`
-                            )
-                          }
-                          alt={item.customerName}
-                          className="w-12 h-12 rounded-full"
+                          src={item.imageLinks[0] || "/default-product.png"}
+                          alt={item.brand}
+                          className="w-12 h-12 rounded"
                         />
-                      </td>
-                      <td className="px-6 py-4">{item.customerName}</td>
-                      <td className="px-6 py-4">{item.leadType}</td>
-                      <td className="px-6 py-4">{item.description}</td>
-                      <td className="px-6 py-4">{item.gstNumber}</td>
-                      <td className="px-6 py-4">{item.transport}</td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() =>
-                            handleEdit(item._id, TAB_TYPE.CUSTOMER)
-                          }
-                          className="text-yellow-400 hover:text-yellow-600"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete(item._id, TAB_TYPE.CUSTOMER)
-                          }
-                          className="ml-2 text-red-400 hover:text-red-600"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </td>
-                    </>
-                  ) : activeTab === TAB_TYPE.PRODUCT ? (
-                    <>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={item.imageLinks[0] || "/default-product.png"}
-                            alt={item.brand}
-                            className="w-12 h-12 rounded"
-                          />
-                          {item.imageLinks.length > 1 && (
-                            <button
-                              onClick={() => toggleExpandedImages(item._id)}
-                              className="text-white/70 hover:text-white"
-                            >
-                              {expandedImageRow === item._id ? (
-                                <ChevronUp className="w-5 h-5" />
-                              ) : (
-                                <ChevronDown className="w-5 h-5" />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">{item.brand}</td>
-                      {/* <td className="px-6 py-4">{item.tyreLabel}</td> */}
-                      <td className="px-6 py-4">{item.category.name}</td>
-                      <td className="px-6 py-4">
-                        <div className="max-h-24 overflow-y-auto">
-                          {item.variants.map((variant: IVariant) => (
-                            <div key={variant._id} className="mb-1">
-                              Size: {variant.size}", Cost: ₹
-                              {variant.costPerProduct}
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleEdit(item._id, TAB_TYPE.PRODUCT)}
-                          className="text-yellow-400 hover:text-yellow-600"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item._id, "product")}
-                          className="ml-2 text-red-400 hover:text-red-600"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </td>
-                    </>
-                  ) : activeTab === TAB_TYPE.ORDER ? (
-                    <>
-                      {/* <td className="px-6 py-4">
-                        {item._id.slice(-6).toUpperCase()}
-                      </td> */}
-                      <td className="px-6 py-4">
-                        {item.customer.customerName}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="max-h-24 overflow-y-auto">
-                          {item.products.map((product: any, index: number) => (
+                        {item.imageLinks.length > 1 && (
+                          <button
+                            onClick={() => toggleExpandedImages(item._id)}
+                            className="text-white/70 hover:text-white"
+                          >
+                            {expandedImageRow === item._id ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">{item.brand}</td>
+                    {/* <td className="px-6 py-4">{item.tyreLabel}</td> */}
+                    <td className="px-6 py-4">{item.category.name}</td>
+                    <td className="px-6 py-4">
+                      <div className="max-h-24 overflow-y-auto">
+                        {item.variants.map((variant: IVariant) => (
+                          <div key={variant._id} className="mb-1">
+                            Size: {variant.size}", Cost: ₹
+                            {variant.costPerProduct}
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleEdit(item._id, TAB_TYPE.PRODUCT)}
+                        className="text-yellow-400 hover:text-yellow-600"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id, "product")}
+                        className="ml-2 text-red-400 hover:text-red-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
+
+                {activeTab === TAB_TYPE.ORDER ? (
+                  <tr className="border-b border-white/10">
+                    <td className="px-6 py-4">{item.customer.customerName}</td>
+                    <td className="px-6 py-4">
+                      <div className="max-h-24 overflow-y-auto">
+                        {item.products.map(
+                          (product: IOrderAdminProduct, index: number) => (
                             <div key={index} className="mb-1 text-sm">
                               <div>{product.brand}</div>
                               <div className="text-white/70">
-                                Qty: {product.bundleQuantity} x Size:{" "}
+                                Bundle Qty: {product.bundleQuantity} x Size:{" "}
                                 {product.variant}"
+                                {product.tyreType && (
+                                  <span className="ml-1">
+                                    ({product.tyreType} - {product.brandType})
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-white/70">
+                                Total items:{" "}
+                                {product.bundleSize * product.bundleQuantity}
+                                {product.isTyreChargeable && (
+                                  <span className="text-yellow-400 ml-1">
+                                    +₹{product.additionalCost}/item
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => toggleExpandedImages(item._id)}
-                          className="text-white/70 hover:text-white mt-1"
-                        >
-                          {expandedImageRow === item._id ? (
-                            <ChevronUp className="w-4 h-4" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4" />
-                          )}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        ₹{formatToIndianCurrency(item.pricing.total)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {item.pricing.discountApplied ? (
-                          <div>
-                            <div className="text-green-400">
-                              ₹ {item.pricing.discount} OFF
-                            </div>
-                            <div className="text-sm text-white/70">
-                              Code: {item.pricing.discountCode.toUpperCase()}
-                            </div>
-                            <div className="text-sm text-white/70">
-                              - ₹{formatToIndianCurrency(item.pricing.discount)}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-white/50">No discount</span>
+                          )
                         )}
-                      </td>
-                      <td className="px-6 py-4">{item?.remarks || "N/A"}</td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={item.orderStatus || "processing"}
-                          onChange={(e) =>
-                            handleStatusChange(item._id, e.target.value as any)
-                          }
-                          className={`
-                          w-full 
-                          bg-white/10 
-                          rounded 
-                          py-1 
-                          px-2 
-                          ${orderStatusColors[item.status || "processing"]}
-                        `}
-                        >
-                          <option value="processing">Processing</option>
-                          <option value="dispatched">Dispatched</option>
-                          <option value="completed">Completed</option>
-                          <option value="canceled">Canceled</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        {/* <button
-                          onClick={() => handleEdit(item._id, TAB_TYPE.ORDER)}
-                          className="text-yellow-400 hover:text-yellow-600"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button> */}
-                        <button
-                          onClick={() => downloadPdf(item, "order")}
-                          className="ml-2 text-red-400 hover:text-red-600"
-                        >
-                          <Download className="w-5 h-5" color="white" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item._id, "order")}
-                          className="ml-2 text-red-400 hover:text-red-600"
-                        >
-                          <Trash2 className="w-5 h-5" color="orange" />
-                        </button>
-                      </td>
-                    </>
-                  ) : null}
-                </tr>
-
+                      </div>
+                      <button
+                        onClick={() => toggleExpandedImages(item._id)}
+                        className="text-white/70 hover:text-white mt-1"
+                      >
+                        {expandedImageRow === item._id ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      ₹{formatToIndianCurrency(item.pricing.total)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {item.pricing.discountApplied ? (
+                        <div>
+                          <div className="text-green-400">
+                            ₹
+                            {formatToIndianCurrency(
+                              item.pricing.discountAmount
+                            )}{" "}
+                            OFF
+                          </div>
+                          <div className="text-sm text-white/70">
+                            Code: {item.pricing.discountCode.toUpperCase()}
+                          </div>
+                          {item.pricing.couponType && (
+                            <div className="text-sm text-white/70">
+                              Type: {item.pricing.couponType}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-white/50">No discount</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">{item?.remarks || "N/A"}</td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={item.orderStatus || "processing"}
+                        onChange={(e) =>
+                          handleStatusChange(item._id, e.target.value as any)
+                        }
+                        className={`w-full bg-white/10 rounded py-1 px-2 ${
+                          orderStatusColors[item.orderStatus || "processing"]
+                        }`}
+                      >
+                        <option value="processing">Processing</option>
+                        <option value="dispatched">Dispatched</option>
+                        <option value="completed">Completed</option>
+                        <option value="canceled">Canceled</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => downloadPdf(item, "order")}
+                        className="ml-2 text-white hover:text-white/70"
+                      >
+                        <Download className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id, "order")}
+                        className="ml-2 text-orange-400 hover:text-orange-600"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
                 {/* expanded content for products */}
                 {activeTab === TAB_TYPE.PRODUCT &&
                   expandedImageRow === item._id && (
@@ -330,9 +340,9 @@ const DataTable: React.FC<any> = ({
                                   <div className="flex justify-between text-green-400">
                                     <span>Discount:</span>
                                     <span>
-                                      -
+                                      - ₹
                                       {formatToIndianCurrency(
-                                        item.pricing.discount
+                                        item.pricing.discountAmount
                                       )}
                                     </span>
                                   </div>
@@ -367,9 +377,12 @@ const DataTable: React.FC<any> = ({
                                         <div>
                                           Bundle Size: {product.bundleSize}
                                         </div>
-                                        <div>Type: {product.tyreLabel}</div>
                                         <div>
-                                          Total: ₹
+                                          Type: {product.tyreType} -{" "}
+                                          {product.brandType}
+                                        </div>
+                                        <div>
+                                          Sub total: ₹
                                           {formatToIndianCurrency(
                                             product.total
                                           )}
@@ -389,7 +402,13 @@ const DataTable: React.FC<any> = ({
                 {activeTab === TAB_TYPE.COUPON ? (
                   <tr>
                     <td className="px-6 py-4">{item.code}</td>
-                    <td className="px-6 py-4">₹{item.discount}</td>
+                    <td className="px-6 py-4">
+                      {item.couponType === COUPON_TYPE.TOTAL_AMOUNT
+                        ? "₹"
+                        : null}
+                      {item.discount}
+                      {item.couponType === COUPON_TYPE.PER_CYCLE ? "%" : null}
+                    </td>
                     <td className="px-6 py-4">
                       <span
                         className={`
@@ -436,7 +455,9 @@ const DataTable: React.FC<any> = ({
                         <Edit className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(item._id, TAB_TYPE.CATEGORY)}
+                        onClick={() =>
+                          handleDelete(item._id, TAB_TYPE.CATEGORY)
+                        }
                         className="ml-2 text-red-400 hover:text-red-600"
                       >
                         <Trash2 className="w-5 h-5" />

@@ -31,20 +31,7 @@ export interface IOrderAdmin {
     _id: string;
     customerName: string;
   };
-  products: Array<{
-    _id: {
-      _id: string;
-    };
-    brand: string;
-    variant: number;
-    bundleQuantity: number;
-    // tyreLabel: string;
-    tyreType: string;
-    brandType: string;
-    isTyreChargeable: boolean;
-    // bundleSize: number;
-    total: number;
-  }>;
+  products: Array<IOrderAdminProduct>;
   pricing: {
     subtotal: number;
     tyreCharge: number;
@@ -58,4 +45,21 @@ export interface IOrderAdmin {
   };
   remarks?: string;
   orderStatus: string;
+}
+
+export interface IOrderAdminProduct {
+  _id: {
+    _id: string;
+  };
+  brand: string;
+  variant: number;
+  bundleQuantity: number;
+  tyreType: string;
+  brandType: string;
+  isTyreChargeable: boolean;
+  bundleSize: number;
+  additionalCost: number;
+  total: number;
+  totalProducts: number;
+  costPerProduct: number;
 }

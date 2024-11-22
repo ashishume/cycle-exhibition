@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
         totalProducts: product.totalProducts,
         additionalCost: product.additionalCost,
         tyreType: product.tyreType,
-        brandtype: product.brandtype,
+        brandType: product.brandType,
         isTyreChargeable: product.isTyreChargeable,
         costPerProduct: product.costPerProduct,
         bundleSize: product.bundleSize,

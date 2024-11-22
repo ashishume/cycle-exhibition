@@ -212,8 +212,6 @@ const ProductForm: React.FC<{
       const cycleData = transformFormData();
       try {
         if (mode === "add") {
-          console.log(cycleData);
-
           const response = await apiClient.post<ICategory[]>(
             "/api/products",
             cycleData

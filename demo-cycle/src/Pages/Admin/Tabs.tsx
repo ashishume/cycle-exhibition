@@ -1,5 +1,12 @@
 import React from "react";
-import { User, Package, TicketPercent, ShoppingCart, Folder } from "lucide-react";
+import {
+  User,
+  Package,
+  TicketPercent,
+  ShoppingCart,
+  Folder,
+  Bike,
+} from "lucide-react";
 import { TAB_TYPE } from "../../constants/admin";
 
 export interface TabConfig {
@@ -15,31 +22,36 @@ export interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ activeTab, setActiveTab }) => {
   const tabConfigs: TabConfig[] = [
-    { 
-      type: TAB_TYPE.PRODUCT, 
-      label: 'Products', 
-      icon: Package 
+    {
+      type: TAB_TYPE.PRODUCT,
+      label: "Products",
+      icon: Package,
     },
-    { 
-      type: TAB_TYPE.CUSTOMER, 
-      label: 'Customers', 
-      icon: User 
+    {
+      type: TAB_TYPE.CUSTOMER,
+      label: "Customers",
+      icon: User,
     },
-    { 
-      type: TAB_TYPE.ORDER, 
-      label: 'Orders', 
-      icon: ShoppingCart 
+    {
+      type: TAB_TYPE.ORDER,
+      label: "Orders",
+      icon: ShoppingCart,
     },
-    { 
-      type: TAB_TYPE.COUPON, 
-      label: 'Coupons', 
-      icon: TicketPercent 
+    {
+      type: TAB_TYPE.COUPON,
+      label: "Coupons",
+      icon: TicketPercent,
     },
-    { 
-      type: TAB_TYPE.CATEGORY, 
-      label: 'Categories', 
-      icon: Folder 
-    }
+    {
+      type: TAB_TYPE.CATEGORY,
+      label: "Categories",
+      icon: Folder,
+    },
+    {
+      type: TAB_TYPE.ADD_PRODUCT,
+      label: "Add Product",
+      icon: Bike,
+    },
   ];
 
   return (

@@ -22,7 +22,7 @@ const Navbar = () => {
   const navigation = [
     { name: "Home", href: "/", icon: Home },
     { name: "Customers", href: "/customer-form", icon: Users },
-    { name: "Add Product", href: "/cycle-form", icon: Package },
+    // { name: "Add Product", href: "/cycle-form", icon: Package },
     { name: "Admin", href: "/admin", icon: Settings },
   ];
 

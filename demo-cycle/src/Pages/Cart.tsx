@@ -8,6 +8,7 @@ import apiClient from "../api/axios";
 import { CART_STORAGE_KEY } from "../constants/Cart";
 import { useNavigate } from "react-router-dom";
 import { ICouponResponse } from "../models/Coupon";
+import { COUPON_TYPE } from "../constants/admin";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -85,10 +86,10 @@ const CartPage = () => {
         setAppliedCoupon(response.data);
 
         // NEW: Check coupon type and apply appropriate discount
-        if (response?.data?.details.couponType === "totalAmount") {
+        if (response?.data?.details.couponType === COUPON_TYPE.TOTAL_AMOUNT) {
           setDiscountAmount(response.data.discount);
           setPerCycleDiscountPercent(0); // Reset per-cycle discount
-        } else if (response.data.details.couponType === "perCycle") {
+        } else if (response.data.details.couponType === COUPON_TYPE.PER_CYCLE) {
           setPerCycleDiscountPercent(response.data.discount);
           setDiscountAmount(0); // Reset total discount
         }
@@ -175,7 +176,10 @@ const CartPage = () => {
           total,
           discountApplied: calculatedDiscount > 0 || perCycleDiscountTotal > 0,
           discountCode: couponCode,
-          couponType: calculatedDiscount > 0 ? "totalAmount" : "perCycle",
+          couponType:
+            calculatedDiscount > 0
+              ? COUPON_TYPE.TOTAL_AMOUNT
+              : COUPON_TYPE.PER_CYCLE,
           discountAmount: calculatedDiscount || perCycleDiscountTotal,
         },
         remarks: remarks.trim() || "",
@@ -294,7 +298,7 @@ const CartPage = () => {
                       value={customer._id}
                       className="bg-gray-800"
                     >
-                      {customer.customerName} ({customer.leadType})
+                      {customer.customerName}
                     </option>
                   ))}
                 </select>
@@ -302,6 +306,7 @@ const CartPage = () => {
 
               {isNewCustomer && (
                 <CustomerForm
+                  isAdminPage={false}
                   isCheckoutPage={true}
                   onFormDataChange={handleCustomerFormDataChange}
                   onValidationChange={handleCustomerFormValidationChange}
