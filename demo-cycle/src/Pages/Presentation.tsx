@@ -272,18 +272,59 @@ const BikePresentation = () => {
                   )} per piece)`
                 : "Select a variant"}
             </div>
-            {/* {currentPriceVariant && (
-              <div className="text-white text-sm md:text-base">
-                {bundleQuantity} bundles = {totalProducts} cycles
-                <span className="ml-2 font-bold">
-                  Total: ₹{totalCost.toFixed(2)}
-                </span>
-              </div>
-            )} */}
           </div>
         </div>
 
-        {/* Image Container - Updated with fixed dimensions */}
+        {/* Navigation Controls - Always Visible */}
+        <div className="fixed left-0 right-0 top-1/2 -translate-y-1/2 flex justify-between px-4 md:px-8 pointer-events-none z-20">
+          {/* Previous/Next Image Controls */}
+          <div className="flex flex-col gap-4">
+            <GlassButton
+              onClick={navigateToPreviousBrand}
+              className="pointer-events-auto !p-2 md:!p-4"
+            >
+              <ChevronUp size={20} className="md:hidden" />
+              <span className="hidden md:inline text-sm font-medium uppercase tracking-wider text-white">
+                Previous Brand
+              </span>
+            </GlassButton>
+            <GlassButton
+              onClick={() =>
+                setCurrentModelIndex((prev) =>
+                  prev === 0 ? currentBike?.imageLinks?.length - 1 : prev - 1
+                )
+              }
+              className="pointer-events-auto !p-2 md:!p-4"
+            >
+              <ChevronLeft size={20} />
+            </GlassButton>
+          </div>
+
+          {/* Next Controls */}
+          <div className="flex flex-col gap-4">
+            <GlassButton
+              onClick={navigateToNextBrand}
+              className="pointer-events-auto !p-2 md:!p-4"
+            >
+              <ChevronDown size={20} className="md:hidden" />
+              <span className="hidden md:inline text-sm font-medium uppercase tracking-wider text-white">
+                Next Brand
+              </span>
+            </GlassButton>
+            <GlassButton
+              onClick={() =>
+                setCurrentModelIndex(
+                  (prev) => (prev + 1) % currentBike?.imageLinks?.length
+                )
+              }
+              className="pointer-events-auto !p-2 md:!p-4"
+            >
+              <ChevronRight size={20} />
+            </GlassButton>
+          </div>
+        </div>
+
+        {/* Image Container */}
         <div className="relative w-full flex-1 flex items-center justify-center">
           <div className="relative w-full max-w-3xl h-64 md:h-[34rem]">
             <img
@@ -315,18 +356,6 @@ const BikePresentation = () => {
             showControls ? "translate-y-0" : "translate-y-full md:translate-y-0"
           }`}
         >
-          {/* Bundle Calculator */}
-          {/* <div className="text-center py-4">
-            <div className="inline-block bg-white/10 backdrop-blur-md rounded-xl p-3 md:p-4">
-              <div className="text-white text-sm md:text-base mb-1 md:mb-2">
-                {bundleQuantity} bundles = {totalProducts} cycles
-              </div>
-              <div className="text-white font-bold text-lg md:text-xl">
-                Total: ₹{totalCost.toFixed(2)}
-              </div>
-            </div>
-          </div> */}
-
           {/* Progress Indicator */}
           <div className="flex justify-center mb-4">
             {currentBike?.imageLinks.map((_, index) => (
@@ -338,6 +367,7 @@ const BikePresentation = () => {
             ))}
           </div>
 
+          {/* Sizes Section */}
           <div className="flex flex-col justify-center items-center gap-1 text-white">
             <p>Sizes (inches)</p>
             <div className="flex gap-3 justify-center">
@@ -366,30 +396,9 @@ const BikePresentation = () => {
               )}
             </div>
           </div>
+
           {/* Controls Grid */}
           <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 md:gap-4 justify-center p-4 text-white/90">
-            <GlassButton
-              onClick={() =>
-                setCurrentModelIndex((prev) =>
-                  prev === 0 ? currentBike?.imageLinks?.length - 1 : prev - 1
-                )
-              }
-              className="text-sm md:text-base"
-            >
-              <ChevronLeft size={20} className="animate-pulse" />
-            </GlassButton>
-
-            <GlassButton
-              onClick={() =>
-                setCurrentModelIndex(
-                  (prev) => (prev + 1) % currentBike?.imageLinks?.length
-                )
-              }
-              className="text-sm md:text-base"
-            >
-              <ChevronRight size={20} className="animate-pulse" />
-            </GlassButton>
-
             <GlassButton
               onClick={() => setShowDescription(true)}
               className="text-sm md:text-base"
@@ -402,7 +411,7 @@ const BikePresentation = () => {
 
             <div
               className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl
-                          bg-white/10 backdrop-blur-md border border-white/20"
+                          bg-white/10 backdrop-blur-md border border-white/20 justify-center"
             >
               <button
                 onClick={() =>
@@ -422,6 +431,7 @@ const BikePresentation = () => {
                 <Plus size={18} />
               </button>
             </div>
+
             <GlassDropdown
               options={tyreTypeOptions}
               placeholder="Select tyre type"
@@ -429,7 +439,7 @@ const BikePresentation = () => {
               onChange={(value) => {
                 setTyreType(value);
                 if (value === TYRE.TUBELESS) {
-                  setBrandType(""); // Reset brand type if tubeless is selected
+                  setBrandType("");
                 }
               }}
             />
@@ -476,40 +486,6 @@ const BikePresentation = () => {
           </div>
         </div>
       )}
-
-      {/* Brand Navigation */}
-      <div className="hidden md:flex fixed left-4 right-4 top-1/2 -translate-y-1/2 justify-between pointer-events-none">
-        <GlassButton
-          onClick={navigateToPreviousBrand}
-          className="pointer-events-auto"
-        >
-          <ChevronUp size={24} className="rotate-360" color="white" />
-          <span className="text-sm font-medium uppercase tracking-wider text-white">
-            Previous Brand
-          </span>
-        </GlassButton>
-
-        <GlassButton
-          onClick={navigateToNextBrand}
-          className="pointer-events-auto"
-        >
-          <span className="text-sm font-medium uppercase tracking-wider text-white">
-            Next Brand
-          </span>
-          <ChevronDown size={24} className="rotate-360" color="white" />
-        </GlassButton>
-      </div>
-
-      {/* Mobile Brand Navigation */}
-      <div className="fixed md:hidden left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-        <GlassButton onClick={navigateToPreviousBrand} className="!p-2">
-          <ChevronUp size={20} />
-        </GlassButton>
-
-        <GlassButton onClick={navigateToNextBrand} className="!p-2">
-          <ChevronDown size={20} />
-        </GlassButton>
-      </div>
     </div>
   );
 };
