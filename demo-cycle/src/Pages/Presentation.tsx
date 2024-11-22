@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useSwipeable } from "react-swipeable";
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -145,6 +147,38 @@ const BikePresentation = () => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentBrandIndex, isTransitioning, currentBike?.imageLinks?.length]);
 
+  // Swipe handlers
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setCurrentModelIndex(
+        (prev) => (prev + 1) % currentBike?.imageLinks?.length
+      );
+    },
+    onSwipedRight: () => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setCurrentModelIndex((prev) =>
+        prev === 0 ? currentBike?.imageLinks?.length - 1 : prev - 1
+      );
+    },
+    onSwipedUp: () => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setCurrentBrandIndex((prev) =>
+        prev === 0 ? products?.length - 1 : prev - 1
+      );
+      setCurrentModelIndex(0);
+    },
+    onSwipedDown: () => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setCurrentBrandIndex((prev) => (prev + 1) % products?.length);
+      setCurrentModelIndex(0);
+    },
+  });
+
   // Modified navigation functions to update URL
   const navigateToPreviousBrand = () => {
     setIsTransitioning(true);
@@ -222,7 +256,10 @@ const BikePresentation = () => {
   // };
 
   return (
-    <div className={`relative w-screen h-screen overflow-hidden`}>
+    <div
+      {...swipeHandlers}
+      className={`relative w-screen h-screen overflow-hidden`}
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent" />
@@ -325,7 +362,10 @@ const BikePresentation = () => {
         </div>
 
         {/* Image Container */}
-        <div className="relative w-full flex-1 flex items-center justify-center">
+        <div
+          {...swipeHandlers}
+          className="relative w-full flex-1 flex items-center justify-center"
+        >
           <div className="relative w-full max-w-3xl h-64 md:h-[34rem]">
             <img
               src={currentBike?.imageLinks[currentModelIndex]}
