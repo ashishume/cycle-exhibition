@@ -14,7 +14,7 @@ const GlassButton = ({
         } backdrop-blur-md border border-white/20
       ${!disabled && "hover:bg-white/20 hover:border-white/30"}
       transition-all duration-300 ease-out
-      shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]
+      shadow-[white]
       ${disabled && "opacity-50 cursor-not-allowed"}
       ${className}`}
   >
