@@ -43,8 +43,6 @@ const DataTable: React.FC<any> = ({
     completed: "text-green-400",
     canceled: "text-red-400",
   };
-  console.log(orders);
-
   return (
     <>
       <div className="overflow-x-auto rounded-xl border border-white/10">

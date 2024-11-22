@@ -176,7 +176,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           onClose();
 
           if (response.status === 200) {
-            console.log("Customer updated", response.data);
+            showSnackbar("Customer updated successfully", "success");
           }
         } else {
           const customerResponse = await apiClient.post(

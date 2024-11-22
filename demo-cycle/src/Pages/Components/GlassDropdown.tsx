@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 const GlassDropdown = ({
   options = [] as any,
   placeholder = "Select an option",
-  onChange = (value: any) => console.log(value),
+  onChange = (value: any) => {},
   value = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
