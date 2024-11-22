@@ -93,13 +93,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           delete newErrors.customerName;
         }
         break;
-      case "leadType":
-        if (!String(value).trim()) {
-          newErrors.leadType = "Please select lead type";
-        } else {
-          delete newErrors.leadType;
-        }
-        break;
+      // case "leadType":
+      //   if (!String(value).trim()) {
+      //     newErrors.leadType = "Please select lead type";
+      //   } else {
+      //     delete newErrors.leadType;
+      //   }
+      //   break;
     }
 
     setErrors(newErrors);
@@ -135,7 +135,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
     e.preventDefault();
     const touchedAll: any = {
       customerName: true,
-      leadType: true,
+      // leadType: true,
     };
     setTouched(touchedAll);
 
@@ -152,7 +152,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
         // Append other form fields
         formDataToSend.append("customerName", formData.customerName);
-        formDataToSend.append("leadType", formData.leadType);
+        // formDataToSend.append("leadType", formData.leadType);
         formDataToSend.append("description", formData.description || "");
         formDataToSend.append("gstNumber", formData.gstNumber || "");
         formDataToSend.append("transport", formData.transport || "");
@@ -329,12 +329,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                   </option>
                 ))}
               </select>
-              {touched.leadType && errors.leadType && (
+              {/* {touched.leadType && errors.leadType && (
                 <div className="flex items-center gap-1 text-red-400 text-sm">
                   <AlertCircle className="w-4 h-4" />
                   {errors.leadType}
                 </div>
-              )}
+              )} */}
             </div>
           ) : null}
 

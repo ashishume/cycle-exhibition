@@ -83,9 +83,7 @@ const DataTable: React.FC<any> = ({
                   <tr className="border-b border-white/10">
                     <td className="px-6 py-4">
                       <img
-                        src={`${import.meta.env.VITE_API_URL}/${
-                          item.customerImage
-                        }`}
+                        src={item.customerImage}
                         onClick={() =>
                           handleCustomerImageClick(
                             `${import.meta.env.VITE_API_URL}/${
