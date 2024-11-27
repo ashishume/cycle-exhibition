@@ -8,6 +8,7 @@ import {
   ITouchedFields,
 } from "../../models/Coupon";
 import { COUPON_TYPE } from "../../constants/admin";
+import { BUTTON_BACKGROUND } from "../../constants/styles";
 
 const CouponForm: React.FC<{
   mode: string;
@@ -319,10 +320,10 @@ const CouponForm: React.FC<{
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+              className={`w-full py-3 px-4 ${BUTTON_BACKGROUND}
            hover:from-purple-600 hover:to-indigo-600 
            rounded-xl text-white font-medium shadow-lg
-           transition-all duration-300 transform hover:scale-[1.02]"
+           transition-all duration-300 transform hover:scale-[1.02]`}
             >
               {mode === "edit" ? "Update Coupon" : "Add Coupon"}
             </button>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Camera, User, AlertCircle, Loader2 } from "lucide-react";
+import { User, Loader2 } from "lucide-react";
 import { ICustomer, ICustomerFormErrors } from "../models/Customer";
 import InputField from "./Components/InputField";
 import apiClient from "../api/axios";
 import { useSnackbar } from "./Components/Snackbar";
-import { BACKGROUND_COLOR } from "../constants/styles";
+import { BACKGROUND_COLOR, BUTTON_BACKGROUND } from "../constants/styles";
 
 interface CustomerFormProps {
   onFormDataChange: (data: ICustomer, formData: FormData | null) => void;
@@ -369,12 +369,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full py-2 md:py-3 px-3 md:px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+              className={`w-full py-2 md:py-3 px-3 md:px-4 ${BUTTON_BACKGROUND} 
                    hover:from-purple-600 hover:to-indigo-600 text-sm md:text-base
                    rounded-lg md:rounded-xl text-white font-medium shadow-lg
                    transition-all duration-300 transform hover:scale-[1.02]
                    disabled:opacity-50 disabled:cursor-not-allowed
-                   flex items-center justify-center gap-2"
+                   flex items-center justify-center gap-2`}
             >
               {isLoading && (
                 <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />

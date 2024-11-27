@@ -3,7 +3,7 @@ import { AlertCircle, Folder } from "lucide-react";
 import { useSnackbar } from "../Components/Snackbar";
 import apiClient from "../../api/axios";
 import { ICategory } from "../../models/Category";
-
+import { BUTTON_BACKGROUND } from "../../constants/styles";
 
 interface ICategoryFormErrors {
   name?: string;
@@ -224,10 +224,10 @@ const CategoryForm: React.FC<{
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+              className={`w-full py-3 px-4 ${BUTTON_BACKGROUND}
            hover:from-purple-600 hover:to-indigo-600 
            rounded-xl text-white font-medium shadow-lg
-           transition-all duration-300 transform hover:scale-[1.02]"
+           transition-all duration-300 transform hover:scale-[1.02]`}
             >
               {mode === "edit" ? "Update Category" : "Add Category"}
             </button>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Bike, Info, X, Search, Filter, Loader2 } from "lucide-react";
+import { Bike, Info, X, Search, Loader2, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { IProduct } from "../models/Product";
 import { createPortal } from "react-dom";
 import { ICategory } from "../models/Category";
-import { BACKGROUND_COLOR, MODAL_BACKGROUND } from "../constants/styles";
+import { BACKGROUND_COLOR, GRAY_BACKGROUND, MODAL_BACKGROUND } from "../constants/styles";
 import LucideLoaderComp from "./Components/Loader";
 
 interface ICycleCardProps {
@@ -107,8 +107,8 @@ const CycleCard: React.FC<ICycleCardProps> = ({ cycle }) => {
   return (
     <div className="relative group">
       <div
-        className="bg-white/40 bg-gradient-to-br from-gray-500 to-gray-700 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
-                   transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+        className={`bg-white/40 ${GRAY_BACKGROUND} backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden
+                   transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl`}
       >
         {/* Image Carousel */}
         <div className="relative h-48 overflow-hidden">
@@ -260,13 +260,13 @@ const CyclesList: React.FC = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl 
+              className="pl-10 pr-4 py-2 bg-white/5 border border-white/20 rounded-xl 
                          text-white appearance-none focus:outline-none focus:ring-2 
                          focus:ring-purple-500 w-full md:w-48"
             >
-              <option value="">All Categories</option>
+              <option className="bg-white/5" value="">All Categories</option>
               {categories?.map((category) => (
-                <option key={category._id} value={category._id}>
+                <option className="bg-white/5" key={category._id} value={category._id}>
                   {category.name}
                 </option>
               ))}

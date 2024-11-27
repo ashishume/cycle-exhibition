@@ -5,9 +5,7 @@ import {
   X,
   ShoppingCart,
   Home,
-  Users,
-  Package,
-  Settings,
+  Users, Settings
 } from "lucide-react";
 import { loadCartFromStorage } from "../../utils/Localstorage";
 
@@ -31,7 +29,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed bg-black/10 top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
+    <nav className="fixed bg-black/10 top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-white/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
@@ -111,7 +109,7 @@ const Navbar = () => {
                   key={item.name}
                   to={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`block px-3 py-2 rounded-lg text-base font-medium flex items-center gap-2 transition-all duration-300 ${
+                  className={`px-3 py-2 rounded-lg text-base font-medium flex items-center gap-2 transition-all duration-300 ${
                     isActive(item.href)
                       ? "bg-white/20 text-white"
                       : "text-white/70 hover:bg-white/10 hover:text-white"

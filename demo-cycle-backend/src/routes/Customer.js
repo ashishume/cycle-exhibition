@@ -21,7 +21,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -65,7 +65,6 @@ router.post("/", upload.single("customerImage"), async (req, res) => {
     if (req.file) {
       customerImage = await uploadToImageKit(req.file);
       console.log(customerImage);
-      
     }
 
     const customerData = {
@@ -78,7 +77,7 @@ router.post("/", upload.single("customerImage"), async (req, res) => {
     };
 
     console.log(customerData);
-    
+
     const newCustomer = new Customer(customerData);
     const savedCustomer = await newCustomer.save();
 
