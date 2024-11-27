@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Tag, ShoppingCart, AlertCircle, X, Loader, Trash2 } from "lucide-react";
+import {
+  Tag,
+  ShoppingCart,
+  AlertCircle,
+  X,
+  Loader,
+  Trash2,
+} from "lucide-react";
 import CustomerForm from "./CustomerForm";
 import { ICustomer } from "../models/Customer";
 import { loadCartFromStorage, saveCartToStorage } from "../utils/Localstorage";
@@ -9,7 +16,7 @@ import { CART_STORAGE_KEY } from "../constants/Cart";
 import { useNavigate } from "react-router-dom";
 import { ICouponResponse } from "../models/Coupon";
 import { COUPON_TYPE } from "../constants/admin";
-import { BACKGROUND_COLOR } from "../constants/styles";
+import { BACKGROUND_COLOR, BUTTON_BACKGROUND } from "../constants/styles";
 
 const CartPage = () => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -341,7 +348,9 @@ const CartPage = () => {
                   onChange={(e) => setSelectedCustomerId(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white"
                 >
-                  <option value="">Select a customer</option>
+                  <option className="bg-white/5" value="">
+                    Select a customer
+                  </option>
                   {customers.map((customer: ICustomer) => (
                     <option
                       key={customer._id}
@@ -535,9 +544,10 @@ const CartPage = () => {
                   isLoading ||
                   (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
                 }
-                className={`w-full mt-6 py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 
+                className={`w-full mt-6 py-3 px-4 ${BUTTON_BACKGROUND} 
             ${
               isLoading ||
+              !cartItems?.length ||
               (isNewCustomer ? !isCustomerFormValid : !selectedCustomerId)
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:from-purple-600 hover:to-indigo-600 transform hover:scale-[1.02]"

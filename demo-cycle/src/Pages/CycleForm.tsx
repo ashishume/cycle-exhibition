@@ -4,7 +4,7 @@ import { IFormData, IFormErrors, ITouchedFields } from "../models/Form";
 import apiClient from "../api/axios";
 import { ICategory } from "../models/Category";
 import { useSnackbar } from "./Components/Snackbar";
-import { BACKGROUND_COLOR } from "../constants/styles";
+import { BACKGROUND_COLOR, BUTTON_BACKGROUND } from "../constants/styles";
 
 const ProductForm: React.FC<{
   mode: string;
@@ -472,10 +472,10 @@ const ProductForm: React.FC<{
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-indigo-500
+              className={`w-full py-3 px-4 ${BUTTON_BACKGROUND}
            hover:from-purple-600 hover:to-indigo-600 
            rounded-xl text-white font-medium shadow-lg
-           transition-all duration-300 transform hover:scale-[1.02]"
+           transition-all duration-300 transform hover:scale-[1.02]`}
             >
               {mode === "edit" ? "Update Product" : "Add Product"}
             </button>
